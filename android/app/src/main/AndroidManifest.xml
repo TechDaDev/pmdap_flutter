@@ -2,7 +2,7 @@
     <!-- The app talks to a private patient API over the network. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="PMDAP"
+        android:label="PMDAP Records"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
