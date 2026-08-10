@@ -1,0 +1,627 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appName => 'PMDAP';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get loading => 'Loading…';
+
+  @override
+  String get errorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get networkError =>
+      'Network error. Check your connection and try again.';
+
+  @override
+  String get serverError => 'Server error. Please try again later.';
+
+  @override
+  String get sessionExpired =>
+      'Your session has expired. Please sign in again.';
+
+  @override
+  String get throttled =>
+      'Too many attempts. Please wait a moment and try again.';
+
+  @override
+  String get validationFailed => 'Please check the highlighted fields.';
+
+  @override
+  String get unknownStatus => 'Unknown';
+
+  @override
+  String get loginTitle => 'Sign in';
+
+  @override
+  String get loginSubtitle => 'Access your medical archive';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get signInFailed => 'Could not sign in.';
+
+  @override
+  String get invalidCredentials => 'Incorrect email or password.';
+
+  @override
+  String get accountUnavailable =>
+      'This account is not available. Contact support if this is unexpected.';
+
+  @override
+  String get noAccountYet => 'No account yet?';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get registerTitle => 'Create account';
+
+  @override
+  String get registerSubtitle => 'Register to start your medical archive';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get dateOfBirth => 'Date of birth';
+
+  @override
+  String get sex => 'Sex';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get unspecified => 'Unspecified';
+
+  @override
+  String get nationality => 'Nationality (2-letter code)';
+
+  @override
+  String get bloodGroup => 'Blood group';
+
+  @override
+  String get registrationSuccess => 'Account created. Please sign in.';
+
+  @override
+  String get registrationFailed => 'Could not create the account.';
+
+  @override
+  String get logout => 'Sign out';
+
+  @override
+  String get logoutConfirm => 'Sign out of PMDAP?';
+
+  @override
+  String get loggedOut => 'Signed out.';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get archive => 'Archive';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get identity => 'Identity';
+
+  @override
+  String get minors => 'Children';
+
+  @override
+  String get documents => 'Documents';
+
+  @override
+  String get accountClaim => 'Claim an account';
+
+  @override
+  String get welcome => 'Welcome';
+
+  @override
+  String get digitalId => 'Digital ID';
+
+  @override
+  String get identityState => 'Identity status';
+
+  @override
+  String get needsDateConfirmation => 'Documents needing date confirmation';
+
+  @override
+  String get recentDocuments => 'Recent documents';
+
+  @override
+  String get viewAll => 'View all';
+
+  @override
+  String get identityVerified => 'Verified';
+
+  @override
+  String get identityUnverified => 'Not verified';
+
+  @override
+  String get identityPending => 'Pending verification';
+
+  @override
+  String get identityRejected => 'Rejected';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get age => 'Age';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get identityTitle => 'Identity documents';
+
+  @override
+  String get addIdentityDocument => 'Add identity document';
+
+  @override
+  String get replaceIdentityDocument => 'Replace document';
+
+  @override
+  String get chooseExistingImage => 'Choose existing image';
+
+  @override
+  String get documentNumber => 'Document number';
+
+  @override
+  String get nationalNumber => 'National number';
+
+  @override
+  String get familyNumber => 'Family number';
+
+  @override
+  String get issuingCountry => 'Issuing country';
+
+  @override
+  String get issueDate => 'Issue date';
+
+  @override
+  String get expiryDate => 'Expiry date';
+
+  @override
+  String get documentType => 'Document type';
+
+  @override
+  String get docTypeNationalCard => 'National Card';
+
+  @override
+  String get docTypePassport => 'Passport';
+
+  @override
+  String get docTypeBirth => 'Birth document';
+
+  @override
+  String get docTypeOtherGov => 'Other government ID';
+
+  @override
+  String get frontImage => 'Front image';
+
+  @override
+  String get backImage => 'Back image';
+
+  @override
+  String get submitIdentity => 'Submit document';
+
+  @override
+  String get identitySubmitted => 'Identity document submitted for review.';
+
+  @override
+  String get verificationStatus => 'Verification';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusVerified => 'Verified';
+
+  @override
+  String get statusRejected => 'Rejected';
+
+  @override
+  String get viewImage => 'View image';
+
+  @override
+  String get noIdentityDocuments => 'No identity documents yet.';
+
+  @override
+  String get replacementInfo =>
+      'Replacing a verified document may trigger a new verification review.';
+
+  @override
+  String get selectImageRequired => 'Please choose a front image.';
+
+  @override
+  String get minorsTitle => 'Children';
+
+  @override
+  String get addMinor => 'Add child';
+
+  @override
+  String get relationship => 'Relationship';
+
+  @override
+  String get father => 'Father';
+
+  @override
+  String get mother => 'Mother';
+
+  @override
+  String get legalGuardian => 'Legal guardian';
+
+  @override
+  String get minorCreated =>
+      'Child added. Their identity document is under review.';
+
+  @override
+  String get minorCreateFailed => 'Could not add the child.';
+
+  @override
+  String get noMinors => 'No children linked to your account.';
+
+  @override
+  String get evidenceFile => 'Guardianship evidence file';
+
+  @override
+  String get evidenceType => 'Evidence type';
+
+  @override
+  String get guardianEvidence => 'Guardianship evidence';
+
+  @override
+  String get courtDocument => 'Court document';
+
+  @override
+  String get otherOfficialEvidence => 'Other official evidence';
+
+  @override
+  String get minorDocuments => 'Documents';
+
+  @override
+  String get minorArchive => 'Archive';
+
+  @override
+  String get minorSearch => 'Search';
+
+  @override
+  String get guardianAccessRemoved =>
+      'Guardian access is no longer available for this child.';
+
+  @override
+  String get minorAge => 'Age';
+
+  @override
+  String get documentsTitle => 'Medical documents';
+
+  @override
+  String get uploadDocument => 'Upload document';
+
+  @override
+  String get chooseFile => 'Choose existing file';
+
+  @override
+  String get upload => 'Upload';
+
+  @override
+  String get uploading => 'Uploading…';
+
+  @override
+  String get uploadSuccess => 'Document uploaded.';
+
+  @override
+  String get uploadFailed => 'Could not upload the document.';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get facility => 'Facility';
+
+  @override
+  String get department => 'Department';
+
+  @override
+  String get physician => 'Physician';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get reportDate => 'Report date';
+
+  @override
+  String get dateVerifiedLabel => 'Date verified';
+
+  @override
+  String get dateUnconfirmed => 'Date not confirmed';
+
+  @override
+  String get processingStatus => 'Processing';
+
+  @override
+  String get statusUploaded => 'Uploaded';
+
+  @override
+  String get statusQueued => 'Queued';
+
+  @override
+  String get statusProcessing => 'Processing';
+
+  @override
+  String get statusTextExtracted => 'Text extracted';
+
+  @override
+  String get statusOcrRequired => 'OCR required';
+
+  @override
+  String get statusOcrProcessing => 'OCR processing';
+
+  @override
+  String get statusDateProcessing => 'Reading date';
+
+  @override
+  String get statusDateDetected => 'Date detected';
+
+  @override
+  String get statusDateNotFound => 'Date not found';
+
+  @override
+  String get statusAwaitingConfirmation => 'Awaiting confirmation';
+
+  @override
+  String get statusDateConfirmed => 'Date confirmed';
+
+  @override
+  String get statusIndexed => 'Indexed';
+
+  @override
+  String get statusFailed => 'Failed';
+
+  @override
+  String get viewFile => 'View file';
+
+  @override
+  String get deleteDocument => 'Delete document';
+
+  @override
+  String get deleteDocumentConfirm => 'Delete this document from your archive?';
+
+  @override
+  String get deleted => 'Document deleted.';
+
+  @override
+  String get noDocuments => 'No medical documents yet.';
+
+  @override
+  String get openFileFailed => 'Could not open the file.';
+
+  @override
+  String get dateCandidates => 'Suggested dates';
+
+  @override
+  String get suggestedDate => 'Suggested date';
+
+  @override
+  String get confirmDate => 'Confirm date';
+
+  @override
+  String get manualDate => 'Enter date manually';
+
+  @override
+  String get chooseCandidate => 'Select a suggested date';
+
+  @override
+  String get dateConfirmed => 'Date confirmed.';
+
+  @override
+  String get confirmFailed => 'Could not confirm the date.';
+
+  @override
+  String get candidateScore => 'Score';
+
+  @override
+  String get pageNumber => 'Page';
+
+  @override
+  String get ambiguousDate => 'Ambiguous';
+
+  @override
+  String get facilitiesTitle => 'Facilities';
+
+  @override
+  String get selectFacility => 'Select facility';
+
+  @override
+  String get searchFacility => 'Search facilities';
+
+  @override
+  String get noFacilities => 'No facilities found.';
+
+  @override
+  String get facilityType => 'Facility type';
+
+  @override
+  String get noneSelected => 'None';
+
+  @override
+  String get archiveTitle => 'Archive';
+
+  @override
+  String get archiveSummary => 'Summary';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get allYears => 'All years';
+
+  @override
+  String get allMonths => 'All months';
+
+  @override
+  String get allTypes => 'All types';
+
+  @override
+  String get allFacilities => 'All facilities';
+
+  @override
+  String get allDates => 'All dates';
+
+  @override
+  String get unconfirmedSection => 'Needs date confirmation';
+
+  @override
+  String get noArchive => 'No documents in the archive.';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String get unconfirmedDates => 'Unconfirmed dates';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchHint => 'Search documents…';
+
+  @override
+  String get searchResults => 'Results';
+
+  @override
+  String get noResults => 'No results found.';
+
+  @override
+  String get searchPlaceholder => 'Search by document content';
+
+  @override
+  String get claimTitle => 'Claim an account';
+
+  @override
+  String get claimSubtitle =>
+      'If you already have medical records, claim them with your Digital ID.';
+
+  @override
+  String get claimDigitalId => 'Digital ID (17 digits)';
+
+  @override
+  String get claimEmail => 'Email';
+
+  @override
+  String get claimPhone => 'Phone';
+
+  @override
+  String get claimFullName => 'Full name';
+
+  @override
+  String get claimDob => 'Date of birth';
+
+  @override
+  String get claimIdType => 'Identity document type';
+
+  @override
+  String get claimIdNumber => 'Identity document number';
+
+  @override
+  String get claimSubmit => 'Submit claim';
+
+  @override
+  String get claimSubmitted => 'Your claim was submitted. It will be reviewed.';
+
+  @override
+  String get claimFailed => 'Could not submit the claim.';
+
+  @override
+  String get claimPending => 'Claim pending review';
+
+  @override
+  String get healthCheck => 'Connectivity check';
+
+  @override
+  String get healthReachable => 'Server reachable';
+
+  @override
+  String get healthUnreachable => 'Server unreachable';
+
+  @override
+  String get apiBaseHost => 'API host';
+
+  @override
+  String get httpStatus => 'HTTP status';
+
+  @override
+  String get apiBaseUrl => 'API base URL';
+}
