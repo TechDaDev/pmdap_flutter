@@ -1,0 +1,233 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../features/archive/presentation/archive_screen.dart';
+import '../features/auth/application/session_controller.dart';
+import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/presentation/register_screen.dart';
+import '../features/auth/presentation/splash_screen.dart';
+import '../features/claims/presentation/claims_screen.dart';
+import '../features/documents/presentation/date_confirmation_screen.dart';
+import '../features/documents/presentation/document_detail_screen.dart';
+import '../features/documents/presentation/documents_screen.dart';
+import '../features/documents/presentation/document_upload_screen.dart';
+import '../features/facilities/presentation/facilities_screen.dart';
+import '../features/home/presentation/home_screen.dart';
+import '../features/identity/presentation/identity_document_detail_screen.dart';
+import '../features/identity/presentation/identity_documents_screen.dart';
+import '../features/identity/presentation/identity_submit_screen.dart';
+import '../features/minors/presentation/minor_create_screen.dart';
+import '../features/minors/presentation/minor_detail_screen.dart';
+import '../features/minors/presentation/minor_documents_screen.dart';
+import '../features/minors/presentation/minors_screen.dart';
+import '../features/patient/presentation/profile_edit_screen.dart';
+import '../features/patient/presentation/profile_screen.dart';
+import '../features/search/presentation/search_screen.dart';
+import '../features/tools/presentation/dev_health_screen.dart';
+import 'main_shell.dart';
+
+class Routes {
+  Routes._();
+
+  static const splash = '/splash';
+  static const login = '/login';
+  static const register = '/register';
+
+  static const home = '/home';
+  static const archive = '/archive';
+  static const search = '/search';
+  static const profile = '/profile';
+  static const profileEdit = '/profile/edit';
+
+  static const identity = '/identity';
+  static const identityNew = '/identity/new';
+  static String identityDetail(String uuid) => '/identity/$uuid';
+
+  static const minors = '/minors';
+  static const minorsNew = '/minors/new';
+  static String minorDetail(String uuid) => '/minors/$uuid';
+  static String minorDocuments(String uuid) => '/minors/$uuid/documents';
+  static String minorArchive(String uuid) => '/minors/$uuid/archive';
+  static String minorSearch(String uuid) => '/minors/$uuid/search';
+
+  static const documents = '/documents';
+  static const documentsNew = '/documents/new';
+  static String documentDetail(String uuid) => '/documents/$uuid';
+  static String documentDate(String uuid) => '/documents/$uuid/date';
+
+  static const facilities = '/facilities';
+  static const claims = '/claims';
+  static const devHealth = '/dev-health';
+}
+
+/// Pure auth-gating decision for the router redirect. Testable without a tree.
+String? authRedirect(AuthState auth, String location) {
+  final isAuthRoute = location == Routes.login || location == Routes.register;
+  return switch (auth) {
+    // Bootstrap in progress: only splash may show.
+    AuthUnknown() => location == Routes.splash ? null : Routes.splash,
+    // Signed out: only login/register.
+    AuthUnauthenticated() => isAuthRoute ? null : Routes.login,
+    // Signed in: never show splash/login/register.
+    AuthAuthenticated() =>
+      (location == Routes.splash || isAuthRoute) ? Routes.home : null,
+  };
+}
+
+/// Builds the GoRouter. [refreshListenable] triggers redirect re-evaluation
+/// whenever the auth state changes.
+GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
+  return GoRouter(
+    initialLocation: Routes.splash,
+    refreshListenable: refreshListenable,
+    redirect: (context, state) => authRedirect(
+      ref.read(sessionControllerProvider),
+      state.matchedLocation,
+    ),
+    routes: [
+      GoRoute(
+        path: Routes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.home,
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.archive,
+                builder: (context, state) => const ArchiveScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.search,
+                builder: (context, state) => const SearchScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.profile,
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: Routes.profileEdit,
+        builder: (context, state) => const ProfileEditScreen(),
+      ),
+      GoRoute(
+        path: Routes.identity,
+        builder: (context, state) => const IdentityDocumentsScreen(),
+      ),
+      GoRoute(
+        path: Routes.identityNew,
+        builder: (context, state) => const IdentitySubmitScreen(),
+      ),
+      GoRoute(
+        path: '/identity/:uuid',
+        builder: (context, state) =>
+            IdentityDocumentDetailScreen(uuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: '/identity/:uuid/replace',
+        builder: (context, state) =>
+            IdentitySubmitScreen(replaceUuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: Routes.minors,
+        builder: (context, state) => const MinorsScreen(),
+      ),
+      GoRoute(
+        path: Routes.minorsNew,
+        builder: (context, state) => const MinorCreateScreen(),
+      ),
+      GoRoute(
+        path: '/minors/:uuid',
+        builder: (context, state) =>
+            MinorDetailScreen(uuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: '/minors/:uuid/documents',
+        builder: (context, state) =>
+            MinorDocumentsScreen(minorUuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: '/minors/:uuid/archive',
+        builder: (context, state) =>
+            ArchiveScreen(minorUuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: '/minors/:uuid/search',
+        builder: (context, state) =>
+            SearchScreen(minorUuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: Routes.documents,
+        builder: (context, state) => const DocumentsScreen(),
+      ),
+      GoRoute(
+        path: Routes.documentsNew,
+        builder: (context, state) =>
+            DocumentUploadScreen(minorUuid: state.extra as String?),
+      ),
+      GoRoute(
+        path: '/documents/:uuid',
+        builder: (context, state) => DocumentDetailScreen(
+          uuid: state.pathParameters['uuid']!,
+          minorUuid: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: '/documents/:uuid/date',
+        builder: (context, state) => DateConfirmationScreen(
+          documentUuid: state.pathParameters['uuid']!,
+          minorUuid: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: Routes.facilities,
+        builder: (context, state) => const FacilitiesScreen(),
+      ),
+      GoRoute(
+        path: Routes.claims,
+        builder: (context, state) => const ClaimsScreen(),
+      ),
+      GoRoute(
+        path: Routes.devHealth,
+        builder: (context, state) => const DevHealthScreen(),
+      ),
+    ],
+  );
+}
+
+final routerProvider = Provider<GoRouter>((ref) {
+  final notifier = ValueNotifier<int>(0);
+  ref.listen(sessionControllerProvider, (_, _) => notifier.value++);
+  ref.onDispose(notifier.dispose);
+  return createAppRouter(ref, notifier);
+});
