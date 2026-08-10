@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- DEBUG ONLY: the local Django backend runs over plain HTTP on the LAN
+         (e.g. http://192.168.x.x:8000). Modern Android blocks cleartext traffic
+         by default. This override is merged ONLY into debug builds.
+         RELEASE builds keep cleartext disabled (HTTPS only). -->
+    <application android:usesCleartextTraffic="true"/>
+</manifest>
