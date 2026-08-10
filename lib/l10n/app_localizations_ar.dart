@@ -620,4 +620,135 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get apiBaseUrl => 'عنوان API الأساسي';
+
+  @override
+  String get appFullName => 'PMDAP Records';
+
+  @override
+  String get logoSubtitle => 'سجلاتك الطبية، منظمة وآمنة.';
+
+  @override
+  String get welcomeBack => 'مرحباً بعودتك';
+
+  @override
+  String get loginSubtitleSecure => 'الوصول إلى سجلاتك الطبية بأمان.';
+
+  @override
+  String get secureFooter => 'وصول آمن إلى سجلاتك';
+
+  @override
+  String get claimExistingAccount => 'المطالبة بحساب مريض موجود';
+
+  @override
+  String get hello => 'مرحباً،';
+
+  @override
+  String get medicalRecordOverview => 'هذه لمحة عن سجلك الطبي.';
+
+  @override
+  String get patientDigitalId => 'المعرف الرقمي للمريض';
+
+  @override
+  String get permanentIdentifier => 'معرف مريض دائم';
+
+  @override
+  String get identityVerification => 'التحقق من الهوية';
+
+  @override
+  String get manageIdentity => 'إدارة الهوية';
+
+  @override
+  String get uploadDocumentShortcut => 'رفع مستند';
+
+  @override
+  String get needsConfirmationShortcut => 'بحاجة للتأكيد';
+
+  @override
+  String get myChildrenShortcut => 'أطفالي';
+
+  @override
+  String get identityShortcut => 'الهوية';
+
+  @override
+  String get confirmReportDate => 'تأكيد تاريخ التقرير';
+
+  @override
+  String get dateConfirmationBanner =>
+      'يرجى تأكيد التاريخ الظاهر على التقرير الطبي.';
+
+  @override
+  String get confirmSelectedDate => 'تأكيد التاريخ المحدد';
+
+  @override
+  String get chooseExistingFile => 'اختر ملف PDF أو صورة';
+
+  @override
+  String get chooseExistingFileSubtitle => 'PDF أو JPG أو PNG';
+
+  @override
+  String get chooseFileButton => 'اختيار ملف';
+
+  @override
+  String get uploadDocumentTitle => 'رفع مستند طبي';
+
+  @override
+  String get editDetails => 'تعديل التفاصيل';
+
+  @override
+  String get personalDetails => 'معلومات شخصية';
+
+  @override
+  String get identityDocumentsTitle => 'وثائق الهوية';
+
+  @override
+  String get children => 'الأطفال';
+
+  @override
+  String get accountSecurity => 'أمان الحساب';
+
+  @override
+  String get aboutPMDAP => 'حول PMDAP';
+
+  @override
+  String get help => 'المساعدة';
+
+  @override
+  String get recordsOrganized => 'سجلاتك منظمة ومحمية.';
+
+  @override
+  String get noRecordsYet => 'لا توجد مستندات طبية بعد';
+
+  @override
+  String get noRecordsYetDescription => 'ارفع تقريرك الأول لبدء أرشيفك.';
+
+  @override
+  String get noConfirmedRecords => 'لا توجد سجلات مؤكدة بعد';
+
+  @override
+  String get noManagedChildren => 'لا يوجد أطفال مدارون';
+
+  @override
+  String get tryAnotherSearch => 'جرّب كلمة أخرى أو عدّل الفلاتر.';
+
+  @override
+  String get unableToReachPMDAP => 'تعذر الوصول إلى PMDAP';
+
+  @override
+  String get checkConnection => 'تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String get removeThisDocument => 'إزالة هذا المستند؟';
+
+  @override
+  String get removeThisDocumentDescription =>
+      'لن يظهر بعد الآن في أرشيفك أو نتائج البحث.';
+
+  @override
+  String get remove => 'إزالة';
+
+  @override
+  String get logoutTitle => 'تسجيل الخروج من PMDAP Records؟';
+
+  @override
+  String get documentsAndActions => 'المستندات والإجراءات';
 }

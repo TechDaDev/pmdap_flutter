@@ -624,4 +624,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiBaseUrl => 'API base URL';
+
+  @override
+  String get appFullName => 'PMDAP Records';
+
+  @override
+  String get logoSubtitle => 'Your medical records, organized and secure.';
+
+  @override
+  String get welcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitleSecure => 'Access your medical records securely.';
+
+  @override
+  String get secureFooter => 'Secure access to your records';
+
+  @override
+  String get claimExistingAccount => 'Claim an existing patient account';
+
+  @override
+  String get hello => 'Hello,';
+
+  @override
+  String get medicalRecordOverview => 'Here is your medical record overview.';
+
+  @override
+  String get patientDigitalId => 'Patient Digital ID';
+
+  @override
+  String get permanentIdentifier => 'Permanent patient identifier';
+
+  @override
+  String get identityVerification => 'Identity verification';
+
+  @override
+  String get manageIdentity => 'Manage identity';
+
+  @override
+  String get uploadDocumentShortcut => 'Upload document';
+
+  @override
+  String get needsConfirmationShortcut => 'Needs confirmation';
+
+  @override
+  String get myChildrenShortcut => 'My children';
+
+  @override
+  String get identityShortcut => 'Identity';
+
+  @override
+  String get confirmReportDate => 'Confirm report date';
+
+  @override
+  String get dateConfirmationBanner =>
+      'Please confirm the date shown on the medical report.';
+
+  @override
+  String get confirmSelectedDate => 'Confirm selected date';
+
+  @override
+  String get chooseExistingFile => 'Choose a PDF or image';
+
+  @override
+  String get chooseExistingFileSubtitle => 'PDF, JPG or PNG';
+
+  @override
+  String get chooseFileButton => 'Choose file';
+
+  @override
+  String get uploadDocumentTitle => 'Upload medical document';
+
+  @override
+  String get editDetails => 'Edit details';
+
+  @override
+  String get personalDetails => 'Personal information';
+
+  @override
+  String get identityDocumentsTitle => 'Identity documents';
+
+  @override
+  String get children => 'Children';
+
+  @override
+  String get accountSecurity => 'Account security';
+
+  @override
+  String get aboutPMDAP => 'About PMDAP';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String get recordsOrganized => 'Your records are organized and protected.';
+
+  @override
+  String get noRecordsYet => 'No medical documents yet';
+
+  @override
+  String get noRecordsYetDescription =>
+      'Upload your first report to start your archive.';
+
+  @override
+  String get noConfirmedRecords => 'No confirmed records yet';
+
+  @override
+  String get noManagedChildren => 'No managed child records';
+
+  @override
+  String get tryAnotherSearch => 'Try another word or adjust your filters.';
+
+  @override
+  String get unableToReachPMDAP => 'Unable to reach PMDAP';
+
+  @override
+  String get checkConnection => 'Check your connection and try again.';
+
+  @override
+  String get removeThisDocument => 'Remove this document?';
+
+  @override
+  String get removeThisDocumentDescription =>
+      'It will no longer appear in your archive or search results.';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get logoutTitle => 'Log out of PMDAP Records?';
+
+  @override
+  String get documentsAndActions => 'Documents & Actions';
 }

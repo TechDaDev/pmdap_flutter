@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pmdap_mobile/core/theme/app_theme.dart';
+import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
-import '../../../core/theme/app_theme.dart';
 import '../../auth/application/session_controller.dart';
 
-/// Session bootstrap: shows a branded spinner while [restoreSession] resolves.
-/// The router redirects away as soon as auth state becomes known, so protected
-/// content never flashes before authentication resolves.
+/// Branded splash: logo, app name, subtitle, subtle progress.
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -25,23 +24,37 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
+      backgroundColor: AppColors.pageBg,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.health_and_safety_outlined,
-              size: 64,
-              color: AppTheme.light().colorScheme.primary,
+            Image.asset('assets/icon/pmdap_logo.png', height: 180),
+            const SizedBox(height: AppSpacing.xxl),
+            Text(
+              l10n.appFullName,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryNavy,
+              ),
             ),
-            const SizedBox(height: 16),
-            Text('PMDAP', style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 24),
-            const SizedBox(
-              width: 28,
-              height: 28,
-              child: CircularProgressIndicator(strokeWidth: 3),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.logoSubtitle,
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.xxxl),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppColors.primaryNavy,
+              ),
             ),
           ],
         ),

@@ -67,9 +67,8 @@ class ProfileScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    StatusBadge.fromTone(
-                      label: labels.identityState(profile.identityStatus),
-                      tone: labels.identityTone(profile.identityStatus),
+                    StatusBadge.neutral(
+                      label: labels.identityLabel(profile.identityStatus),
                     ),
                     const SizedBox(height: 24),
                     Card(

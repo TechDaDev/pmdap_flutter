@@ -1315,6 +1315,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'API base URL'**
   String get apiBaseUrl;
+
+  /// No description provided for @appFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'PMDAP Records'**
+  String get appFullName;
+
+  /// No description provided for @logoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your medical records, organized and secure.'**
+  String get logoSubtitle;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @loginSubtitleSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Access your medical records securely.'**
+  String get loginSubtitleSecure;
+
+  /// No description provided for @secureFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure access to your records'**
+  String get secureFooter;
+
+  /// No description provided for @claimExistingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim an existing patient account'**
+  String get claimExistingAccount;
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,'**
+  String get hello;
+
+  /// No description provided for @medicalRecordOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is your medical record overview.'**
+  String get medicalRecordOverview;
+
+  /// No description provided for @patientDigitalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Digital ID'**
+  String get patientDigitalId;
+
+  /// No description provided for @permanentIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent patient identifier'**
+  String get permanentIdentifier;
+
+  /// No description provided for @identityVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity verification'**
+  String get identityVerification;
+
+  /// No description provided for @manageIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage identity'**
+  String get manageIdentity;
+
+  /// No description provided for @uploadDocumentShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload document'**
+  String get uploadDocumentShortcut;
+
+  /// No description provided for @needsConfirmationShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs confirmation'**
+  String get needsConfirmationShortcut;
+
+  /// No description provided for @myChildrenShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'My children'**
+  String get myChildrenShortcut;
+
+  /// No description provided for @identityShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get identityShortcut;
+
+  /// No description provided for @confirmReportDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm report date'**
+  String get confirmReportDate;
+
+  /// No description provided for @dateConfirmationBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm the date shown on the medical report.'**
+  String get dateConfirmationBanner;
+
+  /// No description provided for @confirmSelectedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm selected date'**
+  String get confirmSelectedDate;
+
+  /// No description provided for @chooseExistingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF or image'**
+  String get chooseExistingFile;
+
+  /// No description provided for @chooseExistingFileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF, JPG or PNG'**
+  String get chooseExistingFileSubtitle;
+
+  /// No description provided for @chooseFileButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get chooseFileButton;
+
+  /// No description provided for @uploadDocumentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload medical document'**
+  String get uploadDocumentTitle;
+
+  /// No description provided for @editDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editDetails;
+
+  /// No description provided for @personalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information'**
+  String get personalDetails;
+
+  /// No description provided for @identityDocumentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity documents'**
+  String get identityDocumentsTitle;
+
+  /// No description provided for @children.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get children;
+
+  /// No description provided for @accountSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Account security'**
+  String get accountSecurity;
+
+  /// No description provided for @aboutPMDAP.
+  ///
+  /// In en, this message translates to:
+  /// **'About PMDAP'**
+  String get aboutPMDAP;
+
+  /// No description provided for @help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// No description provided for @recordsOrganized.
+  ///
+  /// In en, this message translates to:
+  /// **'Your records are organized and protected.'**
+  String get recordsOrganized;
+
+  /// No description provided for @noRecordsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No medical documents yet'**
+  String get noRecordsYet;
+
+  /// No description provided for @noRecordsYetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload your first report to start your archive.'**
+  String get noRecordsYetDescription;
+
+  /// No description provided for @noConfirmedRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No confirmed records yet'**
+  String get noConfirmedRecords;
+
+  /// No description provided for @noManagedChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'No managed child records'**
+  String get noManagedChildren;
+
+  /// No description provided for @tryAnotherSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another word or adjust your filters.'**
+  String get tryAnotherSearch;
+
+  /// No description provided for @unableToReachPMDAP.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to reach PMDAP'**
+  String get unableToReachPMDAP;
+
+  /// No description provided for @checkConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get checkConnection;
+
+  /// No description provided for @removeThisDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this document?'**
+  String get removeThisDocument;
+
+  /// No description provided for @removeThisDocumentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'It will no longer appear in your archive or search results.'**
+  String get removeThisDocumentDescription;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @logoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out of PMDAP Records?'**
+  String get logoutTitle;
+
+  /// No description provided for @documentsAndActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents & Actions'**
+  String get documentsAndActions;
 }
 
 class _AppLocalizationsDelegate

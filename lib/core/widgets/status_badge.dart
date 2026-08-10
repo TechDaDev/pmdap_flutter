@@ -1,49 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:pmdap_mobile/core/theme/app_theme.dart';
 
-/// Colored status badge. Never conveys state by color alone — always paired
-/// with a text label (and optional icon) so it is screen-reader friendly.
+/// Status badge: always icon + text + color. Never color-only.
 class StatusBadge extends StatelessWidget {
-  const StatusBadge({super.key, required this.label, this.color, this.icon});
+  const StatusBadge({
+    super.key,
+    required this.label,
+    this.icon,
+    this.backgroundColor,
+    this.foregroundColor,
+  });
 
   final String label;
-  final Color? color;
   final IconData? icon;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+
+  factory StatusBadge.info({required String label}) => StatusBadge(
+    label: label,
+    icon: Icons.info_outline_rounded,
+    backgroundColor: AppColors.infoBg,
+    foregroundColor: AppColors.info,
+  );
+
+  factory StatusBadge.success({required String label}) => StatusBadge(
+    label: label,
+    icon: Icons.check_circle_outline_rounded,
+    backgroundColor: AppColors.successBg,
+    foregroundColor: AppColors.success,
+  );
+
+  factory StatusBadge.warning({required String label}) => StatusBadge(
+    label: label,
+    icon: Icons.schedule_rounded,
+    backgroundColor: AppColors.warningBg,
+    foregroundColor: AppColors.warning,
+  );
+
+  factory StatusBadge.error({required String label}) => StatusBadge(
+    label: label,
+    icon: Icons.error_outline_rounded,
+    backgroundColor: AppColors.errorBg,
+    foregroundColor: AppColors.error,
+  );
+
+  factory StatusBadge.neutral({required String label}) => StatusBadge(
+    label: label,
+    backgroundColor: AppColors.divider,
+    foregroundColor: AppColors.textSecondary,
+  );
 
   factory StatusBadge.fromTone({
     required String label,
     required StatusTone tone,
-    IconData? icon,
   }) {
-    return StatusBadge(
-      label: label,
-      color: tone.color,
-      icon: icon ?? tone.icon,
-    );
+    switch (tone) {
+      case StatusTone.success:
+        return StatusBadge.success(label: label);
+      case StatusTone.warning:
+        return StatusBadge.warning(label: label);
+      case StatusTone.error:
+        return StatusBadge.error(label: label);
+      case StatusTone.info:
+        return StatusBadge.info(label: label);
+      case StatusTone.neutral:
+        return StatusBadge.neutral(label: label);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final bg = color ?? scheme.secondaryContainer;
-    final fg = ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
-        ? scheme.onSecondaryContainer
-        : scheme.onSurface;
+    final bg = backgroundColor ?? AppColors.divider;
+    final fg = foregroundColor ?? AppColors.textSecondary;
+
     return Semantics(
       label: label,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(AppRadii.badge),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 14, color: fg),
-              const SizedBox(width: 4),
+              const SizedBox(width: 5),
             ],
-            Text(label, style: TextStyle(fontSize: 12, color: fg)),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: fg,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),
@@ -51,41 +106,5 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
-/// Semantic tone mapping (no color-only status).
-enum StatusTone {
-  success,
-  warning,
-  error,
-  info,
-  neutral;
-
-  Color get color {
-    switch (this) {
-      case success:
-        return const Color(0xFFDCF2DC);
-      case warning:
-        return const Color(0xFFFFF0D1);
-      case error:
-        return const Color(0xFFFBDCDA);
-      case info:
-        return const Color(0xFFDCE9FB);
-      case neutral:
-        return const Color(0xFFE7E7E7);
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case success:
-        return Icons.check_circle_outline;
-      case warning:
-        return Icons.schedule;
-      case error:
-        return Icons.error_outline;
-      case info:
-        return Icons.info_outline;
-      case neutral:
-        return Icons.help_outline;
-    }
-  }
-}
+/// Semantic tone (legacy; prefer direct StatusBadge factories).
+enum StatusTone { success, warning, error, info, neutral }

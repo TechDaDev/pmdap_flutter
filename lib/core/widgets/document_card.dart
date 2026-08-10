@@ -3,11 +3,10 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../core/models/archive.dart';
 import '../../core/models/enums.dart';
-import '../../core/utils/date_utils.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/status_labels.dart';
-import 'status_badge.dart';
 
-/// Archive/search list card. Never shows OCR/extracted text.
+/// Archive/search document list card. Never shows OCR/extracted text.
 class DocumentCard extends StatelessWidget {
   const DocumentCard({super.key, required this.document, this.onTap});
 
@@ -16,23 +15,21 @@ class DocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final labels = StatusLabels(l10n);
-    final dateVerified = document.dateVerified;
+    final theme = Theme.of(context);
     final hasDate = document.documentDate != null;
-
-    final subtitleParts = <String>[
+    final subtitle = [
       if (document.facilityName.isNotEmpty) document.facilityName,
       if (document.department.isNotEmpty) document.department,
-    ];
+    ].join(' · ');
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -40,67 +37,60 @@ class DocumentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
+                      color: AppColors.lightBlue,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       _typeIcon(document.documentType),
-                      color: theme.colorScheme.onPrimaryContainer,
+                      color: AppColors.primaryNavy,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           document.title.isEmpty
-                              ? labels.processing(document.processingStatus)
+                              ? labels.processingLabel(
+                                  document.processingStatus,
+                                )
                               : document.title,
                           style: theme.textTheme.titleMedium,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (subtitleParts.isNotEmpty) ...[
-                          const SizedBox(height: 2),
+                        if (subtitle.isNotEmpty)
                           Text(
-                            subtitleParts.join(' · '),
-                            style: theme.textTheme.bodySmall,
+                            subtitle,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 children: [
                   if (hasDate)
                     _Meta(
-                      label: formatApiDate(document.documentDate),
-                      icon: Icons.event,
+                      label: _fmtDay(document.documentDate!),
+                      icon: Icons.calendar_month_outlined,
                     )
                   else
                     _Meta(label: l10n.dateUnconfirmed, icon: Icons.event_busy),
-                  const SizedBox(width: 16),
-                  _Meta(
-                    label: labels.processing(document.processingStatus),
-                    icon: Icons.autorenew,
-                  ),
                   const Spacer(),
-                  StatusBadge.fromTone(
-                    label: dateVerified
-                        ? l10n.dateVerifiedLabel
-                        : l10n.dateUnconfirmed,
-                    tone: dateVerified
-                        ? StatusTone.success
-                        : StatusTone.warning,
-                  ),
+                  labels.processing(document.processingStatus),
                 ],
               ),
             ],
@@ -108,6 +98,24 @@ class DocumentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _fmtDay(DateTime d) {
+    final m = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${d.day} ${m[d.month - 1]} ${d.year}';
   }
 
   IconData _typeIcon(MedicalDocumentType type) {
@@ -128,19 +136,18 @@ class DocumentCard extends StatelessWidget {
 
 class _Meta extends StatelessWidget {
   const _Meta({required this.label, required this.icon});
-
   final String label;
   final IconData icon;
-
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 15, color: Theme.of(context).colorScheme.outline),
-        const SizedBox(width: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
+  Widget build(BuildContext ctx) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 15, color: AppColors.textSecondary),
+      const SizedBox(width: 5),
+      Text(
+        label,
+        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+      ),
+    ],
+  );
 }

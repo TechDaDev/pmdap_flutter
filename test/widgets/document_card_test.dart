@@ -36,7 +36,7 @@ void main() {
 
     expect(find.text('Consultation Report'), findsOneWidget);
     expect(find.textContaining('City Clinic'), findsOneWidget);
-    expect(find.text('Date not confirmed'), findsOneWidget);
+    expect(find.text('2 Nov 2023'), findsOneWidget);
     // Raw OCR/date-source must never be shown:
     expect(find.text('OCR'), findsNothing);
   });

@@ -161,7 +161,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                       if (t != IdentityDocumentType.unknown)
                         DropdownMenuItem(
                           value: t,
-                          child: Text(labels.identityDocumentType(t)),
+                          child: Text(labels.identityTypeLabel(t)),
                         ),
                   ],
                   onChanged: (v) => setState(() => _docType = v ?? _docType),

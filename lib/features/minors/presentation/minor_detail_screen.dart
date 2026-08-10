@@ -62,7 +62,7 @@ class MinorDetailScreen extends ConsumerWidget {
                     _InfoRow(l10n.nationality, minor.nationality),
                     _InfoRow(
                       l10n.relationship,
-                      labels.relationship(
+                      labels.relationshipLabel(
                         minor.relationship?.relationship ??
                             Relationship.unknown,
                       ),

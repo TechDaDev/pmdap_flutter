@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../core/models/medical_document.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/status_labels.dart';
-import '../../../core/widgets/status_badge.dart';
 
-/// Card for a [MedicalDocument] (document list / recent documents on home).
-/// Never shows OCR/extracted text.
+/// Card for document list (recent on home, documents page).
 class MedicalDocumentCard extends StatelessWidget {
   const MedicalDocumentCard({super.key, required this.document, this.onTap});
 
@@ -16,21 +14,20 @@ class MedicalDocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final labels = StatusLabels(l10n);
-
-    final subtitleParts = <String>[
+    final theme = Theme.of(context);
+    final subtitle = [
       if (document.facilityName.isNotEmpty) document.facilityName,
       if (document.department.isNotEmpty) document.department,
-    ];
+    ].join(' · ');
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,58 +35,60 @@ class MedicalDocumentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
+                      color: AppColors.lightBlue,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.description_outlined,
-                      color: theme.colorScheme.onPrimaryContainer,
+                      color: AppColors.primaryNavy,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           document.title.isEmpty
-                              ? labels.processing(document.processingStatus)
+                              ? labels.processingLabel(
+                                  document.processingStatus,
+                                )
                               : document.title,
                           style: theme.textTheme.titleMedium,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (subtitleParts.isNotEmpty) ...[
-                          const SizedBox(height: 2),
+                        if (subtitle.isNotEmpty)
                           Text(
-                            subtitleParts.join(' · '),
-                            style: theme.textTheme.bodySmall,
+                            subtitle,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 children: [
                   if (document.documentDate != null)
                     _Meta(
-                      label: formatApiDate(document.documentDate),
-                      icon: Icons.event,
+                      label: _fmtDay(document.documentDate!),
+                      icon: Icons.calendar_month_outlined,
                     )
                   else
                     _Meta(label: l10n.dateUnconfirmed, icon: Icons.event_busy),
                   const Spacer(),
-                  StatusBadge.fromTone(
-                    label: labels.processing(document.processingStatus),
-                    tone: labels.processingTone(document.processingStatus),
-                  ),
+                  labels.processing(document.processingStatus),
                 ],
               ),
             ],
@@ -98,23 +97,40 @@ class MedicalDocumentCard extends StatelessWidget {
       ),
     );
   }
+
+  String _fmtDay(DateTime d) {
+    final m = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${d.day} ${m[d.month - 1]} ${d.year}';
+  }
 }
 
 class _Meta extends StatelessWidget {
   const _Meta({required this.label, required this.icon});
-
   final String label;
   final IconData icon;
-
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 15, color: Theme.of(context).colorScheme.outline),
-        const SizedBox(width: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
+  Widget build(BuildContext ctx) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 15, color: AppColors.textSecondary),
+      const SizedBox(width: 5),
+      Text(
+        label,
+        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+      ),
+    ],
+  );
 }

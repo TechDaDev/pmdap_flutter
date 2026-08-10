@@ -6,7 +6,6 @@ import '../../core/models/minor.dart';
 import '../../core/models/patient.dart';
 import '../../core/utils/date_utils.dart';
 import '../../core/utils/status_labels.dart';
-import 'status_badge.dart';
 
 /// Patient card (profile summary) and minor card (guardian).
 class PatientCard extends StatelessWidget {
@@ -97,10 +96,7 @@ class PatientCard extends StatelessWidget {
                   ],
                 ),
               ),
-              StatusBadge.fromTone(
-                label: labels.identityState(status),
-                tone: labels.identityTone(status),
-              ),
+              labels.identity(status),
             ],
           ),
         ),

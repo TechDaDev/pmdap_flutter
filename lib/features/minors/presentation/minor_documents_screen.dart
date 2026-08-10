@@ -8,9 +8,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/empty_state.dart';
-import '../../../core/widgets/status_badge.dart';
 
-/// Minor-scoped medical documents (guardian flow).
 class MinorDocumentsScreen extends ConsumerStatefulWidget {
   const MinorDocumentsScreen({super.key, required this.minorUuid});
 
@@ -79,13 +77,12 @@ class _MinorDocumentsScreenState extends ConsumerState<MinorDocumentsScreen> {
                   child: Icon(Icons.description_outlined),
                 ),
                 title: Text(
-                  doc.title.isEmpty ? doc.documentType.api : doc.title,
+                  doc.title.isEmpty
+                      ? labels.processingLabel(doc.processingStatus)
+                      : doc.title,
                 ),
-                subtitle: Text(labels.processing(doc.processingStatus)),
-                trailing: StatusBadge.fromTone(
-                  label: labels.processing(doc.processingStatus),
-                  tone: labels.processingTone(doc.processingStatus),
-                ),
+                subtitle: Text(labels.processingLabel(doc.processingStatus)),
+                trailing: labels.processing(doc.processingStatus),
               );
             },
           );

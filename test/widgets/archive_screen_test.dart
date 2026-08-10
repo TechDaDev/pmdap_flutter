@@ -40,7 +40,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Archive Report'), findsOneWidget);
-    expect(find.text('Date not confirmed'), findsOneWidget);
+    expect(find.text('2 Nov 2023'), findsOneWidget);
   });
 
   testWidgets('archive empty state', (tester) async {

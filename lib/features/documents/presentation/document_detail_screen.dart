@@ -15,7 +15,6 @@ import '../../../core/models/medical_document.dart';
 import '../../../core/security/private_media_cache.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/status_labels.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../../documents/application/documents_providers.dart';
 
 /// Medical document detail.
@@ -213,10 +212,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
             children: [
               Row(
                 children: [
-                  StatusBadge.fromTone(
-                    label: labels.processing(doc.processingStatus),
-                    tone: labels.processingTone(doc.processingStatus),
-                  ),
+                  labels.processing(doc.processingStatus),
                   const SizedBox(width: 8),
                   if (doc.processingStatus.isActive)
                     const SizedBox(

@@ -227,7 +227,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
                       if (r != Relationship.unknown)
                         DropdownMenuItem(
                           value: r,
-                          child: Text(labels.relationship(r)),
+                          child: Text(labels.relationshipLabel(r)),
                         ),
                   ],
                   onChanged: (v) =>
@@ -242,7 +242,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
                       if (t != IdentityDocumentType.unknown)
                         DropdownMenuItem(
                           value: t,
-                          child: Text(labels.identityDocumentType(t)),
+                          child: Text(labels.identityTypeLabel(t)),
                         ),
                   ],
                   onChanged: (v) => setState(() => _docType = v ?? _docType),

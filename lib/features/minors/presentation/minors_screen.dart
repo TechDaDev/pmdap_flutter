@@ -50,9 +50,8 @@ class MinorsScreen extends ConsumerWidget {
                 subtitle: Text(
                   '${l10n.minorAge}: ${minor.age} · ${formatApiDate(minor.dateOfBirth)}',
                 ),
-                trailing: StatusBadge.fromTone(
-                  label: labels.identityState(minor.identityStatus),
-                  tone: labels.identityTone(minor.identityStatus),
+                trailing: StatusBadge.neutral(
+                  label: labels.identityLabel(minor.identityStatus),
                 ),
               );
             },

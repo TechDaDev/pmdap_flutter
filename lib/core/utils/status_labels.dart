@@ -1,16 +1,60 @@
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../models/enums.dart';
-import '../widgets/status_badge.dart';
+import '../widgets/status_badge.dart' show StatusBadge;
 
-/// Central mapping from backend enums to localized labels.
-/// UI never prints raw backend enum strings.
+/// Central mapping from backend enums to localized StatusBadge widgets.
 class StatusLabels {
   const StatusLabels(this.l10n);
 
   final AppLocalizations l10n;
 
-  String processing(ProcessingStatus s) {
+  StatusBadge processing(ProcessingStatus s) {
+    final label = processingLabel(s);
+    switch (s) {
+      case ProcessingStatus.dateConfirmed:
+      case ProcessingStatus.indexed:
+        return StatusBadge.success(label: label);
+      case ProcessingStatus.failed:
+        return StatusBadge.error(label: label);
+      case ProcessingStatus.awaitingConfirmation:
+        return StatusBadge.warning(label: label);
+      default:
+        return StatusBadge.info(label: label);
+    }
+  }
+
+  StatusBadge identity(IdentityStatus s) {
+    final label = identityLabel(s);
+    switch (s) {
+      case IdentityStatus.verified:
+        return StatusBadge.success(label: label);
+      case IdentityStatus.pendingVerification:
+        return StatusBadge.warning(label: label);
+      case IdentityStatus.rejected:
+        return StatusBadge.error(label: label);
+      case IdentityStatus.unverified:
+      case IdentityStatus.unknown:
+        return StatusBadge.neutral(label: label);
+    }
+  }
+
+  String verificationLabel(VerificationStatus s) {
+    switch (s) {
+      case VerificationStatus.pending:
+        return l10n.statusPending;
+      case VerificationStatus.verified:
+        return l10n.statusVerified;
+      case VerificationStatus.rejected:
+        return l10n.statusRejected;
+      case VerificationStatus.unknown:
+        return l10n.unknownStatus;
+    }
+  }
+
+  String identityTypeLabel(IdentityDocumentType t) => _docTypeLabel(t);
+
+  String processingLabel(ProcessingStatus s) {
     switch (s) {
       case ProcessingStatus.uploaded:
         return l10n.statusUploaded;
@@ -43,21 +87,7 @@ class StatusLabels {
     }
   }
 
-  StatusTone processingTone(ProcessingStatus s) {
-    switch (s) {
-      case ProcessingStatus.dateConfirmed:
-      case ProcessingStatus.indexed:
-        return StatusTone.success;
-      case ProcessingStatus.failed:
-        return StatusTone.error;
-      case ProcessingStatus.awaitingConfirmation:
-        return StatusTone.warning;
-      default:
-        return StatusTone.info;
-    }
-  }
-
-  String identityState(IdentityStatus s) {
+  String identityLabel(IdentityStatus s) {
     switch (s) {
       case IdentityStatus.verified:
         return l10n.identityVerified;
@@ -72,34 +102,7 @@ class StatusLabels {
     }
   }
 
-  StatusTone identityTone(IdentityStatus s) {
-    switch (s) {
-      case IdentityStatus.verified:
-        return StatusTone.success;
-      case IdentityStatus.pendingVerification:
-        return StatusTone.warning;
-      case IdentityStatus.rejected:
-        return StatusTone.error;
-      case IdentityStatus.unverified:
-      case IdentityStatus.unknown:
-        return StatusTone.neutral;
-    }
-  }
-
-  String verification(VerificationStatus s) {
-    switch (s) {
-      case VerificationStatus.pending:
-        return l10n.statusPending;
-      case VerificationStatus.verified:
-        return l10n.statusVerified;
-      case VerificationStatus.rejected:
-        return l10n.statusRejected;
-      case VerificationStatus.unknown:
-        return l10n.unknownStatus;
-    }
-  }
-
-  String relationship(Relationship r) {
+  String relationshipLabel(Relationship r) {
     switch (r) {
       case Relationship.father:
         return l10n.father;
@@ -112,7 +115,7 @@ class StatusLabels {
     }
   }
 
-  String identityDocumentType(IdentityDocumentType t) {
+  String _docTypeLabel(IdentityDocumentType t) {
     switch (t) {
       case IdentityDocumentType.unifiedNationalCard:
         return l10n.docTypeNationalCard;

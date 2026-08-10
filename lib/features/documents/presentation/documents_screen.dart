@@ -4,12 +4,10 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
-import '../../../core/models/medical_document.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../application/documents_providers.dart';
 
 /// Adult medical documents list.
@@ -23,17 +21,19 @@ class DocumentsScreen extends ConsumerWidget {
 
     return PmdapScaffold(
       title: l10n.documentsTitle,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(Routes.documentsNew),
-        icon: const Icon(Icons.upload_file),
-        label: Text(l10n.uploadDocument),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.upload_file_rounded),
       ),
       body: AsyncStateView(
         value: async,
         onRetry: () => ref.invalidate(documentsProvider),
         emptyBuilder: (page) => page.results.isEmpty
             ? EmptyState(
-                icon: Icons.folder_open_outlined,
+                icon: Icons.folder_open_rounded,
                 message: l10n.noDocuments,
               )
             : null,
@@ -45,47 +45,25 @@ class DocumentsScreen extends ConsumerWidget {
             separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final doc = page.results[i];
-              return _DocTile(
-                doc: doc,
-                statusLabel: labels.processing(doc.processingStatus),
-                tone: labels.processingTone(doc.processingStatus),
+              return ListTile(
                 onTap: () => context.push(Routes.documentDetail(doc.uuid)),
+                leading: const CircleAvatar(
+                  child: Icon(Icons.description_outlined),
+                ),
+                title: Text(
+                  doc.title.isEmpty
+                      ? labels.processingLabel(doc.processingStatus)
+                      : doc.title,
+                ),
+                subtitle: Text(
+                  doc.facilityName.isNotEmpty ? doc.facilityName : '',
+                ),
+                trailing: labels.processing(doc.processingStatus),
               );
             },
           );
         },
       ),
-    );
-  }
-}
-
-class _DocTile extends StatelessWidget {
-  const _DocTile({
-    required this.doc,
-    required this.statusLabel,
-    required this.tone,
-    this.onTap,
-  });
-
-  final MedicalDocument doc;
-  final String statusLabel;
-  final StatusTone tone;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return ListTile(
-      onTap: onTap,
-      leading: const CircleAvatar(child: Icon(Icons.description_outlined)),
-      title: Text(doc.title.isEmpty ? statusLabel : doc.title),
-      subtitle: Text(
-        '${doc.documentType.api} · '
-        '${doc.facilityName.isNotEmpty ? doc.facilityName : l10n.noData}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: StatusBadge.fromTone(label: statusLabel, tone: tone),
     );
   }
 }

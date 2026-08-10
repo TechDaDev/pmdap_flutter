@@ -4,7 +4,6 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/providers.dart';
-import '../../../core/models/enums.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
@@ -44,9 +43,8 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Center(
-                child: StatusBadge.fromTone(
-                  label: labels.verification(doc.verificationStatus),
-                  tone: _toneFor(doc.verificationStatus),
+                child: StatusBadge.neutral(
+                  label: labels.verificationLabel(doc.verificationStatus),
                 ),
               ),
               const SizedBox(height: 16),
@@ -55,7 +53,7 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
                   children: [
                     _Row(
                       l10n.documentType,
-                      labels.identityDocumentType(doc.documentType),
+                      labels.identityTypeLabel(doc.documentType),
                     ),
                     _Row(l10n.documentNumber, doc.documentNumber),
                     if (doc.nationalNumber.isNotEmpty)
@@ -67,7 +65,7 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
                     _Row(l10n.expiryDate, formatApiDate(doc.expiryDate)),
                     _Row(
                       l10n.verificationStatus,
-                      labels.verification(doc.verificationStatus),
+                      labels.verificationLabel(doc.verificationStatus),
                     ),
                   ],
                 ),
@@ -96,19 +94,6 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  StatusTone _toneFor(VerificationStatus s) {
-    switch (s) {
-      case VerificationStatus.verified:
-        return StatusTone.success;
-      case VerificationStatus.pending:
-        return StatusTone.warning;
-      case VerificationStatus.rejected:
-        return StatusTone.error;
-      case VerificationStatus.unknown:
-        return StatusTone.neutral;
-    }
   }
 }
 
