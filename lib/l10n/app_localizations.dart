@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @nationality.
   ///
   /// In en, this message translates to:
-  /// **'Nationality (2-letter code)'**
+  /// **'Nationality'**
   String get nationality;
 
   /// No description provided for @bloodGroup.
@@ -1586,6 +1586,18 @@ abstract class AppLocalizations {
   /// **'No documents in the archive.'**
   String get noArchive;
 
+  /// No description provided for @archiveEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a medical document to start your archive.'**
+  String get archiveEmptySubtitle;
+
+  /// No description provided for @noUnconfirmedArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents need date confirmation.'**
+  String get noUnconfirmedArchive;
+
   /// No description provided for @clearFilters.
   ///
   /// In en, this message translates to:
@@ -1609,6 +1621,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search documents…'**
   String get searchHint;
+
+  /// No description provided for @searchEmptyQuery.
+  ///
+  /// In en, this message translates to:
+  /// **'Search your medical records'**
+  String get searchEmptyQuery;
 
   /// No description provided for @searchResults.
   ///
@@ -1853,7 +1871,7 @@ abstract class AppLocalizations {
   /// No description provided for @needsConfirmationShortcut.
   ///
   /// In en, this message translates to:
-  /// **'Needs confirmation'**
+  /// **'Confirm dates'**
   String get needsConfirmationShortcut;
 
   /// No description provided for @myChildrenShortcut.

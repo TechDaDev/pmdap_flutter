@@ -137,8 +137,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 if (page.results.isEmpty) {
                   return EmptyState(
                     icon: Icons.search_off,
-                    message: current.q?.trim().isEmpty == true
-                        ? l10n.searchHint
+                    message: current.q == null || current.q!.trim().isEmpty
+                        ? l10n.searchEmptyQuery
                         : l10n.noResults,
                   );
                 }

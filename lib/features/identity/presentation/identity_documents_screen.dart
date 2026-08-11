@@ -22,7 +22,7 @@ class IdentityDocumentsScreen extends ConsumerWidget {
       title: l10n.identityTitle,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(Routes.identityNew),
-        icon: const Icon(Icons.add_a_photo_outlined),
+        icon: const Icon(Icons.badge_outlined),
         label: Text(l10n.addIdentityDocument),
       ),
       body: AsyncStateView(

@@ -81,7 +81,7 @@ Future<void> _fillAndSubmit(WidgetTester tester) async {
     'secret123',
   );
   await tester.enterText(
-    find.widgetWithText(TextFormField, 'Nationality (2-letter code)'),
+    find.widgetWithText(TextFormField, 'Nationality'),
     'IQ',
   );
   // Adult DOB is required before submission (backend: adult account).

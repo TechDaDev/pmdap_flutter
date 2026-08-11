@@ -134,14 +134,31 @@ class _Greeting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firstName = profile.fullName.split(' ').first;
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${l10n.hello} $firstName',
+        // Separate spans keep mixed-script greetings (e.g. English "Hello,"
+        // + Arabic patient name) bidi-stable without translating the name.
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: l10n.hello,
+                style: TextStyle(color: scheme.onSurface),
+              ),
+              TextSpan(
+                text: ' $firstName',
+                style: TextStyle(
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: scheme.onSurface,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -194,12 +211,16 @@ class _DigitalIdCard extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: AppSpacing.sm),
-              Text(
-                l10n.patientDigitalId,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  l10n.patientDigitalId,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -251,44 +272,61 @@ class _IdentityCard extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.lightBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.badge_outlined,
-                color: AppColors.primaryNavy,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.identityVerification,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightBlue,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 2),
-                  labels.identity(profile.identityStatus),
-                ],
-              ),
+                  child: const Icon(
+                    Icons.badge_outlined,
+                    color: AppColors.primaryNavy,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.identityVerification,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      // Scale the badge instead of overflowing the card width.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: labels.identity(profile.identityStatus),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: AppSpacing.md),
-            TextButton(
-              onPressed: () => context.push(Routes.identity),
-              child: Text(
-                l10n.manageIdentity,
-                style: const TextStyle(fontSize: 13),
+            const SizedBox(height: 4),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: () => context.push(Routes.identity),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                child: Text(
+                  l10n.manageIdentity,
+                  style: const TextStyle(fontSize: 13),
+                ),
               ),
             ),
           ],
@@ -386,43 +424,43 @@ class _Shortcut extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: color.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: color, size: 19),
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    if (count != null && count! > 0)
-                      Text(
-                        '$count',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.warning,
-                        ),
-                      ),
-                  ],
+              const SizedBox(height: 4),
+              // Scale down instead of splitting a word mid-character.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
+              if (count != null && count! > 0) ...[
+                const SizedBox(height: 2),
+                Text(
+                  '$count',
+                  style: TextStyle(fontSize: 12, color: AppColors.warning),
+                ),
+              ],
             ],
           ),
         ),

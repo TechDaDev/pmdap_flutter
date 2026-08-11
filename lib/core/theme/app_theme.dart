@@ -302,6 +302,7 @@ class AppTheme {
       onSecondaryContainer: AppColors.darkTeal,
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkTextPrimary,
+      onSurfaceVariant: AppColors.darkTextSecondary,
       surfaceContainerLow: AppColors.darkBg,
       surfaceContainerHighest: AppColors.darkElevated,
       error: AppColors.darkError,
@@ -352,6 +353,11 @@ class AppTheme {
           return TextStyle(fontSize: 12, color: AppColors.darkTextSecondary);
         }),
         height: 64,
+      ),
+
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: AppColors.darkPrimaryBlue,
+        foregroundColor: AppColors.darkBg,
       ),
 
       inputDecorationTheme: InputDecorationTheme(

@@ -130,7 +130,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unspecified => 'Unspecified';
 
   @override
-  String get nationality => 'Nationality (2-letter code)';
+  String get nationality => 'Nationality';
 
   @override
   String get bloodGroup => 'Blood group';
@@ -767,6 +767,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noArchive => 'No documents in the archive.';
 
   @override
+  String get archiveEmptySubtitle =>
+      'Upload a medical document to start your archive.';
+
+  @override
+  String get noUnconfirmedArchive => 'No documents need date confirmation.';
+
+  @override
   String get clearFilters => 'Clear filters';
 
   @override
@@ -777,6 +784,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchHint => 'Search documents…';
+
+  @override
+  String get searchEmptyQuery => 'Search your medical records';
 
   @override
   String get searchResults => 'Results';
@@ -900,7 +910,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadDocumentShortcut => 'Upload document';
 
   @override
-  String get needsConfirmationShortcut => 'Needs confirmation';
+  String get needsConfirmationShortcut => 'Confirm dates';
 
   @override
   String get myChildrenShortcut => 'My children';

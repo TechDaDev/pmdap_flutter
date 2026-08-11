@@ -226,6 +226,12 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                           )
                         : OutlinedButton(
                             onPressed: _pickFile,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                            ),
                             child: Text(l10n.chooseFile),
                           ),
                   ),

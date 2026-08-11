@@ -760,6 +760,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noArchive => 'لا توجد مستندات في الأرشيف.';
 
   @override
+  String get archiveEmptySubtitle => 'ارفع مستنداً طبياً لبدء أرشيفك.';
+
+  @override
+  String get noUnconfirmedArchive => 'لا توجد مستندات بحاجة لتأكيد التاريخ.';
+
+  @override
   String get clearFilters => 'مسح الفلاتر';
 
   @override
@@ -770,6 +776,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchHint => 'ابحث في المستندات…';
+
+  @override
+  String get searchEmptyQuery => 'ابحث في سجلاتك الطبية';
 
   @override
   String get searchResults => 'النتائج';
@@ -893,7 +902,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get uploadDocumentShortcut => 'رفع مستند';
 
   @override
-  String get needsConfirmationShortcut => 'بحاجة للتأكيد';
+  String get needsConfirmationShortcut => 'تأكيد التواريخ';
 
   @override
   String get myChildrenShortcut => 'أطفالي';

@@ -219,6 +219,12 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
                           )
                         : OutlinedButton(
                             onPressed: () => _pickImage(front: true),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                            ),
                             child: Text(l10n.chooseExistingImage),
                           ),
                   ),
@@ -236,6 +242,12 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
                           )
                         : OutlinedButton(
                             onPressed: () => _pickImage(front: false),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                            ),
                             child: Text(l10n.chooseExistingImage),
                           ),
                   ),

@@ -67,32 +67,55 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     Stack(
                       alignment: AlignmentDirectional.bottomEnd,
                       children: [
-                        PatientAvatar(
-                          fullName: profile.fullName,
-                          avatarUrl: profile.avatarUrl,
-                          radius: 44,
-                          semanticLabel: l10n.profilePhoto,
-                          onTap: _busy ? null : () => _showAvatarSheet(profile),
-                        ),
                         if (_busy)
-                          const Padding(
-                            padding: EdgeInsets.all(4),
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                          Opacity(
+                            opacity: 0.55,
+                            child: PatientAvatar(
+                              fullName: profile.fullName,
+                              avatarUrl: profile.avatarUrl,
+                              radius: 44,
+                              semanticLabel: l10n.profilePhoto,
                             ),
                           )
                         else
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            child: Icon(
-                              Icons.photo_camera_outlined,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                          PatientAvatar(
+                            fullName: profile.fullName,
+                            avatarUrl: profile.avatarUrl,
+                            radius: 44,
+                            semanticLabel: l10n.profilePhoto,
+                            onTap: () => _showAvatarSheet(profile),
+                          ),
+                        if (_busy)
+                          const Positioned.fill(
+                            child: Center(
+                              child: SizedBox(
+                                width: 26,
+                                height: 26,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          GestureDetector(
+                            onTap: () => _showAvatarSheet(profile),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.primary,
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.photo_camera_outlined,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                       ],
@@ -136,12 +159,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                           _InfoRow(
                             label: l10n.nationality,
-                            value: profile.nationality.isEmpty
+                            value: profile.nationality.trim().isEmpty
                                 ? l10n.notProvided
-                                : profile.nationality,
+                                : countryName(profile.nationality, l10n),
                           ),
                           if (user != null)
-                            _InfoRow(label: l10n.email, value: user.email),
+                            _InfoRow(
+                              label: l10n.email,
+                              value: user.email,
+                              forceLtr: true,
+                            ),
                         ],
                       ),
                     ),
@@ -362,22 +389,25 @@ class _InfoRow extends StatelessWidget {
     final valueText = forceLtr
         ? Directionality(
             textDirection: TextDirection.ltr,
-            child: Text(value, textAlign: TextAlign.end),
+            child: Text(value, textAlign: TextAlign.end, softWrap: true),
           )
-        : Text(value, textAlign: TextAlign.end);
+        : Text(value, textAlign: TextAlign.end, softWrap: true);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
+            flex: 2,
             child: Text(
               label,
-              style: TextStyle(color: Theme.of(context).colorScheme.outline),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(width: 16),
-          Expanded(child: valueText),
+          Expanded(flex: 3, child: valueText),
         ],
       ),
     );

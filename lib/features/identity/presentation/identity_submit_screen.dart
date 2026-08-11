@@ -342,7 +342,14 @@ class _ImagePickerTile extends StatelessWidget {
                 onPressed: onPick,
                 tooltip: 'Change',
               )
-            : OutlinedButton(onPressed: onPick, child: Text(actionLabel)),
+            : OutlinedButton(
+                onPressed: onPick,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                child: Text(actionLabel),
+              ),
       ),
     );
   }

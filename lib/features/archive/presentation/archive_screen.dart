@@ -7,7 +7,6 @@ import '../../../app/router.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/document_card.dart';
-import '../../../core/widgets/empty_state.dart';
 import '../application/archive_providers.dart';
 import '../data/archive_api.dart';
 
@@ -47,6 +46,9 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
     final l10n = AppLocalizations.of(context);
     final scope = _scope;
     final async = ref.watch(archiveProvider(scope));
+    final unconfirmed =
+        ref.watch(archiveFilterProvider(_filterKey)).dateStatus ==
+        'UNCONFIRMED';
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.archiveTitle)),
@@ -63,16 +65,13 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
                 value: async,
                 onRetry: () => ref.invalidate(archiveProvider(scope)),
                 emptyBuilder: (page) => page.results.isEmpty
-                    ? EmptyState(
-                        icon: Icons.archive_outlined,
-                        message: l10n.noArchive,
-                      )
+                    ? _ArchiveEmpty(isUnconfirmed: unconfirmed, l10n: l10n)
                     : null,
                 builder: (page) {
                   if (page.results.isEmpty) {
-                    return EmptyState(
-                      icon: Icons.archive_outlined,
-                      message: l10n.noArchive,
+                    return _ArchiveEmpty(
+                      isUnconfirmed: unconfirmed,
+                      l10n: l10n,
                     );
                   }
                   return ListView.separated(
@@ -293,7 +292,65 @@ class _FilterChipButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      child: Text(label),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(width: 4),
+          const Icon(Icons.arrow_drop_down, size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+/// Empty archive state with supporting copy and an upload CTA (only for the
+/// unfiltered/default state; UNCONFIRMED gets its own message and no CTA).
+class _ArchiveEmpty extends StatelessWidget {
+  const _ArchiveEmpty({required this.isUnconfirmed, required this.l10n});
+
+  final bool isUnconfirmed;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.archive_outlined,
+              size: 48,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isUnconfirmed ? l10n.noUnconfirmedArchive : l10n.noArchive,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            if (!isUnconfirmed) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.archiveEmptySubtitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: () => context.push(Routes.documentsNew),
+                icon: const Icon(Icons.upload_file_outlined),
+                label: Text(l10n.uploadDocument),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

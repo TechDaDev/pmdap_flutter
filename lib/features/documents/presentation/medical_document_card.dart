@@ -87,15 +87,35 @@ class MedicalDocumentCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
               Row(
                 children: [
-                  if (document.documentDate != null)
-                    _Meta(
-                      label: localizedDate(l10n, document.documentDate),
-                      icon: Icons.calendar_month_outlined,
-                    )
-                  else
-                    _Meta(label: l10n.dateUnconfirmed, icon: Icons.event_busy),
-                  const Spacer(),
-                  labels.processing(document.processingStatus),
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: document.documentDate != null
+                            ? _Meta(
+                                label: localizedDate(
+                                  l10n,
+                                  document.documentDate,
+                                ),
+                                icon: Icons.calendar_month_outlined,
+                              )
+                            : _Meta(
+                                label: l10n.dateUnconfirmed,
+                                icon: Icons.event_busy,
+                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: labels.processing(document.processingStatus),
+                    ),
+                  ),
                 ],
               ),
             ],
