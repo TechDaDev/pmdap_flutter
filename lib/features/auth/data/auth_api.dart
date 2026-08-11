@@ -109,6 +109,29 @@ class AuthApi {
     }
   }
 
+  /// Public claimed-account activation. Token is never persisted or logged.
+  Future<void> activateClaimedAccount({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.activateClaimedAccount,
+        data: {'token': token, 'new_password': newPassword},
+      );
+      final data = resp.data;
+      if (data is! Map<String, dynamic> ||
+          data['data'] is! Map<String, dynamic>) {
+        throw const ApiException(
+          code: 'invalid_response',
+          message: 'Unexpected response from server.',
+        );
+      }
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
   Future<void> logout(String refresh) async {
     try {
       await _dio.post<dynamic>(ApiPaths.logout, data: {'refresh': refresh});

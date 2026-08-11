@@ -34,6 +34,25 @@ void main() {
       );
     });
 
+    test('unauthenticated allows public claim and activation routes', () {
+      expect(authRedirect(const AuthUnauthenticated(), Routes.claims), isNull);
+      expect(
+        authRedirect(const AuthUnauthenticated(), Routes.accountActivation),
+        isNull,
+      );
+    });
+
+    test('unauthenticated redirects protected routes to login', () {
+      expect(
+        authRedirect(const AuthUnauthenticated(), Routes.profile),
+        Routes.login,
+      );
+      expect(
+        authRedirect(const AuthUnauthenticated(), Routes.minors),
+        Routes.login,
+      );
+    });
+
     test('authenticated blocks splash/login/register', () {
       expect(authRedirect(const AuthAuthenticated(user), Routes.home), isNull);
       expect(

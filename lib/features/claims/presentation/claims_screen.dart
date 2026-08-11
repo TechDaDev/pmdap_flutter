@@ -24,7 +24,6 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _fullNameController = TextEditingController();
-  final _idTypeController = TextEditingController();
   final _idNumberController = TextEditingController();
 
   DateTime? _dob;
@@ -43,15 +42,29 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _fullNameController.dispose();
-    _idTypeController.dispose();
     _idNumberController.dispose();
     super.dispose();
+  }
+
+  static bool _supportsImage(String? name) {
+    if (name == null) return false;
+    final lower = name.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png');
   }
 
   Future<void> _pickImage({required bool front}) async {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(source: ImageSource.gallery);
     if (xfile == null) return;
+    if (!_supportsImage(xfile.name)) {
+      setState(
+        () =>
+            _errorMessage = AppLocalizations.of(context).unsupportedImageFormat,
+      );
+      return;
+    }
     setState(() {
       if (front) {
         _frontPath = xfile.path;
@@ -77,7 +90,7 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context);
-    if (_frontPath == null) {
+    if (_frontPath == null || _backPath == null || _dob == null) {
       setState(() => _errorMessage = l10n.validationFailed);
       return;
     }
@@ -92,16 +105,17 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
       phone: _phoneController.text.trim(),
       fullName: _fullNameController.text.trim(),
       dateOfBirth: _dob,
-      identityDocumentType: _idTypeController.text.trim(),
+      identityDocumentType: 'UNIFIED_NATIONAL_CARD',
       identityDocumentNumber: _idNumberController.text.trim(),
       frontPath: _frontPath!,
       frontFilename: _frontName ?? 'front.jpg',
-      backPath: _backPath,
-      backFilename: _backName,
+      backPath: _backPath!,
+      backFilename: _backName ?? 'back.jpg',
     );
     try {
       await ref.read(claimsApiProvider).submit(submission);
-      setState(() => _successMessage = l10n.claimSubmitted);
+      // Privacy-preserving receipt: never claim a patient was found/matched.
+      setState(() => _successMessage = l10n.claimSubmittedReview);
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } catch (_) {
@@ -130,25 +144,42 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
                 AppTextField(
                   label: l10n.claimDigitalId,
                   controller: _digitalIdController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 17,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? l10n.validationFailed
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
                   label: l10n.claimEmail,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  validator: (v) {
+                    final s = v?.trim() ?? '';
+                    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)
+                        ? null
+                        : l10n.validationFailed;
+                  },
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
                   label: l10n.claimPhone,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  validator: (v) {
+                    // Backend E.164-style: ^\+?[1-9]\d{7,14}$
+                    final s = v?.trim() ?? '';
+                    return RegExp(r'^\+?[1-9]\d{7,14}$').hasMatch(s)
+                        ? null
+                        : l10n.validationFailed;
+                  },
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
                   label: l10n.claimFullName,
                   controller: _fullNameController,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? l10n.validationFailed
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
@@ -156,16 +187,24 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
                   controller: TextEditingController(text: formatApiDate(_dob)),
                   readOnly: true,
                   onTap: _pickDob,
+                  validator: (_) => _dob == null ? l10n.validationFailed : null,
                 ),
                 const SizedBox(height: 14),
+                // Identity type is fixed: only a Unified National Card claim.
                 AppTextField(
                   label: l10n.claimIdType,
-                  controller: _idTypeController,
+                  controller: TextEditingController(
+                    text: l10n.claimTypeNationalCard,
+                  ),
+                  readOnly: true,
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
                   label: l10n.claimIdNumber,
                   controller: _idNumberController,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? l10n.validationFailed
+                      : null,
                 ),
                 const SizedBox(height: 20),
                 Card(

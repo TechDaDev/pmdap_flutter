@@ -200,6 +200,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
+                    TextButton(
+                      onPressed: () => context.push(Routes.accountActivation),
+                      child: Text(
+                        l10n.activateClaimedAccount,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.xxl),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

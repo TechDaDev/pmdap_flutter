@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get unknownStatus;
 
+  /// No description provided for @notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested item was not found.'**
+  String get notFound;
+
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
@@ -722,6 +728,144 @@ abstract class AppLocalizations {
   /// **'No children linked to your account.'**
   String get noMinors;
 
+  /// No description provided for @guardianEligibilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity before managing a child\'s record.'**
+  String get guardianEligibilityTitle;
+
+  /// No description provided for @guardianEligibilityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A verified Unified National Card is required before you can create or manage a child record.'**
+  String get guardianEligibilityBody;
+
+  /// No description provided for @verifyIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify identity'**
+  String get verifyIdentity;
+
+  /// No description provided for @relationshipPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship pending verification'**
+  String get relationshipPending;
+
+  /// No description provided for @documentIssuingCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Issuing country'**
+  String get documentIssuingCountry;
+
+  /// No description provided for @frontImageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A front image is required.'**
+  String get frontImageRequired;
+
+  /// No description provided for @backImageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A back image is required.'**
+  String get backImageRequired;
+
+  /// No description provided for @nationalNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'National number is required.'**
+  String get nationalNumberRequired;
+
+  /// No description provided for @dobUnder18.
+  ///
+  /// In en, this message translates to:
+  /// **'Child must be under 18 years old.'**
+  String get dobUnder18;
+
+  /// No description provided for @dobNotFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth cannot be in the future.'**
+  String get dobNotFuture;
+
+  /// No description provided for @unsupportedImageFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'This image format is not supported. Use JPEG or PNG.'**
+  String get unsupportedImageFormat;
+
+  /// No description provided for @legalGuardianEvidenceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Official evidence is required for a legal guardian.'**
+  String get legalGuardianEvidenceRequired;
+
+  /// No description provided for @verifiedFieldsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified identity fields cannot be edited directly.'**
+  String get verifiedFieldsLocked;
+
+  /// No description provided for @claimSubmittedReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your claim has been submitted for review.'**
+  String get claimSubmittedReview;
+
+  /// No description provided for @accountActivationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate your account'**
+  String get accountActivationTitle;
+
+  /// No description provided for @activationToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation token'**
+  String get activationToken;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordMismatch;
+
+  /// No description provided for @accountActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account activated. You can now sign in.'**
+  String get accountActivated;
+
+  /// No description provided for @activationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not activate the account.'**
+  String get activationFailed;
+
+  /// No description provided for @claimTypeNationalCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Unified National Card'**
+  String get claimTypeNationalCard;
+
+  /// No description provided for @claimBackImageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A back image is required for your claim.'**
+  String get claimBackImageRequired;
+
   /// No description provided for @evidenceFile.
   ///
   /// In en, this message translates to:
@@ -745,6 +889,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Court document'**
   String get courtDocument;
+
+  /// No description provided for @legalGuardianshipDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal guardianship document'**
+  String get legalGuardianshipDocument;
 
   /// No description provided for @otherOfficialEvidence.
   ///
@@ -1217,8 +1367,14 @@ abstract class AppLocalizations {
   /// No description provided for @claimDigitalId.
   ///
   /// In en, this message translates to:
-  /// **'Digital ID (17 digits)'**
+  /// **'Digital ID'**
   String get claimDigitalId;
+
+  /// No description provided for @claimDigitalIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. PT-XXXX-XXXX-XXXX'**
+  String get claimDigitalIdHint;
 
   /// No description provided for @claimEmail.
   ///
@@ -1369,6 +1525,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Claim an existing patient account'**
   String get claimExistingAccount;
+
+  /// No description provided for @activateClaimedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate a claimed account'**
+  String get activateClaimedAccount;
 
   /// No description provided for @hello.
   ///

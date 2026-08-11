@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownStatus => 'Unknown';
 
   @override
+  String get notFound => 'The requested item was not found.';
+
+  @override
   String get loginTitle => 'Sign in';
 
   @override
@@ -327,6 +330,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noMinors => 'No children linked to your account.';
 
   @override
+  String get guardianEligibilityTitle =>
+      'Verify your identity before managing a child\'s record.';
+
+  @override
+  String get guardianEligibilityBody =>
+      'A verified Unified National Card is required before you can create or manage a child record.';
+
+  @override
+  String get verifyIdentity => 'Verify identity';
+
+  @override
+  String get relationshipPending => 'Relationship pending verification';
+
+  @override
+  String get documentIssuingCountry => 'Issuing country';
+
+  @override
+  String get frontImageRequired => 'A front image is required.';
+
+  @override
+  String get backImageRequired => 'A back image is required.';
+
+  @override
+  String get nationalNumberRequired => 'National number is required.';
+
+  @override
+  String get dobUnder18 => 'Child must be under 18 years old.';
+
+  @override
+  String get dobNotFuture => 'Date of birth cannot be in the future.';
+
+  @override
+  String get unsupportedImageFormat =>
+      'This image format is not supported. Use JPEG or PNG.';
+
+  @override
+  String get legalGuardianEvidenceRequired =>
+      'Official evidence is required for a legal guardian.';
+
+  @override
+  String get verifiedFieldsLocked =>
+      'Verified identity fields cannot be edited directly.';
+
+  @override
+  String get claimSubmittedReview =>
+      'Your claim has been submitted for review.';
+
+  @override
+  String get accountActivationTitle => 'Activate your account';
+
+  @override
+  String get activationToken => 'Activation token';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match.';
+
+  @override
+  String get accountActivated => 'Account activated. You can now sign in.';
+
+  @override
+  String get activationFailed => 'Could not activate the account.';
+
+  @override
+  String get claimTypeNationalCard => 'Unified National Card';
+
+  @override
+  String get claimBackImageRequired =>
+      'A back image is required for your claim.';
+
+  @override
   String get evidenceFile => 'Guardianship evidence file';
 
   @override
@@ -337,6 +416,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courtDocument => 'Court document';
+
+  @override
+  String get legalGuardianshipDocument => 'Legal guardianship document';
 
   @override
   String get otherOfficialEvidence => 'Other official evidence';
@@ -575,7 +657,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you already have medical records, claim them with your Digital ID.';
 
   @override
-  String get claimDigitalId => 'Digital ID (17 digits)';
+  String get claimDigitalId => 'Digital ID';
+
+  @override
+  String get claimDigitalIdHint => 'e.g. PT-XXXX-XXXX-XXXX';
 
   @override
   String get claimEmail => 'Email';
@@ -651,6 +736,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get claimExistingAccount => 'Claim an existing patient account';
+
+  @override
+  String get activateClaimedAccount => 'Activate a claimed account';
 
   @override
   String get hello => 'Hello,';

@@ -66,6 +66,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unknownStatus => 'غير معروف';
 
   @override
+  String get notFound => 'العنصر المطلوب غير موجود.';
+
+  @override
   String get loginTitle => 'تسجيل الدخول';
 
   @override
@@ -324,6 +327,79 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noMinors => 'لا يوجد أطفال مرتبطون بحسابك.';
 
   @override
+  String get guardianEligibilityTitle => 'تحقق من هويتك قبل إدارة سجل الطفل.';
+
+  @override
+  String get guardianEligibilityBody =>
+      'البطاقة الوطنية الموحدة الموثقة مطلوبة قبل أن تتمكن من إنشاء أو إدارة سجل طفل.';
+
+  @override
+  String get verifyIdentity => 'تحقق من الهوية';
+
+  @override
+  String get relationshipPending => 'العلاقة قيد التحقق';
+
+  @override
+  String get documentIssuingCountry => 'دولة الإصدار';
+
+  @override
+  String get frontImageRequired => 'الصورة الأمامية مطلوبة.';
+
+  @override
+  String get backImageRequired => 'الصورة الخلفية مطلوبة.';
+
+  @override
+  String get nationalNumberRequired => 'الرقم الوطني مطلوب.';
+
+  @override
+  String get dobUnder18 => 'يجب أن يكون الطفل أقل من 18 عامًا.';
+
+  @override
+  String get dobNotFuture => 'لا يمكن أن يكون تاريخ الميلاد في المستقبل.';
+
+  @override
+  String get unsupportedImageFormat =>
+      'صيغة الصورة غير مدعومة. استخدم JPEG أو PNG.';
+
+  @override
+  String get legalGuardianEvidenceRequired =>
+      'الدليل الرسمي مطلوب للوصي القانوني.';
+
+  @override
+  String get verifiedFieldsLocked =>
+      'لا يمكن تعديل حقول الهوية الموثقة مباشرة.';
+
+  @override
+  String get claimSubmittedReview => 'تم إرسال مطالبتك للمراجعة.';
+
+  @override
+  String get accountActivationTitle => 'تفعيل حسابك';
+
+  @override
+  String get activationToken => 'رمز التفعيل';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get passwordMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get accountActivated => 'تم تفعيل الحساب. يمكنك الآن تسجيل الدخول.';
+
+  @override
+  String get activationFailed => 'تعذر تفعيل الحساب.';
+
+  @override
+  String get claimTypeNationalCard => 'البطاقة الوطنية الموحدة';
+
+  @override
+  String get claimBackImageRequired => 'الصورة الخلفية مطلوبة للمطالبة.';
+
+  @override
   String get evidenceFile => 'ملف إثبات الوصاية';
 
   @override
@@ -334,6 +410,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courtDocument => 'وثيقة محكمة';
+
+  @override
+  String get legalGuardianshipDocument => 'وثيقة الوصاية القانونية';
 
   @override
   String get otherOfficialEvidence => 'إثبات رسمي آخر';
@@ -571,7 +650,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'إذا كانت لديك سجلات طبية، يمكنك المطالبة بها باستخدام المعرف الرقمي.';
 
   @override
-  String get claimDigitalId => 'المعرف الرقمي (17 رقماً)';
+  String get claimDigitalId => 'المعرف الرقمي';
+
+  @override
+  String get claimDigitalIdHint => 'مثال: PT-XXXX-XXXX-XXXX';
 
   @override
   String get claimEmail => 'البريد الإلكتروني';
@@ -647,6 +729,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get claimExistingAccount => 'المطالبة بحساب مريض موجود';
+
+  @override
+  String get activateClaimedAccount => 'تفعيل حساب مُطالب به';
 
   @override
   String get hello => 'مرحباً،';

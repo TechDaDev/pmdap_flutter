@@ -8,6 +8,7 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/claims/presentation/claims_screen.dart';
+import '../features/claims/presentation/account_activation_screen.dart';
 import '../features/documents/presentation/date_confirmation_screen.dart';
 import '../features/documents/presentation/document_detail_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
@@ -58,20 +59,32 @@ class Routes {
 
   static const facilities = '/facilities';
   static const claims = '/claims';
+  static const accountActivation = '/activate-claimed-account';
   static const devHealth = '/dev-health';
 }
 
 /// Pure auth-gating decision for the router redirect. Testable without a tree.
+///
+/// Public (allow-any) routes that must work while signed OUT:
+/// login, register, account claim submission, claimed-account activation.
 String? authRedirect(AuthState auth, String location) {
-  final isAuthRoute = location == Routes.login || location == Routes.register;
+  final publicRoute =
+      location == Routes.login ||
+      location == Routes.register ||
+      location == Routes.claims ||
+      location == Routes.accountActivation;
   return switch (auth) {
     // Bootstrap in progress: only splash may show.
     AuthUnknown() => location == Routes.splash ? null : Routes.splash,
-    // Signed out: only login/register.
-    AuthUnauthenticated() => isAuthRoute ? null : Routes.login,
+    // Signed out: public routes allowed; everything else → login.
+    AuthUnauthenticated() => publicRoute ? null : Routes.login,
     // Signed in: never show splash/login/register.
     AuthAuthenticated() =>
-      (location == Routes.splash || isAuthRoute) ? Routes.home : null,
+      (location == Routes.splash ||
+              location == Routes.login ||
+              location == Routes.register)
+          ? Routes.home
+          : null,
   };
 }
 
@@ -216,6 +229,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: Routes.claims,
         builder: (context, state) => const ClaimsScreen(),
+      ),
+      GoRoute(
+        path: Routes.accountActivation,
+        builder: (context, state) => const AccountActivationScreen(),
       ),
       GoRoute(
         path: Routes.devHealth,
