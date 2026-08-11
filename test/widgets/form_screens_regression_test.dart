@@ -39,12 +39,39 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Upload document'), findsOneWidget); // AppBar
-      // BODY — not just the AppBar.
-      expect(find.text('Document type'), findsOneWidget);
-      expect(find.text('Title'), findsOneWidget);
-      expect(find.text('Choose existing file'), findsWidgets);
+      expect(find.text('Add medical document'), findsOneWidget); // AppBar
+      // BODY — source actions, required type, collapsed advanced, upload.
+      expect(find.text('Scan document'), findsWidgets);
+      expect(find.text('Choose existing file'), findsOneWidget);
+      expect(find.text('Select type'), findsOneWidget);
+      expect(find.text('Advanced details'), findsOneWidget);
       expect(find.text('Upload'), findsOneWidget);
+    });
+
+    testWidgets('advanced details expands and shows optional fields ($label)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        harness(const DocumentUploadScreen(), brightness: brightness),
+      );
+      await tester.pumpAndSettle();
+
+      // Collapsed by default — optional metadata hidden.
+      expect(find.text('Title'), findsNothing);
+      expect(find.text('Description'), findsNothing);
+
+      await tester.scrollUntilVisible(
+        find.text('Advanced details'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('Advanced details'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Title'), findsOneWidget);
+      expect(find.text('Description'), findsOneWidget);
+      expect(find.text('Facility'), findsOneWidget);
+      expect(find.text('Report date'), findsOneWidget);
     });
 
     testWidgets('IdentitySubmitScreen body visible ($label)', (tester) async {
