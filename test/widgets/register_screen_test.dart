@@ -84,6 +84,15 @@ Future<void> _fillAndSubmit(WidgetTester tester) async {
     find.widgetWithText(TextFormField, 'Nationality (2-letter code)'),
     'IQ',
   );
+  // Adult DOB is required before submission (backend: adult account).
+  await tester.ensureVisible(
+    find.widgetWithText(TextFormField, 'Date of birth'),
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.widgetWithText(TextFormField, 'Date of birth'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
   await tester.ensureVisible(
     find.widgetWithText(FilledButton, 'Create account'),
   );
