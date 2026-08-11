@@ -36,11 +36,16 @@ class AuthInterceptor extends Interceptor {
 /// Development-only logging. Logs method + path + status; NEVER bodies
 /// (bodies may contain JWT, medical content, or identity data).
 class SafeLoggingInterceptor extends Interceptor {
+  /// Last request path seen, captured so downstream parse failures can be
+  /// attributed to an endpoint in debug diagnostics. Never a body/credential.
+  static String? lastRequestPath;
+
   @override
   void onResponse(
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
+    lastRequestPath = response.requestOptions.uri.path;
     if (AppConfig.isDebug) {
       // ignore: avoid_print
       print(
@@ -53,6 +58,7 @@ class SafeLoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    lastRequestPath = err.requestOptions.uri.path;
     if (AppConfig.isDebug) {
       // ignore: avoid_print
       print(

@@ -24,10 +24,11 @@ class MinorSearchApi {
         ApiPaths.minorSearch(minorUuid),
         queryParameters: query.toQueryParameters(page: page),
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return Page<ArchiveDocument>.fromJson(pageJson, ArchiveDocument.fromJson);
+      return decodePage(
+        resp.data,
+        Page<ArchiveDocument>.fromJson,
+        ArchiveDocument.fromJson,
+      );
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

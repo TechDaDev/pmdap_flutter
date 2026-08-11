@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -9,6 +11,7 @@ part 'minor.g.dart';
 /// Guardian relationship embedded in a minor.
 @freezed
 abstract class GuardianRelationship with _$GuardianRelationship {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory GuardianRelationship({
     required String uuid,
     @JsonKey(fromJson: relationshipFromJson)
@@ -31,6 +34,7 @@ abstract class GuardianRelationship with _$GuardianRelationship {
 /// Minor patient as seen by an authorized guardian.
 @freezed
 abstract class Minor with _$Minor {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Minor({
     required String uuid,
     required String digitalId,
@@ -57,6 +61,7 @@ abstract class Minor with _$Minor {
 /// Response payload of `POST /minors/`.
 @freezed
 abstract class MinorCreateResponse with _$MinorCreateResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory MinorCreateResponse({
     required String uuid,
     required String digitalId,

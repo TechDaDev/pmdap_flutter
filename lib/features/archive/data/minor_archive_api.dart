@@ -24,11 +24,9 @@ class MinorArchiveApi {
         ApiPaths.minorArchive(minorUuid),
         queryParameters: query.toQueryParameters(page: page),
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return ArchivePage<ArchiveDocument>.fromJson(
-        pageJson,
+      return decodePage(
+        resp.data,
+        ArchivePage<ArchiveDocument>.fromJson,
         ArchiveDocument.fromJson,
       );
     } on DioException catch (e) {

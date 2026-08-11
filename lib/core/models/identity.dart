@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -9,6 +11,7 @@ part 'identity.g.dart';
 /// Identity document summary (list item).
 @freezed
 abstract class IdentityDocumentSummary with _$IdentityDocumentSummary {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory IdentityDocumentSummary({
     required String uuid,
     @JsonKey(fromJson: identityDocumentTypeFromJson)
@@ -34,6 +37,7 @@ abstract class IdentityDocumentSummary with _$IdentityDocumentSummary {
 /// Identity document detail.
 @freezed
 abstract class IdentityDocumentDetail with _$IdentityDocumentDetail {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory IdentityDocumentDetail({
     required String uuid,
     @JsonKey(fromJson: identityDocumentTypeFromJson)

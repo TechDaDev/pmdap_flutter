@@ -51,11 +51,9 @@ class IdentityApi {
         ApiPaths.identityDocuments,
         queryParameters: {'page': page},
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return Page<IdentityDocumentSummary>.fromJson(
-        pageJson,
+      return decodePage(
+        resp.data,
+        Page<IdentityDocumentSummary>.fromJson,
         IdentityDocumentSummary.fromJson,
       );
     } on DioException catch (e) {

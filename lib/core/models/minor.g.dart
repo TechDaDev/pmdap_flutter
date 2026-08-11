@@ -13,20 +13,20 @@ _GuardianRelationship _$GuardianRelationshipFromJson(
   relationship: json['relationship'] == null
       ? Relationship.unknown
       : relationshipFromJson(json['relationship']),
-  verificationStatus: json['verificationStatus'] == null
+  verificationStatus: json['verification_status'] == null
       ? VerificationStatus.unknown
-      : verificationStatusFromJson(json['verificationStatus']),
+      : verificationStatusFromJson(json['verification_status']),
   active: json['active'] as bool? ?? false,
-  startedAt: json['startedAt'] == null
+  startedAt: json['started_at'] == null
       ? null
-      : DateTime.parse(json['startedAt'] as String),
-  verifiedAt: json['verifiedAt'] == null
+      : DateTime.parse(json['started_at'] as String),
+  verifiedAt: json['verified_at'] == null
       ? null
-      : DateTime.parse(json['verifiedAt'] as String),
-  endedAt: json['endedAt'] == null
+      : DateTime.parse(json['verified_at'] as String),
+  endedAt: json['ended_at'] == null
       ? null
-      : DateTime.parse(json['endedAt'] as String),
-  endedReason: json['endedReason'] as String?,
+      : DateTime.parse(json['ended_at'] as String),
+  endedReason: json['ended_reason'] as String?,
 );
 
 Map<String, dynamic> _$GuardianRelationshipToJson(
@@ -34,13 +34,13 @@ Map<String, dynamic> _$GuardianRelationshipToJson(
 ) => <String, dynamic>{
   'uuid': instance.uuid,
   'relationship': _$RelationshipEnumMap[instance.relationship]!,
-  'verificationStatus':
+  'verification_status':
       _$VerificationStatusEnumMap[instance.verificationStatus]!,
   'active': instance.active,
-  'startedAt': instance.startedAt?.toIso8601String(),
-  'verifiedAt': instance.verifiedAt?.toIso8601String(),
-  'endedAt': instance.endedAt?.toIso8601String(),
-  'endedReason': instance.endedReason,
+  'started_at': instance.startedAt?.toIso8601String(),
+  'verified_at': instance.verifiedAt?.toIso8601String(),
+  'ended_at': instance.endedAt?.toIso8601String(),
+  'ended_reason': instance.endedReason,
 };
 
 const _$RelationshipEnumMap = {
@@ -59,48 +59,48 @@ const _$VerificationStatusEnumMap = {
 
 _Minor _$MinorFromJson(Map<String, dynamic> json) => _Minor(
   uuid: json['uuid'] as String,
-  digitalId: json['digitalId'] as String,
-  fullName: json['fullName'] as String,
-  dateOfBirth: json['dateOfBirth'] == null
+  digitalId: json['digital_id'] as String,
+  fullName: json['full_name'] as String,
+  dateOfBirth: json['date_of_birth'] == null
       ? null
-      : DateTime.parse(json['dateOfBirth'] as String),
+      : DateTime.parse(json['date_of_birth'] as String),
   age: (json['age'] as num?)?.toInt() ?? 0,
-  isMinor: json['isMinor'] as bool? ?? false,
+  isMinor: json['is_minor'] as bool? ?? false,
   sex: json['sex'] == null ? Sex.unknown : sexFromJson(json['sex']),
   nationality: json['nationality'] as String? ?? '',
-  bloodGroup: json['bloodGroup'] == null
+  bloodGroup: json['blood_group'] == null
       ? BloodGroup.unknown
-      : bloodGroupFromJson(json['bloodGroup']),
-  identityStatus: json['identityStatus'] == null
+      : bloodGroupFromJson(json['blood_group']),
+  identityStatus: json['identity_status'] == null
       ? IdentityStatus.unknown
-      : identityStatusFromJson(json['identityStatus']),
+      : identityStatusFromJson(json['identity_status']),
   relationship: json['relationship'] == null
       ? null
       : GuardianRelationship.fromJson(
           json['relationship'] as Map<String, dynamic>,
         ),
-  createdAt: json['createdAt'] == null
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  updatedAt: json['updatedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
+      : DateTime.parse(json['updated_at'] as String),
 );
 
 Map<String, dynamic> _$MinorToJson(_Minor instance) => <String, dynamic>{
   'uuid': instance.uuid,
-  'digitalId': instance.digitalId,
-  'fullName': instance.fullName,
-  'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
+  'digital_id': instance.digitalId,
+  'full_name': instance.fullName,
+  'date_of_birth': instance.dateOfBirth?.toIso8601String(),
   'age': instance.age,
-  'isMinor': instance.isMinor,
+  'is_minor': instance.isMinor,
   'sex': _$SexEnumMap[instance.sex]!,
   'nationality': instance.nationality,
-  'bloodGroup': _$BloodGroupEnumMap[instance.bloodGroup]!,
-  'identityStatus': _$IdentityStatusEnumMap[instance.identityStatus]!,
+  'blood_group': _$BloodGroupEnumMap[instance.bloodGroup]!,
+  'identity_status': _$IdentityStatusEnumMap[instance.identityStatus]!,
   'relationship': instance.relationship,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
 };
 
 const _$SexEnumMap = {
@@ -133,48 +133,48 @@ const _$IdentityStatusEnumMap = {
 _MinorCreateResponse _$MinorCreateResponseFromJson(Map<String, dynamic> json) =>
     _MinorCreateResponse(
       uuid: json['uuid'] as String,
-      digitalId: json['digitalId'] as String,
-      fullName: json['fullName'] as String,
-      dateOfBirth: json['dateOfBirth'] == null
+      digitalId: json['digital_id'] as String,
+      fullName: json['full_name'] as String,
+      dateOfBirth: json['date_of_birth'] == null
           ? null
-          : DateTime.parse(json['dateOfBirth'] as String),
+          : DateTime.parse(json['date_of_birth'] as String),
       age: (json['age'] as num?)?.toInt() ?? 0,
-      isMinor: json['isMinor'] as bool? ?? false,
+      isMinor: json['is_minor'] as bool? ?? false,
       sex: json['sex'] == null ? Sex.unknown : sexFromJson(json['sex']),
       nationality: json['nationality'] as String? ?? '',
-      bloodGroup: json['bloodGroup'] == null
+      bloodGroup: json['blood_group'] == null
           ? BloodGroup.unknown
-          : bloodGroupFromJson(json['bloodGroup']),
-      identityStatus: json['identityStatus'] == null
+          : bloodGroupFromJson(json['blood_group']),
+      identityStatus: json['identity_status'] == null
           ? IdentityStatus.unknown
-          : identityStatusFromJson(json['identityStatus']),
+          : identityStatusFromJson(json['identity_status']),
       relationship: json['relationship'] == null
           ? null
           : GuardianRelationship.fromJson(
               json['relationship'] as Map<String, dynamic>,
             ),
-      createdAt: json['createdAt'] == null
+      createdAt: json['created_at'] == null
           ? null
-          : DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
           ? null
-          : DateTime.parse(json['updatedAt'] as String),
+          : DateTime.parse(json['updated_at'] as String),
     );
 
 Map<String, dynamic> _$MinorCreateResponseToJson(
   _MinorCreateResponse instance,
 ) => <String, dynamic>{
   'uuid': instance.uuid,
-  'digitalId': instance.digitalId,
-  'fullName': instance.fullName,
-  'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
+  'digital_id': instance.digitalId,
+  'full_name': instance.fullName,
+  'date_of_birth': instance.dateOfBirth?.toIso8601String(),
   'age': instance.age,
-  'isMinor': instance.isMinor,
+  'is_minor': instance.isMinor,
   'sex': _$SexEnumMap[instance.sex]!,
   'nationality': instance.nationality,
-  'bloodGroup': _$BloodGroupEnumMap[instance.bloodGroup]!,
-  'identityStatus': _$IdentityStatusEnumMap[instance.identityStatus]!,
+  'blood_group': _$BloodGroupEnumMap[instance.bloodGroup]!,
+  'identity_status': _$IdentityStatusEnumMap[instance.identityStatus]!,
   'relationship': instance.relationship,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
 };

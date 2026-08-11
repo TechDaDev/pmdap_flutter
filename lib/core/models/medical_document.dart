@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -10,6 +12,7 @@ part 'medical_document.g.dart';
 /// Public file metadata embedded in a medical document.
 @freezed
 abstract class StoredFilePublic with _$StoredFilePublic {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory StoredFilePublic({
     @Default('') String originalFilename,
     @Default('') String mimeType,
@@ -30,6 +33,7 @@ abstract class StoredFilePublic with _$StoredFilePublic {
 /// Medical document list item (`MedicalDocument`).
 @freezed
 abstract class MedicalDocument with _$MedicalDocument {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory MedicalDocument({
     required String uuid,
     @JsonKey(fromJson: medicalDocumentTypeFromJson)
@@ -69,6 +73,7 @@ abstract class MedicalDocument with _$MedicalDocument {
 /// Medical document detail (`MedicalDocumentDetail`).
 @freezed
 abstract class MedicalDocumentDetail with _$MedicalDocumentDetail {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory MedicalDocumentDetail({
     required String uuid,
     @JsonKey(fromJson: medicalDocumentTypeFromJson)
@@ -110,6 +115,7 @@ abstract class MedicalDocumentDetail with _$MedicalDocumentDetail {
 @freezed
 abstract class DocumentDateConfirmationResponse
     with _$DocumentDateConfirmationResponse {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory DocumentDateConfirmationResponse({
     required String uuid,
     DateTime? documentDate,

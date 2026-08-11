@@ -8,28 +8,28 @@ part of 'medical_document.dart';
 
 _StoredFilePublic _$StoredFilePublicFromJson(Map<String, dynamic> json) =>
     _StoredFilePublic(
-      originalFilename: json['originalFilename'] as String? ?? '',
-      mimeType: json['mimeType'] as String? ?? '',
-      sizeBytes: (json['sizeBytes'] as num?)?.toInt() ?? 0,
-      pageCount: (json['pageCount'] as num?)?.toInt(),
-      integrityStatus: json['integrityStatus'] == null
+      originalFilename: json['original_filename'] as String? ?? '',
+      mimeType: json['mime_type'] as String? ?? '',
+      sizeBytes: (json['size_bytes'] as num?)?.toInt() ?? 0,
+      pageCount: (json['page_count'] as num?)?.toInt(),
+      integrityStatus: json['integrity_status'] == null
           ? IntegrityStatus.unknown
-          : integrityStatusFromJson(json['integrityStatus']),
-      malwareScanStatus: json['malwareScanStatus'] == null
+          : integrityStatusFromJson(json['integrity_status']),
+      malwareScanStatus: json['malware_scan_status'] == null
           ? MalwareScanStatus.unknown
-          : malwareScanStatusFromJson(json['malwareScanStatus']),
+          : malwareScanStatusFromJson(json['malware_scan_status']),
     );
 
-Map<String, dynamic> _$StoredFilePublicToJson(
-  _StoredFilePublic instance,
-) => <String, dynamic>{
-  'originalFilename': instance.originalFilename,
-  'mimeType': instance.mimeType,
-  'sizeBytes': instance.sizeBytes,
-  'pageCount': instance.pageCount,
-  'integrityStatus': _$IntegrityStatusEnumMap[instance.integrityStatus]!,
-  'malwareScanStatus': _$MalwareScanStatusEnumMap[instance.malwareScanStatus]!,
-};
+Map<String, dynamic> _$StoredFilePublicToJson(_StoredFilePublic instance) =>
+    <String, dynamic>{
+      'original_filename': instance.originalFilename,
+      'mime_type': instance.mimeType,
+      'size_bytes': instance.sizeBytes,
+      'page_count': instance.pageCount,
+      'integrity_status': _$IntegrityStatusEnumMap[instance.integrityStatus]!,
+      'malware_scan_status':
+          _$MalwareScanStatusEnumMap[instance.malwareScanStatus]!,
+    };
 
 const _$IntegrityStatusEnumMap = {
   IntegrityStatus.pending: 'pending',
@@ -51,73 +51,74 @@ const _$MalwareScanStatusEnumMap = {
 _MedicalDocument _$MedicalDocumentFromJson(Map<String, dynamic> json) =>
     _MedicalDocument(
       uuid: json['uuid'] as String,
-      documentType: json['documentType'] == null
+      documentType: json['document_type'] == null
           ? MedicalDocumentType.unknown
-          : medicalDocumentTypeFromJson(json['documentType']),
-      classificationSource: json['classificationSource'] == null
+          : medicalDocumentTypeFromJson(json['document_type']),
+      classificationSource: json['classification_source'] == null
           ? ClassificationSource.unknown
-          : classificationSourceFromJson(json['classificationSource']),
+          : classificationSourceFromJson(json['classification_source']),
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      documentDate: json['documentDate'] == null
+      documentDate: json['document_date'] == null
           ? null
-          : DateTime.parse(json['documentDate'] as String),
-      dateSource: json['dateSource'] == null
+          : DateTime.parse(json['document_date'] as String),
+      dateSource: json['date_source'] == null
           ? DateSource.unknown
-          : dateSourceFromJson(json['dateSource']),
-      dateVerified: json['dateVerified'] as bool? ?? false,
-      dateVerifiedAt: json['dateVerifiedAt'] == null
+          : dateSourceFromJson(json['date_source']),
+      dateVerified: json['date_verified'] as bool? ?? false,
+      dateVerifiedAt: json['date_verified_at'] == null
           ? null
-          : DateTime.parse(json['dateVerifiedAt'] as String),
-      facilityName: json['facilityName'] as String? ?? '',
-      healthcareFacility: json['healthcareFacility'] == null
+          : DateTime.parse(json['date_verified_at'] as String),
+      facilityName: json['facility_name'] as String? ?? '',
+      healthcareFacility: json['healthcare_facility'] == null
           ? null
           : HealthcareFacility.fromJson(
-              json['healthcareFacility'] as Map<String, dynamic>,
+              json['healthcare_facility'] as Map<String, dynamic>,
             ),
-      locationText: json['locationText'] as String? ?? '',
+      locationText: json['location_text'] as String? ?? '',
       department: json['department'] as String? ?? '',
-      physicianName: json['physicianName'] as String? ?? '',
-      processingStatus: json['processingStatus'] == null
+      physicianName: json['physician_name'] as String? ?? '',
+      processingStatus: json['processing_status'] == null
           ? ProcessingStatus.unknown
-          : processingStatusFromJson(json['processingStatus']),
-      archiveStatus: json['archiveStatus'] == null
+          : processingStatusFromJson(json['processing_status']),
+      archiveStatus: json['archive_status'] == null
           ? ArchiveStatus.unknown
-          : archiveStatusFromJson(json['archiveStatus']),
+          : archiveStatusFromJson(json['archive_status']),
       file: json['file'] == null
           ? null
           : StoredFilePublic.fromJson(json['file'] as Map<String, dynamic>),
-      createdAt: json['createdAt'] == null
+      createdAt: json['created_at'] == null
           ? null
-          : DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
           ? null
-          : DateTime.parse(json['updatedAt'] as String),
+          : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$MedicalDocumentToJson(_MedicalDocument instance) =>
-    <String, dynamic>{
-      'uuid': instance.uuid,
-      'documentType': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
-      'classificationSource':
-          _$ClassificationSourceEnumMap[instance.classificationSource]!,
-      'title': instance.title,
-      'description': instance.description,
-      'documentDate': instance.documentDate?.toIso8601String(),
-      'dateSource': _$DateSourceEnumMap[instance.dateSource]!,
-      'dateVerified': instance.dateVerified,
-      'dateVerifiedAt': instance.dateVerifiedAt?.toIso8601String(),
-      'facilityName': instance.facilityName,
-      'healthcareFacility': instance.healthcareFacility,
-      'locationText': instance.locationText,
-      'department': instance.department,
-      'physicianName': instance.physicianName,
-      'processingStatus': _$ProcessingStatusEnumMap[instance.processingStatus]!,
-      'archiveStatus': _$ArchiveStatusEnumMap[instance.archiveStatus]!,
-      'file': instance.file,
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-    };
+Map<String, dynamic> _$MedicalDocumentToJson(
+  _MedicalDocument instance,
+) => <String, dynamic>{
+  'uuid': instance.uuid,
+  'document_type': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
+  'classification_source':
+      _$ClassificationSourceEnumMap[instance.classificationSource]!,
+  'title': instance.title,
+  'description': instance.description,
+  'document_date': instance.documentDate?.toIso8601String(),
+  'date_source': _$DateSourceEnumMap[instance.dateSource]!,
+  'date_verified': instance.dateVerified,
+  'date_verified_at': instance.dateVerifiedAt?.toIso8601String(),
+  'facility_name': instance.facilityName,
+  'healthcare_facility': instance.healthcareFacility,
+  'location_text': instance.locationText,
+  'department': instance.department,
+  'physician_name': instance.physicianName,
+  'processing_status': _$ProcessingStatusEnumMap[instance.processingStatus]!,
+  'archive_status': _$ArchiveStatusEnumMap[instance.archiveStatus]!,
+  'file': instance.file,
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
+};
 
 const _$MedicalDocumentTypeEnumMap = {
   MedicalDocumentType.laboratory: 'laboratory',
@@ -178,103 +179,103 @@ _MedicalDocumentDetail _$MedicalDocumentDetailFromJson(
   Map<String, dynamic> json,
 ) => _MedicalDocumentDetail(
   uuid: json['uuid'] as String,
-  documentType: json['documentType'] == null
+  documentType: json['document_type'] == null
       ? MedicalDocumentType.unknown
-      : medicalDocumentTypeFromJson(json['documentType']),
-  classificationSource: json['classificationSource'] == null
+      : medicalDocumentTypeFromJson(json['document_type']),
+  classificationSource: json['classification_source'] == null
       ? ClassificationSource.unknown
-      : classificationSourceFromJson(json['classificationSource']),
+      : classificationSourceFromJson(json['classification_source']),
   title: json['title'] as String? ?? '',
   description: json['description'] as String? ?? '',
-  documentDate: json['documentDate'] == null
+  documentDate: json['document_date'] == null
       ? null
-      : DateTime.parse(json['documentDate'] as String),
-  dateSource: json['dateSource'] == null
+      : DateTime.parse(json['document_date'] as String),
+  dateSource: json['date_source'] == null
       ? DateSource.unknown
-      : dateSourceFromJson(json['dateSource']),
-  dateVerified: json['dateVerified'] as bool? ?? false,
-  dateVerifiedAt: json['dateVerifiedAt'] == null
+      : dateSourceFromJson(json['date_source']),
+  dateVerified: json['date_verified'] as bool? ?? false,
+  dateVerifiedAt: json['date_verified_at'] == null
       ? null
-      : DateTime.parse(json['dateVerifiedAt'] as String),
-  facilityName: json['facilityName'] as String? ?? '',
-  healthcareFacility: json['healthcareFacility'] == null
+      : DateTime.parse(json['date_verified_at'] as String),
+  facilityName: json['facility_name'] as String? ?? '',
+  healthcareFacility: json['healthcare_facility'] == null
       ? null
       : HealthcareFacility.fromJson(
-          json['healthcareFacility'] as Map<String, dynamic>,
+          json['healthcare_facility'] as Map<String, dynamic>,
         ),
-  locationText: json['locationText'] as String? ?? '',
+  locationText: json['location_text'] as String? ?? '',
   department: json['department'] as String? ?? '',
-  physicianName: json['physicianName'] as String? ?? '',
-  processingStatus: json['processingStatus'] == null
+  physicianName: json['physician_name'] as String? ?? '',
+  processingStatus: json['processing_status'] == null
       ? ProcessingStatus.unknown
-      : processingStatusFromJson(json['processingStatus']),
-  archiveStatus: json['archiveStatus'] == null
+      : processingStatusFromJson(json['processing_status']),
+  archiveStatus: json['archive_status'] == null
       ? ArchiveStatus.unknown
-      : archiveStatusFromJson(json['archiveStatus']),
+      : archiveStatusFromJson(json['archive_status']),
   file: json['file'] == null
       ? null
       : StoredFilePublic.fromJson(json['file'] as Map<String, dynamic>),
-  createdAt: json['createdAt'] == null
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  updatedAt: json['updatedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
-  textAvailable: json['textAvailable'] as bool? ?? false,
+      : DateTime.parse(json['updated_at'] as String),
+  textAvailable: json['text_available'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$MedicalDocumentDetailToJson(
   _MedicalDocumentDetail instance,
 ) => <String, dynamic>{
   'uuid': instance.uuid,
-  'documentType': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
-  'classificationSource':
+  'document_type': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
+  'classification_source':
       _$ClassificationSourceEnumMap[instance.classificationSource]!,
   'title': instance.title,
   'description': instance.description,
-  'documentDate': instance.documentDate?.toIso8601String(),
-  'dateSource': _$DateSourceEnumMap[instance.dateSource]!,
-  'dateVerified': instance.dateVerified,
-  'dateVerifiedAt': instance.dateVerifiedAt?.toIso8601String(),
-  'facilityName': instance.facilityName,
-  'healthcareFacility': instance.healthcareFacility,
-  'locationText': instance.locationText,
+  'document_date': instance.documentDate?.toIso8601String(),
+  'date_source': _$DateSourceEnumMap[instance.dateSource]!,
+  'date_verified': instance.dateVerified,
+  'date_verified_at': instance.dateVerifiedAt?.toIso8601String(),
+  'facility_name': instance.facilityName,
+  'healthcare_facility': instance.healthcareFacility,
+  'location_text': instance.locationText,
   'department': instance.department,
-  'physicianName': instance.physicianName,
-  'processingStatus': _$ProcessingStatusEnumMap[instance.processingStatus]!,
-  'archiveStatus': _$ArchiveStatusEnumMap[instance.archiveStatus]!,
+  'physician_name': instance.physicianName,
+  'processing_status': _$ProcessingStatusEnumMap[instance.processingStatus]!,
+  'archive_status': _$ArchiveStatusEnumMap[instance.archiveStatus]!,
   'file': instance.file,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
-  'textAvailable': instance.textAvailable,
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
+  'text_available': instance.textAvailable,
 };
 
 _DocumentDateConfirmationResponse _$DocumentDateConfirmationResponseFromJson(
   Map<String, dynamic> json,
 ) => _DocumentDateConfirmationResponse(
   uuid: json['uuid'] as String,
-  documentDate: json['documentDate'] == null
+  documentDate: json['document_date'] == null
       ? null
-      : DateTime.parse(json['documentDate'] as String),
-  dateSource: json['dateSource'] == null
+      : DateTime.parse(json['document_date'] as String),
+  dateSource: json['date_source'] == null
       ? DateSource.unknown
-      : dateSourceFromJson(json['dateSource']),
-  dateVerified: json['dateVerified'] as bool? ?? false,
-  dateVerifiedAt: json['dateVerifiedAt'] == null
+      : dateSourceFromJson(json['date_source']),
+  dateVerified: json['date_verified'] as bool? ?? false,
+  dateVerifiedAt: json['date_verified_at'] == null
       ? null
-      : DateTime.parse(json['dateVerifiedAt'] as String),
-  processingStatus: json['processingStatus'] == null
+      : DateTime.parse(json['date_verified_at'] as String),
+  processingStatus: json['processing_status'] == null
       ? ProcessingStatus.unknown
-      : processingStatusFromJson(json['processingStatus']),
+      : processingStatusFromJson(json['processing_status']),
 );
 
 Map<String, dynamic> _$DocumentDateConfirmationResponseToJson(
   _DocumentDateConfirmationResponse instance,
 ) => <String, dynamic>{
   'uuid': instance.uuid,
-  'documentDate': instance.documentDate?.toIso8601String(),
-  'dateSource': _$DateSourceEnumMap[instance.dateSource]!,
-  'dateVerified': instance.dateVerified,
-  'dateVerifiedAt': instance.dateVerifiedAt?.toIso8601String(),
-  'processingStatus': _$ProcessingStatusEnumMap[instance.processingStatus]!,
+  'document_date': instance.documentDate?.toIso8601String(),
+  'date_source': _$DateSourceEnumMap[instance.dateSource]!,
+  'date_verified': instance.dateVerified,
+  'date_verified_at': instance.dateVerifiedAt?.toIso8601String(),
+  'processing_status': _$ProcessingStatusEnumMap[instance.processingStatus]!,
 };

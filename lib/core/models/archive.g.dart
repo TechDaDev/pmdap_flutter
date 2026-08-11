@@ -21,49 +21,50 @@ _ArchiveDocument _$ArchiveDocumentFromJson(Map<String, dynamic> json) =>
     _ArchiveDocument(
       uuid: json['uuid'] as String,
       title: json['title'] as String? ?? '',
-      documentType: json['documentType'] == null
+      documentType: json['document_type'] == null
           ? MedicalDocumentType.unknown
-          : medicalDocumentTypeFromJson(json['documentType']),
-      documentDate: json['documentDate'] == null
+          : medicalDocumentTypeFromJson(json['document_type']),
+      documentDate: json['document_date'] == null
           ? null
-          : DateTime.parse(json['documentDate'] as String),
-      dateVerified: json['dateVerified'] as bool? ?? false,
-      dateSource: json['dateSource'] == null
+          : DateTime.parse(json['document_date'] as String),
+      dateVerified: json['date_verified'] as bool? ?? false,
+      dateSource: json['date_source'] == null
           ? DateSource.unknown
-          : dateSourceFromJson(json['dateSource']),
-      healthcareFacility: json['healthcareFacility'] == null
+          : dateSourceFromJson(json['date_source']),
+      healthcareFacility: json['healthcare_facility'] == null
           ? null
           : ArchiveFacilitySummary.fromJson(
-              json['healthcareFacility'] as Map<String, dynamic>,
+              json['healthcare_facility'] as Map<String, dynamic>,
             ),
-      facilityName: json['facilityName'] as String? ?? '',
-      locationText: json['locationText'] as String? ?? '',
+      facilityName: json['facility_name'] as String? ?? '',
+      locationText: json['location_text'] as String? ?? '',
       department: json['department'] as String? ?? '',
-      physicianName: json['physicianName'] as String? ?? '',
-      processingStatus: json['processingStatus'] == null
+      physicianName: json['physician_name'] as String? ?? '',
+      processingStatus: json['processing_status'] == null
           ? ProcessingStatus.unknown
-          : processingStatusFromJson(json['processingStatus']),
-      createdAt: json['createdAt'] == null
+          : processingStatusFromJson(json['processing_status']),
+      createdAt: json['created_at'] == null
           ? null
-          : DateTime.parse(json['createdAt'] as String),
+          : DateTime.parse(json['created_at'] as String),
     );
 
-Map<String, dynamic> _$ArchiveDocumentToJson(_ArchiveDocument instance) =>
-    <String, dynamic>{
-      'uuid': instance.uuid,
-      'title': instance.title,
-      'documentType': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
-      'documentDate': instance.documentDate?.toIso8601String(),
-      'dateVerified': instance.dateVerified,
-      'dateSource': _$DateSourceEnumMap[instance.dateSource]!,
-      'healthcareFacility': instance.healthcareFacility,
-      'facilityName': instance.facilityName,
-      'locationText': instance.locationText,
-      'department': instance.department,
-      'physicianName': instance.physicianName,
-      'processingStatus': _$ProcessingStatusEnumMap[instance.processingStatus]!,
-      'createdAt': instance.createdAt?.toIso8601String(),
-    };
+Map<String, dynamic> _$ArchiveDocumentToJson(
+  _ArchiveDocument instance,
+) => <String, dynamic>{
+  'uuid': instance.uuid,
+  'title': instance.title,
+  'document_type': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
+  'document_date': instance.documentDate?.toIso8601String(),
+  'date_verified': instance.dateVerified,
+  'date_source': _$DateSourceEnumMap[instance.dateSource]!,
+  'healthcare_facility': instance.healthcareFacility,
+  'facility_name': instance.facilityName,
+  'location_text': instance.locationText,
+  'department': instance.department,
+  'physician_name': instance.physicianName,
+  'processing_status': _$ProcessingStatusEnumMap[instance.processingStatus]!,
+  'created_at': instance.createdAt?.toIso8601String(),
+};
 
 const _$MedicalDocumentTypeEnumMap = {
   MedicalDocumentType.laboratory: 'laboratory',
@@ -140,16 +141,16 @@ Map<String, dynamic> _$ArchiveSummaryYearToJson(_ArchiveSummaryYear instance) =>
 _ArchiveSummaryDocumentType _$ArchiveSummaryDocumentTypeFromJson(
   Map<String, dynamic> json,
 ) => _ArchiveSummaryDocumentType(
-  documentType: json['documentType'] == null
+  documentType: json['document_type'] == null
       ? MedicalDocumentType.unknown
-      : medicalDocumentTypeFromJson(json['documentType']),
+      : medicalDocumentTypeFromJson(json['document_type']),
   count: (json['count'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$ArchiveSummaryDocumentTypeToJson(
   _ArchiveSummaryDocumentType instance,
 ) => <String, dynamic>{
-  'documentType': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
+  'document_type': _$MedicalDocumentTypeEnumMap[instance.documentType]!,
   'count': instance.count,
 };
 
@@ -178,7 +179,7 @@ _ArchiveSummary _$ArchiveSummaryFromJson(
           .toList() ??
       const <ArchiveSummaryYear>[],
   documentTypes:
-      (json['documentTypes'] as List<dynamic>?)
+      (json['document_types'] as List<dynamic>?)
           ?.map(
             (e) =>
                 ArchiveSummaryDocumentType.fromJson(e as Map<String, dynamic>),
@@ -192,13 +193,13 @@ _ArchiveSummary _$ArchiveSummaryFromJson(
           )
           .toList() ??
       const <ArchiveSummaryFacility>[],
-  unconfirmedDateCount: (json['unconfirmedDateCount'] as num?)?.toInt() ?? 0,
+  unconfirmedDateCount: (json['unconfirmed_date_count'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$ArchiveSummaryToJson(_ArchiveSummary instance) =>
     <String, dynamic>{
       'years': instance.years,
-      'documentTypes': instance.documentTypes,
+      'document_types': instance.documentTypes,
       'facilities': instance.facilities,
-      'unconfirmedDateCount': instance.unconfirmedDateCount,
+      'unconfirmed_date_count': instance.unconfirmedDateCount,
     };

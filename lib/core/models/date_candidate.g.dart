@@ -12,32 +12,32 @@ _DateCandidate _$DateCandidateFromJson(Map<String, dynamic> json) =>
       date: json['date'] == null
           ? null
           : DateTime.parse(json['date'] as String),
-      alternativeDate: json['alternativeDate'] == null
+      alternativeDate: json['alternative_date'] == null
           ? null
-          : DateTime.parse(json['alternativeDate'] as String),
+          : DateTime.parse(json['alternative_date'] as String),
       type: json['type'] as String? ?? '',
       score: (json['score'] as num?)?.toDouble() ?? 0,
-      pageNumber: (json['pageNumber'] as num?)?.toInt() ?? 0,
+      pageNumber: (json['page_number'] as num?)?.toInt() ?? 0,
       context: json['context'] as String? ?? '',
       source: json['source'] == null
           ? Source.unknown
           : sourceFromJson(json['source']),
       ambiguous: json['ambiguous'] as bool? ?? false,
-      isSuggested: json['isSuggested'] as bool? ?? false,
+      isSuggested: json['is_suggested'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$DateCandidateToJson(_DateCandidate instance) =>
     <String, dynamic>{
       'uuid': instance.uuid,
       'date': instance.date?.toIso8601String(),
-      'alternativeDate': instance.alternativeDate?.toIso8601String(),
+      'alternative_date': instance.alternativeDate?.toIso8601String(),
       'type': instance.type,
       'score': instance.score,
-      'pageNumber': instance.pageNumber,
+      'page_number': instance.pageNumber,
       'context': instance.context,
       'source': _$SourceEnumMap[instance.source]!,
       'ambiguous': instance.ambiguous,
-      'isSuggested': instance.isSuggested,
+      'is_suggested': instance.isSuggested,
     };
 
 const _$SourceEnumMap = {

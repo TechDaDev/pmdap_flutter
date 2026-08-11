@@ -207,8 +207,8 @@ return $default(_that.uuid,_that.name);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveFacilitySummary implements ArchiveFacilitySummary {
   const _ArchiveFacilitySummary({this.uuid, this.name = ''});
   factory _ArchiveFacilitySummary.fromJson(Map<String, dynamic> json) => _$ArchiveFacilitySummaryFromJson(json);
@@ -496,8 +496,8 @@ return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_th
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveDocument implements ArchiveDocument {
   const _ArchiveDocument({required this.uuid, this.title = '', @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, this.documentDate, this.dateVerified = false, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.healthcareFacility, this.facilityName = '', this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, this.createdAt});
   factory _ArchiveDocument.fromJson(Map<String, dynamic> json) => _$ArchiveDocumentFromJson(json);
@@ -796,8 +796,8 @@ return $default(_that.month,_that.count);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveSummaryMonth implements ArchiveSummaryMonth {
   const _ArchiveSummaryMonth({this.month = 0, this.count = 0});
   factory _ArchiveSummaryMonth.fromJson(Map<String, dynamic> json) => _$ArchiveSummaryMonthFromJson(json);
@@ -1063,8 +1063,8 @@ return $default(_that.year,_that.count,_that.months);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveSummaryYear implements ArchiveSummaryYear {
   const _ArchiveSummaryYear({this.year = 0, this.count = 0, final  List<ArchiveSummaryMonth> months = const <ArchiveSummaryMonth>[]}): _months = months;
   factory _ArchiveSummaryYear.fromJson(Map<String, dynamic> json) => _$ArchiveSummaryYearFromJson(json);
@@ -1337,8 +1337,8 @@ return $default(_that.documentType,_that.count);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveSummaryDocumentType implements ArchiveSummaryDocumentType {
   const _ArchiveSummaryDocumentType({@JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, this.count = 0});
   factory _ArchiveSummaryDocumentType.fromJson(Map<String, dynamic> json) => _$ArchiveSummaryDocumentTypeFromJson(json);
@@ -1604,8 +1604,8 @@ return $default(_that.uuid,_that.name,_that.count);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveSummaryFacility implements ArchiveSummaryFacility {
   const _ArchiveSummaryFacility({this.uuid, this.name = '', this.count = 0});
   factory _ArchiveSummaryFacility.fromJson(Map<String, dynamic> json) => _$ArchiveSummaryFacilityFromJson(json);
@@ -1874,8 +1874,8 @@ return $default(_that.years,_that.documentTypes,_that.facilities,_that.unconfirm
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveSummary implements ArchiveSummary {
   const _ArchiveSummary({final  List<ArchiveSummaryYear> years = const <ArchiveSummaryYear>[], final  List<ArchiveSummaryDocumentType> documentTypes = const <ArchiveSummaryDocumentType>[], final  List<ArchiveSummaryFacility> facilities = const <ArchiveSummaryFacility>[], this.unconfirmedDateCount = 0}): _years = years,_documentTypes = documentTypes,_facilities = facilities;
   factory _ArchiveSummary.fromJson(Map<String, dynamic> json) => _$ArchiveSummaryFromJson(json);

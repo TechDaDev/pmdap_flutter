@@ -207,8 +207,8 @@ return $default(_that.code,_that.name);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _Country implements Country {
   const _Country({this.code = '', this.name = ''});
   factory _Country.fromJson(Map<String, dynamic> json) => _$CountryFromJson(json);
@@ -474,8 +474,8 @@ return $default(_that.uuid,_that.name,_that.code);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _Region implements Region {
   const _Region({this.uuid, this.name = '', this.code = ''});
   factory _Region.fromJson(Map<String, dynamic> json) => _$RegionFromJson(json);
@@ -742,8 +742,8 @@ return $default(_that.uuid,_that.name);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _City implements City {
   const _City({this.uuid, this.name = ''});
   factory _City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
@@ -1051,8 +1051,8 @@ return $default(_that.uuid,_that.name,_that.country,_that.region,_that.city,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _HealthcareFacility implements HealthcareFacility {
   const _HealthcareFacility({required this.uuid, this.name = '', this.country, this.region, this.city, this.address = '', @JsonKey(fromJson: facilityTypeFromJson) this.facilityType = FacilityType.unknown, this.active = false, final  List<Map<String, dynamic>> aliases = const <Map<String, dynamic>>[]}): _aliases = aliases;
   factory _HealthcareFacility.fromJson(Map<String, dynamic> json) => _$HealthcareFacilityFromJson(json);

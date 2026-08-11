@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -9,6 +11,7 @@ part 'patient.g.dart';
 /// Patient profile from `/patients/me/`.
 @freezed
 abstract class PatientProfile with _$PatientProfile {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory PatientProfile({
     required String uuid,
     required String digitalId,

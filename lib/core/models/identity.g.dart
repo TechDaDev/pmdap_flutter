@@ -10,43 +10,43 @@ _IdentityDocumentSummary _$IdentityDocumentSummaryFromJson(
   Map<String, dynamic> json,
 ) => _IdentityDocumentSummary(
   uuid: json['uuid'] as String,
-  documentType: json['documentType'] == null
+  documentType: json['document_type'] == null
       ? IdentityDocumentType.unknown
-      : identityDocumentTypeFromJson(json['documentType']),
-  issuingCountry: json['issuingCountry'] as String? ?? '',
-  issueDate: json['issueDate'] == null
+      : identityDocumentTypeFromJson(json['document_type']),
+  issuingCountry: json['issuing_country'] as String? ?? '',
+  issueDate: json['issue_date'] == null
       ? null
-      : DateTime.parse(json['issueDate'] as String),
-  expiryDate: json['expiryDate'] == null
+      : DateTime.parse(json['issue_date'] as String),
+  expiryDate: json['expiry_date'] == null
       ? null
-      : DateTime.parse(json['expiryDate'] as String),
-  verificationStatus: json['verificationStatus'] == null
+      : DateTime.parse(json['expiry_date'] as String),
+  verificationStatus: json['verification_status'] == null
       ? VerificationStatus.unknown
-      : verificationStatusFromJson(json['verificationStatus']),
+      : verificationStatusFromJson(json['verification_status']),
   status: json['status'] == null
       ? IdentityDocumentLifecycleStatus.unknown
       : identityLifecycleFromJson(json['status']),
-  createdAt: json['createdAt'] == null
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  updatedAt: json['updatedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
+      : DateTime.parse(json['updated_at'] as String),
 );
 
 Map<String, dynamic> _$IdentityDocumentSummaryToJson(
   _IdentityDocumentSummary instance,
 ) => <String, dynamic>{
   'uuid': instance.uuid,
-  'documentType': _$IdentityDocumentTypeEnumMap[instance.documentType]!,
-  'issuingCountry': instance.issuingCountry,
-  'issueDate': instance.issueDate?.toIso8601String(),
-  'expiryDate': instance.expiryDate?.toIso8601String(),
-  'verificationStatus':
+  'document_type': _$IdentityDocumentTypeEnumMap[instance.documentType]!,
+  'issuing_country': instance.issuingCountry,
+  'issue_date': instance.issueDate?.toIso8601String(),
+  'expiry_date': instance.expiryDate?.toIso8601String(),
+  'verification_status':
       _$VerificationStatusEnumMap[instance.verificationStatus]!,
   'status': _$IdentityDocumentLifecycleStatusEnumMap[instance.status]!,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
 };
 
 const _$IdentityDocumentTypeEnumMap = {
@@ -76,37 +76,37 @@ _IdentityDocumentDetail _$IdentityDocumentDetailFromJson(
   Map<String, dynamic> json,
 ) => _IdentityDocumentDetail(
   uuid: json['uuid'] as String,
-  documentType: json['documentType'] == null
+  documentType: json['document_type'] == null
       ? IdentityDocumentType.unknown
-      : identityDocumentTypeFromJson(json['documentType']),
-  issuingCountry: json['issuingCountry'] as String? ?? '',
-  issueDate: json['issueDate'] == null
+      : identityDocumentTypeFromJson(json['document_type']),
+  issuingCountry: json['issuing_country'] as String? ?? '',
+  issueDate: json['issue_date'] == null
       ? null
-      : DateTime.parse(json['issueDate'] as String),
-  expiryDate: json['expiryDate'] == null
+      : DateTime.parse(json['issue_date'] as String),
+  expiryDate: json['expiry_date'] == null
       ? null
-      : DateTime.parse(json['expiryDate'] as String),
-  verificationStatus: json['verificationStatus'] == null
+      : DateTime.parse(json['expiry_date'] as String),
+  verificationStatus: json['verification_status'] == null
       ? VerificationStatus.unknown
-      : verificationStatusFromJson(json['verificationStatus']),
+      : verificationStatusFromJson(json['verification_status']),
   status: json['status'] == null
       ? IdentityDocumentLifecycleStatus.unknown
       : identityLifecycleFromJson(json['status']),
-  createdAt: json['createdAt'] == null
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  updatedAt: json['updatedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
-  documentNumber: json['documentNumber'] as String? ?? '',
-  nationalNumber: json['nationalNumber'] as String? ?? '',
-  familyNumber: json['familyNumber'] as String? ?? '',
-  verifiedAt: json['verifiedAt'] == null
+      : DateTime.parse(json['updated_at'] as String),
+  documentNumber: json['document_number'] as String? ?? '',
+  nationalNumber: json['national_number'] as String? ?? '',
+  familyNumber: json['family_number'] as String? ?? '',
+  verifiedAt: json['verified_at'] == null
       ? null
-      : DateTime.parse(json['verifiedAt'] as String),
-  rejectionReason: json['rejectionReason'] as String? ?? '',
+      : DateTime.parse(json['verified_at'] as String),
+  rejectionReason: json['rejection_reason'] as String? ?? '',
   availableImages:
-      (json['availableImages'] as List<dynamic>?)
+      (json['available_images'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
       const <String>[],
@@ -117,20 +117,20 @@ Map<String, dynamic> _$IdentityDocumentDetailToJson(
   _IdentityDocumentDetail instance,
 ) => <String, dynamic>{
   'uuid': instance.uuid,
-  'documentType': _$IdentityDocumentTypeEnumMap[instance.documentType]!,
-  'issuingCountry': instance.issuingCountry,
-  'issueDate': instance.issueDate?.toIso8601String(),
-  'expiryDate': instance.expiryDate?.toIso8601String(),
-  'verificationStatus':
+  'document_type': _$IdentityDocumentTypeEnumMap[instance.documentType]!,
+  'issuing_country': instance.issuingCountry,
+  'issue_date': instance.issueDate?.toIso8601String(),
+  'expiry_date': instance.expiryDate?.toIso8601String(),
+  'verification_status':
       _$VerificationStatusEnumMap[instance.verificationStatus]!,
   'status': _$IdentityDocumentLifecycleStatusEnumMap[instance.status]!,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
-  'documentNumber': instance.documentNumber,
-  'nationalNumber': instance.nationalNumber,
-  'familyNumber': instance.familyNumber,
-  'verifiedAt': instance.verifiedAt?.toIso8601String(),
-  'rejectionReason': instance.rejectionReason,
-  'availableImages': instance.availableImages,
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
+  'document_number': instance.documentNumber,
+  'national_number': instance.nationalNumber,
+  'family_number': instance.familyNumber,
+  'verified_at': instance.verifiedAt?.toIso8601String(),
+  'rejection_reason': instance.rejectionReason,
+  'available_images': instance.availableImages,
   'replaces': instance.replaces,
 };

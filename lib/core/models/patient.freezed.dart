@@ -217,8 +217,8 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _PatientProfile implements PatientProfile {
   const _PatientProfile({required this.uuid, required this.digitalId, required this.fullName, this.dateOfBirth, this.age = 0, this.isMinor = false, @JsonKey(fromJson: sexFromJson) this.sex = Sex.unknown, this.nationality = '', @JsonKey(fromJson: bloodGroupFromJson) this.bloodGroup = BloodGroup.unknown, @JsonKey(fromJson: identityStatusFromJson) this.identityStatus = IdentityStatus.unknown, this.createdAt, this.updatedAt});
   factory _PatientProfile.fromJson(Map<String, dynamic> json) => _$PatientProfileFromJson(json);

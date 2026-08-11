@@ -212,8 +212,8 @@ return $default(_that.uuid,_that.email,_that.phone,_that.role,_that.emailVerifie
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _PublicUser implements PublicUser {
   const _PublicUser({required this.uuid, required this.email, this.phone = '', @JsonKey(fromJson: roleFromJson) this.role = Role.unknown, this.emailVerified = false, this.phoneVerified = false, this.createdAt});
   factory _PublicUser.fromJson(Map<String, dynamic> json) => _$PublicUserFromJson(json);

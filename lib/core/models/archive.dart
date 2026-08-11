@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -8,6 +10,7 @@ part 'archive.g.dart';
 
 @freezed
 abstract class ArchiveFacilitySummary with _$ArchiveFacilitySummary {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveFacilitySummary({
     String? uuid,
     @Default('') String name,
@@ -20,6 +23,7 @@ abstract class ArchiveFacilitySummary with _$ArchiveFacilitySummary {
 /// Archive list item — same shape as archive document.
 @freezed
 abstract class ArchiveDocument with _$ArchiveDocument {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveDocument({
     required String uuid,
     @Default('') String title,
@@ -48,6 +52,7 @@ abstract class ArchiveDocument with _$ArchiveDocument {
 
 @freezed
 abstract class ArchiveSummaryMonth with _$ArchiveSummaryMonth {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveSummaryMonth({
     @Default(0) int month,
     @Default(0) int count,
@@ -59,6 +64,7 @@ abstract class ArchiveSummaryMonth with _$ArchiveSummaryMonth {
 
 @freezed
 abstract class ArchiveSummaryYear with _$ArchiveSummaryYear {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveSummaryYear({
     @Default(0) int year,
     @Default(0) int count,
@@ -71,6 +77,7 @@ abstract class ArchiveSummaryYear with _$ArchiveSummaryYear {
 
 @freezed
 abstract class ArchiveSummaryDocumentType with _$ArchiveSummaryDocumentType {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveSummaryDocumentType({
     @JsonKey(fromJson: medicalDocumentTypeFromJson)
     @Default(MedicalDocumentType.unknown)
@@ -84,6 +91,7 @@ abstract class ArchiveSummaryDocumentType with _$ArchiveSummaryDocumentType {
 
 @freezed
 abstract class ArchiveSummaryFacility with _$ArchiveSummaryFacility {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveSummaryFacility({
     String? uuid,
     @Default('') String name,
@@ -96,6 +104,7 @@ abstract class ArchiveSummaryFacility with _$ArchiveSummaryFacility {
 
 @freezed
 abstract class ArchiveSummary with _$ArchiveSummary {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ArchiveSummary({
     @Default(<ArchiveSummaryYear>[]) List<ArchiveSummaryYear> years,
     @Default(<ArchiveSummaryDocumentType>[])

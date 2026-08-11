@@ -207,8 +207,8 @@ return $default(_that.access,_that.refresh);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _TokenPair implements TokenPair {
   const _TokenPair({required this.access, required this.refresh});
   factory _TokenPair.fromJson(Map<String, dynamic> json) => _$TokenPairFromJson(json);

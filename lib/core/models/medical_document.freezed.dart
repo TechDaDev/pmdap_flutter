@@ -211,8 +211,8 @@ return $default(_that.originalFilename,_that.mimeType,_that.sizeBytes,_that.page
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _StoredFilePublic implements StoredFilePublic {
   const _StoredFilePublic({this.originalFilename = '', this.mimeType = '', this.sizeBytes = 0, this.pageCount, @JsonKey(fromJson: integrityStatusFromJson) this.integrityStatus = IntegrityStatus.unknown, @JsonKey(fromJson: malwareScanStatusFromJson) this.malwareScanStatus = MalwareScanStatus.unknown});
   factory _StoredFilePublic.fromJson(Map<String, dynamic> json) => _$StoredFilePublicFromJson(json);
@@ -526,8 +526,8 @@ return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.t
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _MedicalDocument implements MedicalDocument {
   const _MedicalDocument({required this.uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, @JsonKey(fromJson: classificationSourceFromJson) this.classificationSource = ClassificationSource.unknown, this.title = '', this.description = '', this.documentDate, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.dateVerified = false, this.dateVerifiedAt, this.facilityName = '', this.healthcareFacility, this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, @JsonKey(fromJson: archiveStatusFromJson) this.archiveStatus = ArchiveStatus.unknown, this.file, this.createdAt, this.updatedAt});
   factory _MedicalDocument.fromJson(Map<String, dynamic> json) => _$MedicalDocumentFromJson(json);
@@ -892,8 +892,8 @@ return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.t
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _MedicalDocumentDetail implements MedicalDocumentDetail {
   const _MedicalDocumentDetail({required this.uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, @JsonKey(fromJson: classificationSourceFromJson) this.classificationSource = ClassificationSource.unknown, this.title = '', this.description = '', this.documentDate, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.dateVerified = false, this.dateVerifiedAt, this.facilityName = '', this.healthcareFacility, this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, @JsonKey(fromJson: archiveStatusFromJson) this.archiveStatus = ArchiveStatus.unknown, this.file, this.createdAt, this.updatedAt, this.textAvailable = false});
   factory _MedicalDocumentDetail.fromJson(Map<String, dynamic> json) => _$MedicalDocumentDetailFromJson(json);
@@ -1222,8 +1222,8 @@ return $default(_that.uuid,_that.documentDate,_that.dateSource,_that.dateVerifie
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _DocumentDateConfirmationResponse implements DocumentDateConfirmationResponse {
   const _DocumentDateConfirmationResponse({required this.uuid, this.documentDate, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.dateVerified = false, this.dateVerifiedAt, @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown});
   factory _DocumentDateConfirmationResponse.fromJson(Map<String, dynamic> json) => _$DocumentDateConfirmationResponseFromJson(json);

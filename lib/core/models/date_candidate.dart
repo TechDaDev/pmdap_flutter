@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -9,6 +11,7 @@ part 'date_candidate.g.dart';
 /// A suggested report date candidate from OCR/PDF extraction.
 @freezed
 abstract class DateCandidate with _$DateCandidate {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory DateCandidate({
     required String uuid,
     DateTime? date,

@@ -215,8 +215,8 @@ return $default(_that.uuid,_that.date,_that.alternativeDate,_that.type,_that.sco
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _DateCandidate implements DateCandidate {
   const _DateCandidate({required this.uuid, this.date, this.alternativeDate, this.type = '', this.score = 0, this.pageNumber = 0, this.context = '', @JsonKey(fromJson: sourceFromJson) this.source = Source.unknown, this.ambiguous = false, this.isSuggested = false});
   factory _DateCandidate.fromJson(Map<String, dynamic> json) => _$DateCandidateFromJson(json);

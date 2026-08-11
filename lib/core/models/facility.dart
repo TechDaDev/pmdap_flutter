@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
@@ -8,6 +10,7 @@ part 'facility.g.dart';
 
 @freezed
 abstract class Country with _$Country {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Country({@Default('') String code, @Default('') String name}) =
       _Country;
 
@@ -17,6 +20,7 @@ abstract class Country with _$Country {
 
 @freezed
 abstract class Region with _$Region {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Region({
     String? uuid,
     @Default('') String name,
@@ -28,6 +32,7 @@ abstract class Region with _$Region {
 
 @freezed
 abstract class City with _$City {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory City({String? uuid, @Default('') String name}) = _City;
 
   factory City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
@@ -36,6 +41,7 @@ abstract class City with _$City {
 /// Healthcare facility (read-only).
 @freezed
 abstract class HealthcareFacility with _$HealthcareFacility {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory HealthcareFacility({
     required String uuid,
     @Default('') String name,

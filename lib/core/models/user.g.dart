@@ -11,11 +11,11 @@ _PublicUser _$PublicUserFromJson(Map<String, dynamic> json) => _PublicUser(
   email: json['email'] as String,
   phone: json['phone'] as String? ?? '',
   role: json['role'] == null ? Role.unknown : roleFromJson(json['role']),
-  emailVerified: json['emailVerified'] as bool? ?? false,
-  phoneVerified: json['phoneVerified'] as bool? ?? false,
-  createdAt: json['createdAt'] == null
+  emailVerified: json['email_verified'] as bool? ?? false,
+  phoneVerified: json['phone_verified'] as bool? ?? false,
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
+      : DateTime.parse(json['created_at'] as String),
 );
 
 Map<String, dynamic> _$PublicUserToJson(_PublicUser instance) =>
@@ -24,9 +24,9 @@ Map<String, dynamic> _$PublicUserToJson(_PublicUser instance) =>
       'email': instance.email,
       'phone': instance.phone,
       'role': _$RoleEnumMap[instance.role]!,
-      'emailVerified': instance.emailVerified,
-      'phoneVerified': instance.phoneVerified,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'email_verified': instance.emailVerified,
+      'phone_verified': instance.phoneVerified,
+      'created_at': instance.createdAt?.toIso8601String(),
     };
 
 const _$RoleEnumMap = {

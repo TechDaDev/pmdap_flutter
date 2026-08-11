@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'claim.freezed.dart';
@@ -6,6 +8,7 @@ part 'claim.g.dart';
 /// Receipt returned by public account-claim submission.
 @freezed
 abstract class ClaimReceipt with _$ClaimReceipt {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ClaimReceipt({
     required String claimId,
     @Default('') String status,

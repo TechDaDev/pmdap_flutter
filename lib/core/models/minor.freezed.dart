@@ -213,8 +213,8 @@ return $default(_that.uuid,_that.relationship,_that.verificationStatus,_that.act
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _GuardianRelationship implements GuardianRelationship {
   const _GuardianRelationship({required this.uuid, @JsonKey(fromJson: relationshipFromJson) this.relationship = Relationship.unknown, @JsonKey(fromJson: verificationStatusFromJson) this.verificationStatus = VerificationStatus.unknown, this.active = false, this.startedAt, this.verifiedAt, this.endedAt, this.endedReason});
   factory _GuardianRelationship.fromJson(Map<String, dynamic> json) => _$GuardianRelationshipFromJson(json);
@@ -514,8 +514,8 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _Minor implements Minor {
   const _Minor({required this.uuid, required this.digitalId, required this.fullName, this.dateOfBirth, this.age = 0, this.isMinor = false, @JsonKey(fromJson: sexFromJson) this.sex = Sex.unknown, this.nationality = '', @JsonKey(fromJson: bloodGroupFromJson) this.bloodGroup = BloodGroup.unknown, @JsonKey(fromJson: identityStatusFromJson) this.identityStatus = IdentityStatus.unknown, this.relationship, this.createdAt, this.updatedAt});
   factory _Minor.fromJson(Map<String, dynamic> json) => _$MinorFromJson(json);
@@ -837,8 +837,8 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _MinorCreateResponse implements MinorCreateResponse {
   const _MinorCreateResponse({required this.uuid, required this.digitalId, required this.fullName, this.dateOfBirth, this.age = 0, this.isMinor = false, @JsonKey(fromJson: sexFromJson) this.sex = Sex.unknown, this.nationality = '', @JsonKey(fromJson: bloodGroupFromJson) this.bloodGroup = BloodGroup.unknown, @JsonKey(fromJson: identityStatusFromJson) this.identityStatus = IdentityStatus.unknown, this.relationship, this.createdAt, this.updatedAt});
   factory _MinorCreateResponse.fromJson(Map<String, dynamic> json) => _$MinorCreateResponseFromJson(json);

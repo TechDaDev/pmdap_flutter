@@ -207,8 +207,8 @@ return $default(_that.claimId,_that.status);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _ClaimReceipt implements ClaimReceipt {
   const _ClaimReceipt({required this.claimId, this.status = ''});
   factory _ClaimReceipt.fromJson(Map<String, dynamic> json) => _$ClaimReceiptFromJson(json);

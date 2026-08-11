@@ -117,10 +117,11 @@ class MinorDocumentsApi {
         ApiPaths.minorDocumentCandidates(minorUuid, docUuid),
         queryParameters: {'page': page},
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return Page<DateCandidate>.fromJson(pageJson, DateCandidate.fromJson);
+      return decodePage(
+        resp.data,
+        Page<DateCandidate>.fromJson,
+        DateCandidate.fromJson,
+      );
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

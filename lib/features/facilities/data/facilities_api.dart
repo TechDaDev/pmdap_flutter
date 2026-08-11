@@ -34,11 +34,9 @@ class FacilitiesApi {
         ApiPaths.facilities,
         queryParameters: qp,
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return Page<HealthcareFacility>.fromJson(
-        pageJson,
+      return decodePage(
+        resp.data,
+        Page<HealthcareFacility>.fromJson,
         HealthcareFacility.fromJson,
       );
     } on DioException catch (e) {

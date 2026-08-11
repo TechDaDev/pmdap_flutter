@@ -50,9 +50,9 @@ _HealthcareFacility _$HealthcareFacilityFromJson(Map<String, dynamic> json) =>
           ? null
           : City.fromJson(json['city'] as Map<String, dynamic>),
       address: json['address'] as String? ?? '',
-      facilityType: json['facilityType'] == null
+      facilityType: json['facility_type'] == null
           ? FacilityType.unknown
-          : facilityTypeFromJson(json['facilityType']),
+          : facilityTypeFromJson(json['facility_type']),
       active: json['active'] as bool? ?? false,
       aliases:
           (json['aliases'] as List<dynamic>?)
@@ -69,7 +69,7 @@ Map<String, dynamic> _$HealthcareFacilityToJson(_HealthcareFacility instance) =>
       'region': instance.region,
       'city': instance.city,
       'address': instance.address,
-      'facilityType': _$FacilityTypeEnumMap[instance.facilityType]!,
+      'facility_type': _$FacilityTypeEnumMap[instance.facilityType]!,
       'active': instance.active,
       'aliases': instance.aliases,
     };

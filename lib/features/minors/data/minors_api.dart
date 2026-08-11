@@ -66,10 +66,7 @@ class MinorsApi {
         ApiPaths.minors,
         queryParameters: {'page': page},
       );
-      ensureData(resp.data);
-      final pageJson =
-          (resp.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-      return Page<Minor>.fromJson(pageJson, Minor.fromJson);
+      return decodePage(resp.data, Page<Minor>.fromJson, Minor.fromJson);
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

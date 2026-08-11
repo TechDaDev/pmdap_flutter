@@ -214,8 +214,8 @@ return $default(_that.uuid,_that.documentType,_that.issuingCountry,_that.issueDa
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _IdentityDocumentSummary implements IdentityDocumentSummary {
   const _IdentityDocumentSummary({required this.uuid, @JsonKey(fromJson: identityDocumentTypeFromJson) this.documentType = IdentityDocumentType.unknown, this.issuingCountry = '', this.issueDate, this.expiryDate, @JsonKey(fromJson: verificationStatusFromJson) this.verificationStatus = VerificationStatus.unknown, @JsonKey(fromJson: identityLifecycleFromJson) this.status = IdentityDocumentLifecycleStatus.unknown, this.createdAt, this.updatedAt});
   factory _IdentityDocumentSummary.fromJson(Map<String, dynamic> json) => _$IdentityDocumentSummaryFromJson(json);
@@ -508,8 +508,8 @@ return $default(_that.uuid,_that.documentType,_that.issuingCountry,_that.issueDa
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _IdentityDocumentDetail implements IdentityDocumentDetail {
   const _IdentityDocumentDetail({required this.uuid, @JsonKey(fromJson: identityDocumentTypeFromJson) this.documentType = IdentityDocumentType.unknown, this.issuingCountry = '', this.issueDate, this.expiryDate, @JsonKey(fromJson: verificationStatusFromJson) this.verificationStatus = VerificationStatus.unknown, @JsonKey(fromJson: identityLifecycleFromJson) this.status = IdentityDocumentLifecycleStatus.unknown, this.createdAt, this.updatedAt, this.documentNumber = '', this.nationalNumber = '', this.familyNumber = '', this.verifiedAt, this.rejectionReason = '', final  List<String> availableImages = const <String>[], this.replaces}): _availableImages = availableImages;
   factory _IdentityDocumentDetail.fromJson(Map<String, dynamic> json) => _$IdentityDocumentDetailFromJson(json);
