@@ -67,7 +67,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -86,14 +85,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       l10n.welcomeBack,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: theme.colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       l10n.loginSubtitleSecure,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
@@ -102,7 +103,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       shadowColor: Colors.black.withAlpha(10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.card),
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -182,7 +185,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         Text(
                           l10n.noAccountYet,
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         TextButton(
                           onPressed: () => context.go(Routes.register),
@@ -196,7 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         l10n.claimExistingAccount,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -206,7 +211,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         l10n.activateClaimedAccount,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -217,14 +222,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Icon(
                           Icons.lock_outline_rounded,
                           size: 14,
-                          color: AppColors.textMuted,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
                           l10n.secureFooter,
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textMuted,
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],

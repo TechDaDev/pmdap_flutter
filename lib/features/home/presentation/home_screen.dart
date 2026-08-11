@@ -29,9 +29,7 @@ class HomeScreen extends ConsumerWidget {
     final docsAsync = ref.watch(documentsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
         title: Text(l10n.appFullName),
         actions: [
           Padding(
@@ -104,7 +102,9 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       l10n.noDocuments,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   );
                 }
@@ -146,13 +146,16 @@ class _Greeting extends StatelessWidget {
           '${l10n.hello} $firstName',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           l10n.medicalRecordOverview,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 14,
+          ),
         ),
       ],
     );
@@ -277,7 +280,7 @@ class _IdentityCard extends StatelessWidget {
                     l10n.identityVerification,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -318,7 +321,7 @@ class _ShortcutGrid extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -411,7 +414,7 @@ class _Shortcut extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     if (count != null && count! > 0)

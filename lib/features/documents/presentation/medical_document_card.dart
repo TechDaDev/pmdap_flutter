@@ -74,7 +74,7 @@ class MedicalDocumentCard extends StatelessWidget {
                             subtitle,
                             style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.textSecondary,
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -114,11 +114,14 @@ class _Meta extends StatelessWidget {
   Widget build(BuildContext ctx) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 15, color: AppColors.textSecondary),
+      Icon(icon, size: 15, color: Theme.of(ctx).colorScheme.onSurfaceVariant),
       const SizedBox(width: 5),
       Text(
         label,
-        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+        style: TextStyle(
+          fontSize: 13,
+          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+        ),
       ),
     ],
   );

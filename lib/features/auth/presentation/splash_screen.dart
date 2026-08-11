@@ -27,7 +27,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -39,13 +38,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primaryNavy,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               l10n.logoSubtitle,
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: AppSpacing.xxxl),
             SizedBox(
