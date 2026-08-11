@@ -20,6 +20,8 @@ class SearchQuery {
     this.department,
     this.physicianName,
     this.dateStatus,
+    this.uploadedFrom,
+    this.uploadedTo,
   });
 
   final String? q;
@@ -32,18 +34,42 @@ class SearchQuery {
   final String? department;
   final String? physicianName;
   final String? dateStatus;
+  final DateTime? uploadedFrom;
+  final DateTime? uploadedTo;
 
   Map<String, dynamic> toQueryParameters({int page = 1}) {
     String? fmt(DateTime? d) => d == null
         ? null
         : '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+    // Backend constraints, enforced client-side:
+    // - UNCONFIRMED cannot combine with report-date/year/month filters
+    // - month requires year
+    // - date_from <= date_to; uploaded_from <= uploaded_to
+    final unconfirmed = dateStatus == 'UNCONFIRMED';
+    final reportDateFiltered = dateFrom != null || dateTo != null;
+    final validDateRange =
+        dateFrom == null || dateTo == null || !dateFrom!.isAfter(dateTo!);
+    final validUploadRange =
+        uploadedFrom == null ||
+        uploadedTo == null ||
+        !uploadedFrom!.isAfter(uploadedTo!);
+    final effectiveYear = unconfirmed || reportDateFiltered ? null : year;
+    final effectiveMonth = effectiveYear == null ? null : month;
+    final sendDateFrom = !unconfirmed && validDateRange ? dateFrom : null;
+    final sendDateTo = !unconfirmed && validDateRange ? dateTo : null;
+    final sendUploadFrom = !unconfirmed && validUploadRange
+        ? uploadedFrom
+        : null;
+    final sendUploadTo = !unconfirmed && validUploadRange ? uploadedTo : null;
+
     return {
       'page': page,
       if (q != null && q!.isNotEmpty) 'q': q,
-      if (dateFrom != null) 'date_from': fmt(dateFrom),
-      if (dateTo != null) 'date_to': fmt(dateTo),
-      if (year != null) 'year': year,
-      if (month != null) 'month': month,
+      if (sendDateFrom != null) 'date_from': fmt(sendDateFrom),
+      if (sendDateTo != null) 'date_to': fmt(sendDateTo),
+      if (effectiveYear != null) 'year': effectiveYear,
+      if (effectiveMonth != null) 'month': effectiveMonth,
       if (documentType != null && documentType != MedicalDocumentType.unknown)
         'document_type': documentType!.api,
       if (healthcareFacilityId != null)
@@ -52,6 +78,8 @@ class SearchQuery {
         'department': department,
       if (physicianName != null && physicianName!.isNotEmpty)
         'physician_name': physicianName,
+      if (sendUploadFrom != null) 'uploaded_from': fmt(sendUploadFrom),
+      if (sendUploadTo != null) 'uploaded_to': fmt(sendUploadTo),
       if (dateStatus != null) 'date_status': dateStatus,
     };
   }

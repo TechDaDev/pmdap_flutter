@@ -6,6 +6,8 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../core/api/api_exception.dart';
+import '../../../core/api/business_errors.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/widgets/document_card.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -157,7 +159,35 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(l10n.errorGeneric)),
+              error: (e, _) {
+                final apiException = e is ApiException ? e : null;
+                final message = BusinessErrorMessages(
+                  l10n,
+                ).messageFor(apiException ?? const ApiException.network());
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(message, textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: () =>
+                              ref.invalidate(searchResultsProvider),
+                          child: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

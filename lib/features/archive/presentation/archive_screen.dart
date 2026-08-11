@@ -175,7 +175,10 @@ class _Filters extends ConsumerWidget {
                   month: null,
                   documentType: query.documentType,
                   healthcareFacilityId: query.healthcareFacilityId,
-                  dateStatus: query.dateStatus,
+                  // UNCONFIRMED cannot combine with year/month.
+                  dateStatus: query.dateStatus == 'UNCONFIRMED'
+                      ? null
+                      : query.dateStatus,
                 ),
               ),
             ),
@@ -222,13 +225,16 @@ class _Filters extends ConsumerWidget {
                 query,
                 l10n.dateVerifiedLabel,
                 dateStatuses,
-                (v) => ArchiveQuery(
-                  year: query.year,
-                  month: query.month,
-                  documentType: query.documentType,
-                  healthcareFacilityId: query.healthcareFacilityId,
-                  dateStatus: v.isEmpty ? null : v,
-                ),
+                (v) {
+                  final unconfirmed = v == 'UNCONFIRMED';
+                  return ArchiveQuery(
+                    year: unconfirmed ? null : query.year,
+                    month: unconfirmed ? null : query.month,
+                    documentType: query.documentType,
+                    healthcareFacilityId: query.healthcareFacilityId,
+                    dateStatus: v.isEmpty ? null : v,
+                  );
+                },
               ),
             ),
           ),

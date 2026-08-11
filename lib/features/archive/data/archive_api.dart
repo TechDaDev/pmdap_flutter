@@ -25,16 +25,20 @@ class ArchiveQuery {
   /// VERIFIED | UNCONFIRMED (dates needing confirmation).
   final String? dateStatus;
 
-  Map<String, dynamic> toQueryParameters({int page = 1}) => {
-    'page': page,
-    if (year != null) 'year': year,
-    if (month != null) 'month': month,
-    if (documentType != null && documentType != MedicalDocumentType.unknown)
-      'document_type': documentType!.api,
-    if (healthcareFacilityId != null)
-      'healthcare_facility': healthcareFacilityId,
-    if (dateStatus != null) 'date_status': dateStatus,
-  };
+  Map<String, dynamic> toQueryParameters({int page = 1}) {
+    // Backend forbids UNCONFIRMED with year/month — drop the date filters.
+    final unconfirmed = dateStatus == 'UNCONFIRMED';
+    return {
+      'page': page,
+      if (!unconfirmed && year != null) 'year': year,
+      if (!unconfirmed && month != null) 'month': month,
+      if (documentType != null && documentType != MedicalDocumentType.unknown)
+        'document_type': documentType!.api,
+      if (healthcareFacilityId != null)
+        'healthcare_facility': healthcareFacilityId,
+      if (dateStatus != null) 'date_status': dateStatus,
+    };
+  }
 }
 
 class ArchiveApi {

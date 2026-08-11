@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
+import '../../../core/api/business_errors.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -99,7 +100,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (e.isThrottled) return l10n.throttled;
     if (e.isNetwork || e.isTimeout) return l10n.networkError;
     if (e.code == 'validation_error') {
-      return e.firstFieldMessage ?? l10n.validationFailed;
+      return firstNestedMessage(e.details) ?? l10n.validationFailed;
     }
     return e.message;
   }
@@ -132,6 +133,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       controller: _fullNameController,
                       prefixIcon: const Icon(Icons.person_outline),
                       textInputAction: TextInputAction.next,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? l10n.validationFailed
+                          : null,
                     ),
                     const SizedBox(height: 14),
                     AppTextField(
@@ -140,6 +144,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(Icons.mail_outline),
                       textInputAction: TextInputAction.next,
+                      validator: (v) {
+                        final s = v?.trim() ?? '';
+                        return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)
+                            ? null
+                            : l10n.validationFailed;
+                      },
                     ),
                     const SizedBox(height: 14),
                     AppTextField(
@@ -158,6 +168,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       readOnly: true,
                       onTap: _pickDob,
                       prefixIcon: const Icon(Icons.event_outlined),
+                      validator: (_) {
+                        final dob = _dob;
+                        if (dob == null) return l10n.validationFailed;
+                        final now = DateTime.now();
+                        final today = DateTime(now.year, now.month, now.day);
+                        var age = today.year - dob.year;
+                        final beforeBirthday =
+                            today.month < dob.month ||
+                            (today.month == dob.month && today.day < dob.day);
+                        if (beforeBirthday) age--;
+                        if (dob.isAfter(today)) return l10n.dobNotFuture;
+                        // Backend: direct account ownership requires an adult.
+                        return age >= 18 ? null : l10n.validationFailed;
+                      },
                     ),
                     const SizedBox(height: 14),
                     DropdownButtonFormField<Sex>(
@@ -179,6 +203,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       controller: _nationalityController,
                       maxLength: 2,
                       textInputAction: TextInputAction.next,
+                      validator: (v) =>
+                          RegExp(r'^[A-Za-z]{2}$').hasMatch(v?.trim() ?? '')
+                          ? null
+                          : l10n.validationFailed,
                     ),
                     const SizedBox(height: 14),
                     DropdownButtonFormField<BloodGroup>(
@@ -217,6 +245,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                       textInputAction: TextInputAction.done,
+                      validator: (v) => (v == null || v.isEmpty)
+                          ? l10n.validationFailed
+                          : null,
                     ),
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 12),
