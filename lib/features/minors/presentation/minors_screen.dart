@@ -4,6 +4,7 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../core/models/enums.dart';
 import '../../../core/models/minor.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/status_labels.dart';
@@ -20,44 +21,73 @@ class MinorsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final async = ref.watch(minorsProvider);
+    final eligibility = ref.watch(guardianEligibilityProvider);
 
+    // Present the eligibility gate before the normal minors workflow.
     return PmdapScaffold(
       title: l10n.minorsTitle,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(Routes.minorsNew),
-        icon: const Icon(Icons.person_add_alt),
-        label: Text(l10n.addMinor),
+      floatingActionButton: eligibility.valueOrNull?.isEligible == true
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push(Routes.minorsNew),
+              icon: const Icon(Icons.person_add_alt),
+              label: Text(l10n.addMinor),
+            )
+          : null,
+      body: eligibility.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => _buildMinorsList(context, ref),
+        data: (elig) => elig.isEligible
+            ? _buildMinorsList(context, ref)
+            : _GuardianEligibilityView(
+                onVerify: () => context.push(Routes.identity),
+              ),
       ),
-      body: AsyncStateView(
-        value: async,
-        onRetry: () => ref.invalidate(minorsProvider),
-        emptyBuilder: (page) => page.results.isEmpty
-            ? EmptyState(icon: Icons.family_restroom, message: l10n.noMinors)
-            : null,
-        builder: (page) {
-          final labels = StatusLabels(l10n);
-          return ListView.separated(
-            padding: const EdgeInsets.only(bottom: 96),
-            itemCount: page.results.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, i) {
-              final minor = page.results[i];
-              return ListTile(
-                onTap: () => context.push(Routes.minorDetail(minor.uuid)),
-                leading: CircleAvatar(child: Text(_initials(minor))),
-                title: Text(minor.fullName),
-                subtitle: Text(
-                  '${l10n.minorAge}: ${minor.age} · ${formatApiDate(minor.dateOfBirth)}',
-                ),
-                trailing: StatusBadge.neutral(
-                  label: labels.identityLabel(minor.identityStatus),
-                ),
-              );
-            },
-          );
-        },
-      ),
+    );
+  }
+
+  Widget _buildMinorsList(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final async = ref.watch(minorsProvider);
+    return AsyncStateView(
+      value: async,
+      onRetry: () => ref.invalidate(minorsProvider),
+      emptyBuilder: (page) => page.results.isEmpty
+          ? EmptyState(icon: Icons.family_restroom, message: l10n.noMinors)
+          : null,
+      builder: (page) {
+        final labels = StatusLabels(l10n);
+        return ListView.separated(
+          padding: const EdgeInsets.only(bottom: 96),
+          itemCount: page.results.length,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemBuilder: (context, i) {
+            final minor = page.results[i];
+            final pending =
+                minor.relationship?.verificationStatus ==
+                VerificationStatus.pending;
+            return ListTile(
+              // PENDING relationships are not fully accessible — detail and
+              // protected sub-routes require VERIFIED + active.
+              onTap: pending
+                  ? null
+                  : () => context.push(Routes.minorDetail(minor.uuid)),
+              enabled: !pending,
+              leading: CircleAvatar(child: Text(_initials(minor))),
+              title: Text(minor.fullName),
+              subtitle: Text(
+                pending
+                    ? l10n.relationshipPending
+                    : '${l10n.minorAge}: ${minor.age} · ${formatApiDate(minor.dateOfBirth)}',
+              ),
+              trailing: pending
+                  ? StatusBadge.warning(label: l10n.relationshipPending)
+                  : StatusBadge.neutral(
+                      label: labels.identityLabel(minor.identityStatus),
+                    ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -67,5 +97,53 @@ class MinorsScreen extends ConsumerWidget {
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
     return (parts.first.characters.first + parts.last.characters.first)
         .toUpperCase();
+  }
+}
+
+/// Bilingual gate shown when the guardian is not yet eligible.
+class _GuardianEligibilityView extends StatelessWidget {
+  const _GuardianEligibilityView({required this.onVerify});
+
+  final VoidCallback onVerify;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(
+              Icons.verified_user_outlined,
+              size: 64,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.guardianEligibilityTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.guardianEligibilityBody,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: onVerify,
+              icon: const Icon(Icons.badge_outlined),
+              label: Text(l10n.verifyIdentity),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -44,6 +44,10 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
   bool _submitting = false;
   String? _errorMessage;
 
+  bool get _isNationalCard =>
+      _docType == IdentityDocumentType.unifiedNationalCard;
+  bool get _isPassport => _docType == IdentityDocumentType.passport;
+
   @override
   void dispose() {
     _documentNumberController.dispose();
@@ -53,10 +57,25 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
     super.dispose();
   }
 
+  static bool _supportsImage(String? name) {
+    if (name == null) return false;
+    final lower = name.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png');
+  }
+
   Future<void> _pickImage({required bool front}) async {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(source: ImageSource.gallery);
     if (xfile == null) return;
+    if (!_supportsImage(xfile.name)) {
+      setState(
+        () =>
+            _errorMessage = AppLocalizations.of(context).unsupportedImageFormat,
+      );
+      return;
+    }
     setState(() {
       if (front) {
         _frontPath = xfile.path;
@@ -70,13 +89,16 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
 
   Future<void> _pickDate({required bool issue}) async {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final picked = await showDatePicker(
       context: context,
       initialDate: issue
-          ? (_issueDate ?? DateTime(now.year - 2, 1, 1))
-          : (_expiryDate ?? now),
-      firstDate: DateTime(1900),
-      lastDate: now.add(const Duration(days: 365 * 20)),
+          ? (_issueDate ?? DateTime(today.year - 2, today.month, today.day))
+          : (_expiryDate ?? DateTime(today.year + 5, today.month, today.day)),
+      // issue_date cannot be in the future; expiry must be >= today and after
+      // the issue date.
+      firstDate: issue ? DateTime(1900) : (_issueDate ?? today),
+      lastDate: issue ? today : DateTime(2100, 12, 31),
     );
     if (picked != null) {
       setState(() => issue ? _issueDate = picked : _expiryDate = picked);
@@ -90,6 +112,21 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
       setState(() => _errorMessage = l10n.selectImageRequired);
       return;
     }
+    // National Card and adult submissions require a back image.
+    if (_isNationalCard && _backPath == null) {
+      setState(() => _errorMessage = l10n.backImageRequired);
+      return;
+    }
+    if (_isNationalCard &&
+        (_nationalNumberController.text.trim().isEmpty ||
+            _familyNumberController.text.trim().isEmpty)) {
+      setState(() => _errorMessage = l10n.nationalNumberRequired);
+      return;
+    }
+    if (_isPassport && (_issueDate == null || _expiryDate == null)) {
+      setState(() => _errorMessage = l10n.validationFailed);
+      return;
+    }
     setState(() {
       _submitting = true;
       _errorMessage = null;
@@ -99,7 +136,9 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
       documentNumber: _documentNumberController.text.trim(),
       nationalNumber: _nationalNumberController.text.trim(),
       familyNumber: _familyNumberController.text.trim(),
-      issuingCountry: _countryController.text.trim().toUpperCase(),
+      issuingCountry: _isNationalCard
+          ? 'IQ'
+          : _countryController.text.trim().toUpperCase(),
       issueDate: _issueDate,
       expiryDate: _expiryDate,
       frontPath: _frontPath!,
@@ -170,22 +209,45 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                 AppTextField(
                   label: l10n.documentNumber,
                   controller: _documentNumberController,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? l10n.validationFailed
+                      : null,
                 ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.nationalNumber,
-                  controller: _nationalNumberController,
-                ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.familyNumber,
-                  controller: _familyNumberController,
-                ),
+                if (_isNationalCard) ...[
+                  const SizedBox(height: 14),
+                  AppTextField(
+                    label: l10n.nationalNumber,
+                    controller: _nationalNumberController,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l10n.nationalNumberRequired
+                        : null,
+                  ),
+                  const SizedBox(height: 14),
+                  AppTextField(
+                    label: l10n.familyNumber,
+                    controller: _familyNumberController,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l10n.validationFailed
+                        : null,
+                  ),
+                ],
                 const SizedBox(height: 14),
                 AppTextField(
                   label: l10n.issuingCountry,
                   controller: _countryController,
                   maxLength: 2,
+                  readOnly: _isNationalCard,
+                  validator: (v) {
+                    final s = (v ?? '').trim();
+                    if (_isNationalCard) {
+                      return s.toUpperCase() == 'IQ'
+                          ? null
+                          : l10n.validationFailed;
+                    }
+                    return RegExp(r'^[A-Za-z]{2}$').hasMatch(s)
+                        ? null
+                        : l10n.validationFailed;
+                  },
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
@@ -195,6 +257,9 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                   ),
                   readOnly: true,
                   onTap: () => _pickDate(issue: true),
+                  validator: (_) => _isPassport && _issueDate == null
+                      ? l10n.validationFailed
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
@@ -204,6 +269,9 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                   ),
                   readOnly: true,
                   onTap: () => _pickDate(issue: false),
+                  validator: (_) => _isPassport && _expiryDate == null
+                      ? l10n.validationFailed
+                      : null,
                 ),
                 const SizedBox(height: 20),
                 _ImagePickerTile(
@@ -217,7 +285,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                   label: l10n.backImage,
                   actionLabel: l10n.chooseExistingImage,
                   path: _backPath,
-                  optional: true,
+                  optional: !_isNationalCard,
                   onPick: () => _pickImage(front: false),
                 ),
                 if (_errorMessage != null) ...[

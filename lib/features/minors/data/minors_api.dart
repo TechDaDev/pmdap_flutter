@@ -20,16 +20,16 @@ class MinorCreateSubmission {
     required this.documentNumber,
     this.nationalNumber = '',
     this.familyNumber = '',
-    this.issuingCountry = 'IQ',
+    this.issuingCountry,
     this.issueDate,
     this.expiryDate,
     required this.frontPath,
     required this.frontFilename,
     this.backPath,
     this.backFilename,
-    this.evidenceType = EvidenceType.otherOfficialEvidence,
-    required this.evidencePath,
-    required this.evidenceFilename,
+    this.evidenceType,
+    this.evidencePath,
+    this.evidenceFilename,
   });
 
   final String fullName;
@@ -42,16 +42,24 @@ class MinorCreateSubmission {
   final String documentNumber;
   final String nationalNumber;
   final String familyNumber;
-  final String issuingCountry;
+
+  /// Document issuing country — a separate field from child nationality.
+  final String? issuingCountry;
   final DateTime? issueDate;
   final DateTime? expiryDate;
   final String frontPath;
   final String frontFilename;
   final String? backPath;
   final String? backFilename;
-  final EvidenceType evidenceType;
-  final String evidencePath;
-  final String evidenceFilename;
+
+  /// Guardian evidence is optional for father/mother and required for a legal
+  /// guardian. Evidence type and file must be supplied together.
+  final EvidenceType? evidenceType;
+  final String? evidencePath;
+  final String? evidenceFilename;
+
+  /// True when the payload has both (or neither) evidence parts.
+  bool get evidenceComplete => (evidenceType == null) == (evidencePath == null);
 }
 
 class MinorsApi {
@@ -98,7 +106,8 @@ class MinorsApi {
         'document_number': s.documentNumber,
         'national_number': s.nationalNumber,
         'family_number': s.familyNumber,
-        'issuing_country': s.issuingCountry,
+        if (s.issuingCountry != null && s.issuingCountry!.isNotEmpty)
+          'issuing_country': s.issuingCountry,
         if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
         if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
         'front_image': await MultipartFile.fromFile(
@@ -110,11 +119,15 @@ class MinorsApi {
             s.backPath!,
             filename: s.backFilename ?? 'back',
           ),
-        'evidence_type': s.evidenceType.api,
-        'evidence_file': await MultipartFile.fromFile(
-          s.evidencePath,
-          filename: s.evidenceFilename,
-        ),
+        // Evidence is optional (father/mother); when present, type + file are
+        // always sent together, never one without the other.
+        if (s.evidencePath != null && s.evidenceType != null)
+          'evidence_type': s.evidenceType!.api,
+        if (s.evidencePath != null)
+          'evidence_file': await MultipartFile.fromFile(
+            s.evidencePath!,
+            filename: s.evidenceFilename ?? 'evidence',
+          ),
       });
       final resp = await _dio.post<dynamic>(
         ApiPaths.minors,

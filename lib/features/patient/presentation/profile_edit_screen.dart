@@ -53,6 +53,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             _sex = profile.sex;
             _bloodGroup = profile.bloodGroup;
           }
+          final verified = profile.identityStatus == IdentityStatus.verified;
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -60,9 +61,24 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (verified) ...[
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.lock_outline),
+                        title: Text(
+                          l10n.verifiedFieldsLocked,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
                   AppTextField(
                     label: l10n.fullName,
                     controller: _fullNameController,
+                    readOnly: verified,
                   ),
                   const SizedBox(height: 14),
                   AppTextField(
@@ -71,7 +87,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       text: formatApiDate(_dob),
                     ),
                     readOnly: true,
-                    onTap: _pickDob,
+                    onTap: verified ? null : _pickDob,
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<Sex>(
@@ -84,14 +100,16 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           child: Text(_sexLabel(l10n, s)),
                         ),
                     ],
-                    onChanged: (v) =>
-                        setState(() => _sex = v ?? Sex.unspecified),
+                    onChanged: verified
+                        ? null
+                        : (v) => setState(() => _sex = v ?? Sex.unspecified),
                   ),
                   const SizedBox(height: 14),
                   AppTextField(
                     label: l10n.nationality,
                     controller: _nationalityController,
                     maxLength: 2,
+                    readOnly: verified,
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<BloodGroup>(
@@ -149,13 +167,18 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       _errorMessage = null;
     });
     try {
+      final profile = ref.read(patientProfileProvider).value;
+      final verified = profile?.identityStatus == IdentityStatus.verified;
       await ref
           .read(patientApiProvider)
           .update(
-            fullName: _fullNameController.text.trim(),
-            dateOfBirth: _dob,
-            sex: _sex,
-            nationality: _nationalityController.text.trim().toUpperCase(),
+            // Verified identity fields are locked server-side — never send them.
+            fullName: verified ? null : _fullNameController.text.trim(),
+            dateOfBirth: verified ? null : _dob,
+            sex: verified ? null : _sex,
+            nationality: verified
+                ? null
+                : _nationalityController.text.trim().toUpperCase(),
             bloodGroup: _bloodGroup,
           );
       ref.invalidate(patientProfileProvider);
