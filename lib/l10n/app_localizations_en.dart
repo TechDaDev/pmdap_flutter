@@ -1103,4 +1103,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseAnother => 'Choose another';
+
+  @override
+  String get scanFront => 'Scan front';
+
+  @override
+  String get scanBack => 'Scan back';
+
+  @override
+  String get scanPassport => 'Scan passport';
+
+  @override
+  String get chooseImage => 'Choose image';
+
+  @override
+  String get replaceImage => 'Replace image';
+
+  @override
+  String get readDocument => 'Read document';
+
+  @override
+  String get readingDocument => 'Reading document…';
+
+  @override
+  String get documentReadingFailed =>
+      'Document reading failed. Please try again.';
+
+  @override
+  String get documentNotRecognized =>
+      'The document could not be recognized. Please scan it again.';
+
+  @override
+  String get reviewDocumentInformation => 'Review document information';
+
+  @override
+  String get reviewDocumentSubtitle =>
+      'Please check the detected information before submitting.';
+
+  @override
+  String get confidenceDetected => 'Detected';
+
+  @override
+  String get confidencePleaseCheck => 'Please check';
+
+  @override
+  String get confidenceNeedsReview => 'Needs review';
+
+  @override
+  String get couldNotReadThisField => 'Could not read this field';
+
+  @override
+  String get mrzVerified => 'MRZ verified';
+
+  @override
+  String get submitForVerification => 'Submit for verification';
+
+  @override
+  String get passportNumber => 'Passport number';
+
+  @override
+  String get identityExtractionAdvisory =>
+      'Extraction is a suggestion only — please verify all values before submitting.';
 }

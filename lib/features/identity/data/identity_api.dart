@@ -9,6 +9,7 @@ import '../../../core/models/enums.dart';
 import '../../../core/models/identity.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/utils/date_utils.dart';
+import 'extraction_models.dart';
 
 /// Selected existing file/image to submit for an identity document.
 class IdentitySubmission {
@@ -152,6 +153,33 @@ class IdentityApi {
         options: Options(responseType: ResponseType.bytes),
       );
       return Uint8List.fromList(resp.data as List<int>);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Advisory field extraction. No IdentityDocument is created; the result is
+  /// for human review before the real [submit]/[replace] call.
+  Future<IdentityExtractionResult> extract({
+    required IdentityDocumentType documentType,
+    required String frontPath,
+    String? backPath,
+  }) async {
+    try {
+      final form = FormData.fromMap({
+        'document_type': documentType.api,
+        'front_image': await MultipartFile.fromFile(frontPath),
+        if (backPath != null)
+          'back_image': await MultipartFile.fromFile(backPath),
+      });
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.identityExtract,
+        data: form,
+      );
+      return decodeData<IdentityExtractionResult>(
+        resp.data,
+        IdentityExtractionResult.fromJson,
+      );
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

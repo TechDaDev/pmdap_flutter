@@ -81,12 +81,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Add identity document'), findsOneWidget); // AppBar
-      // BODY.
+      // BODY — scan/capture flow (no manual fields before extraction).
       expect(find.text('Document type'), findsOneWidget);
-      expect(find.text('Document number'), findsOneWidget);
-      expect(find.text('National number'), findsOneWidget);
       expect(find.text('Front image'), findsOneWidget);
-      expect(find.text('Submit document'), findsOneWidget);
+      expect(find.text('Back image'), findsOneWidget);
+      expect(find.text('Scan front'), findsOneWidget);
+      expect(find.text('Scan back'), findsOneWidget);
+      expect(find.text('Choose image'), findsWidgets);
+      expect(find.text('Read document'), findsOneWidget);
     });
   }
 }

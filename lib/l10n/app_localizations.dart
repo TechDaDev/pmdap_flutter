@@ -2245,6 +2245,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose another'**
   String get chooseAnother;
+
+  /// No description provided for @scanFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan front'**
+  String get scanFront;
+
+  /// No description provided for @scanBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan back'**
+  String get scanBack;
+
+  /// No description provided for @scanPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan passport'**
+  String get scanPassport;
+
+  /// No description provided for @chooseImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get chooseImage;
+
+  /// No description provided for @replaceImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace image'**
+  String get replaceImage;
+
+  /// No description provided for @readDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Read document'**
+  String get readDocument;
+
+  /// No description provided for @readingDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading document…'**
+  String get readingDocument;
+
+  /// No description provided for @documentReadingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Document reading failed. Please try again.'**
+  String get documentReadingFailed;
+
+  /// No description provided for @documentNotRecognized.
+  ///
+  /// In en, this message translates to:
+  /// **'The document could not be recognized. Please scan it again.'**
+  String get documentNotRecognized;
+
+  /// No description provided for @reviewDocumentInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Review document information'**
+  String get reviewDocumentInformation;
+
+  /// No description provided for @reviewDocumentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check the detected information before submitting.'**
+  String get reviewDocumentSubtitle;
+
+  /// No description provided for @confidenceDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected'**
+  String get confidenceDetected;
+
+  /// No description provided for @confidencePleaseCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check'**
+  String get confidencePleaseCheck;
+
+  /// No description provided for @confidenceNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get confidenceNeedsReview;
+
+  /// No description provided for @couldNotReadThisField.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read this field'**
+  String get couldNotReadThisField;
+
+  /// No description provided for @mrzVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'MRZ verified'**
+  String get mrzVerified;
+
+  /// No description provided for @submitForVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for verification'**
+  String get submitForVerification;
+
+  /// No description provided for @passportNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport number'**
+  String get passportNumber;
+
+  /// No description provided for @identityExtractionAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'Extraction is a suggestion only — please verify all values before submitting.'**
+  String get identityExtractionAdvisory;
 }
 
 class _AppLocalizationsDelegate

@@ -128,7 +128,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unspecified => 'غير محدد';
 
   @override
-  String get nationality => 'الجنسية (رمز من حرفين)';
+  String get nationality => 'الجنسية';
 
   @override
   String get bloodGroup => 'فصيلة الدم';
@@ -1092,4 +1092,64 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chooseAnother => 'اختيار آخر';
+
+  @override
+  String get scanFront => 'مسح الوجه الأمامي';
+
+  @override
+  String get scanBack => 'مسح الوجه الخلفي';
+
+  @override
+  String get scanPassport => 'مسح جواز السفر';
+
+  @override
+  String get chooseImage => 'اختيار صورة';
+
+  @override
+  String get replaceImage => 'استبدال الصورة';
+
+  @override
+  String get readDocument => 'قراءة المستند';
+
+  @override
+  String get readingDocument => 'جارٍ قراءة المستند…';
+
+  @override
+  String get documentReadingFailed => 'فشلت قراءة المستند. حاول مرة أخرى.';
+
+  @override
+  String get documentNotRecognized =>
+      'تعذر التعرف على المستند. يرجى مسحه مرة أخرى.';
+
+  @override
+  String get reviewDocumentInformation => 'مراجعة معلومات المستند';
+
+  @override
+  String get reviewDocumentSubtitle =>
+      'يرجى التحقق من المعلومات المكتشفة قبل الإرسال.';
+
+  @override
+  String get confidenceDetected => 'تم اكتشافه';
+
+  @override
+  String get confidencePleaseCheck => 'يرجى التحقق';
+
+  @override
+  String get confidenceNeedsReview => 'يحتاج إلى مراجعة';
+
+  @override
+  String get couldNotReadThisField => 'تعذر قراءة هذا الحقل';
+
+  @override
+  String get mrzVerified => 'تم التحقق من MRZ';
+
+  @override
+  String get submitForVerification => 'إرسال للتحقق';
+
+  @override
+  String get passportNumber => 'رقم جواز السفر';
+
+  @override
+  String get identityExtractionAdvisory =>
+      'الاستخراج مجرد اقتراح — يرجى التحقق من جميع القيم قبل الإرسال.';
 }

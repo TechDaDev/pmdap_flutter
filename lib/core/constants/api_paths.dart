@@ -14,6 +14,7 @@ class ApiPaths {
   static const patientAvatar = '/patients/me/avatar/';
 
   static const identityDocuments = '/identity-documents/';
+  static const identityExtract = '/identity-documents/extract/';
   static String identityDocumentDetail(String uuid) =>
       '/identity-documents/$uuid/';
   static String identityDocumentReplace(String uuid) =>
