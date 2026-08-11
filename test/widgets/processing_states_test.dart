@@ -77,7 +77,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Delete document'));
+    await tester.scrollUntilVisible(
+      find.text('Delete document'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete document'));
     await tester.pumpAndSettle();
