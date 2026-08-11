@@ -539,24 +539,38 @@ class _FileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasFile = path != null;
+    final scheme = Theme.of(context).colorScheme;
     return Card(
-      child: ListTile(
-        leading: Icon(hasFile ? Icons.insert_drive_file : Icons.add),
-        title: Text(label),
-        trailing: hasFile
-            ? IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: onPick,
-                tooltip: 'Change',
-              )
-            : OutlinedButton(
-                onPressed: onPick,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasFile ? Icons.insert_drive_file : Icons.add,
+                  color: scheme.primary,
                 ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onPick,
                 child: Text(actionLabel),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }

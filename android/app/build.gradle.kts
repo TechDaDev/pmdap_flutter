@@ -41,3 +41,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Google ML Kit document scanner (Google Play services UI flow).
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+}

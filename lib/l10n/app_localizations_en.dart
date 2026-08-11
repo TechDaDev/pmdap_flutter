@@ -1061,4 +1061,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removePhotoExplain => 'Your initials will be shown instead.';
+
+  @override
+  String get addMedicalDocument => 'Add medical document';
+
+  @override
+  String get scanDocument => 'Scan document';
+
+  @override
+  String get scanDocumentSubtitle =>
+      'Use your camera to scan one or more pages.';
+
+  @override
+  String get selectDocumentType => 'Select type';
+
+  @override
+  String get advancedDetails => 'Advanced details';
+
+  @override
+  String get advancedDetailsSubtitle =>
+      'Optional — you can add or edit these later.';
+
+  @override
+  String get scannedDocument => 'Scanned document';
+
+  @override
+  String get pagesLabel => 'pages';
+
+  @override
+  String get rescan => 'Rescan';
+
+  @override
+  String get scannerUnavailable =>
+      'Document scanning is not available on this device.';
+
+  @override
+  String get scanCancelled => 'Scan cancelled';
+
+  @override
+  String get startingScanner => 'Starting scanner…';
+
+  @override
+  String get chooseAnother => 'Choose another';
 }

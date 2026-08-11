@@ -194,6 +194,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
               children: [
                 DropdownButtonFormField<IdentityDocumentType>(
                   initialValue: _docType,
+                  isExpanded: true,
                   decoration: InputDecoration(labelText: l10n.documentType),
                   items: [
                     for (final t in IdentityDocumentType.values)
@@ -285,7 +286,6 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                   label: l10n.backImage,
                   actionLabel: l10n.chooseExistingImage,
                   path: _backPath,
-                  optional: !_isNationalCard,
                   onPick: () => _pickImage(front: false),
                 ),
                 if (_errorMessage != null) ...[
@@ -317,39 +317,59 @@ class _ImagePickerTile extends StatelessWidget {
     required this.actionLabel,
     required this.onPick,
     this.path,
-    this.optional = false,
   });
 
   final String label;
   final String actionLabel;
   final VoidCallback onPick;
   final String? path;
-  final bool optional;
 
   @override
   Widget build(BuildContext context) {
     final hasImage = path != null;
+    final scheme = Theme.of(context).colorScheme;
     return Card(
-      child: ListTile(
-        leading: Icon(
-          hasImage ? Icons.image : Icons.add_photo_alternate_outlined,
-        ),
-        title: Text(label),
-        subtitle: Text(hasImage ? path! : (optional ? '' : '')),
-        trailing: hasImage
-            ? IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: onPick,
-                tooltip: 'Change',
-              )
-            : OutlinedButton(
-                onPressed: onPick,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasImage
+                      ? Icons.image_outlined
+                      : Icons.add_photo_alternate_outlined,
+                  color: scheme.primary,
                 ),
-                child: Text(actionLabel),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            if (hasImage) ...[
+              const SizedBox(height: 4),
+              Text(
+                path!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
               ),
+            ],
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onPick,
+                child: Text(hasImage ? actionLabel : actionLabel),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

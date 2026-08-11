@@ -347,5 +347,18 @@
   "photoRemoved": "تمت إزالة الصورة",
   "unableToUpdatePhoto": "تعذر تحديث الصورة",
   "removePhotoConfirm": "إزالة صورة الملف الشخصي؟",
-  "removePhotoExplain": "ستظهر الأحرف الأولى من اسمك بدلاً منها."
+  "removePhotoExplain": "ستظهر الأحرف الأولى من اسمك بدلاً منها.",
+  "addMedicalDocument": "إضافة مستند طبي",
+  "scanDocument": "مسح المستند",
+  "scanDocumentSubtitle": "استخدم كاميرتك لمسح صفحة أو أكثر.",
+  "selectDocumentType": "اختر النوع",
+  "advancedDetails": "التفاصيل المتقدمة",
+  "advancedDetailsSubtitle": "اختياري — يمكنك الإضافة أو التعديل لاحقاً.",
+  "scannedDocument": "المستند الممسوح",
+  "pagesLabel": "صفحات",
+  "rescan": "إعادة المسح",
+  "scannerUnavailable": "مسح المستندات غير متاح على هذا الجهاز.",
+  "scanCancelled": "تم إلغاء المسح",
+  "startingScanner": "جارٍ تشغيل الماسح…",
+  "chooseAnother": "اختيار آخر"
 }

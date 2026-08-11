@@ -347,5 +347,18 @@
   "photoRemoved": "Photo removed",
   "unableToUpdatePhoto": "Unable to update photo",
   "removePhotoConfirm": "Remove profile photo?",
-  "removePhotoExplain": "Your initials will be shown instead."
+  "removePhotoExplain": "Your initials will be shown instead.",
+  "addMedicalDocument": "Add medical document",
+  "scanDocument": "Scan document",
+  "scanDocumentSubtitle": "Use your camera to scan one or more pages.",
+  "selectDocumentType": "Select type",
+  "advancedDetails": "Advanced details",
+  "advancedDetailsSubtitle": "Optional — you can add or edit these later.",
+  "scannedDocument": "Scanned document",
+  "pagesLabel": "pages",
+  "rescan": "Rescan",
+  "scannerUnavailable": "Document scanning is not available on this device.",
+  "scanCancelled": "Scan cancelled",
+  "startingScanner": "Starting scanner…",
+  "chooseAnother": "Choose another"
 }

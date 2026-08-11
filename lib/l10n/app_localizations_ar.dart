@@ -1052,4 +1052,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get removePhotoExplain => 'ستظهر الأحرف الأولى من اسمك بدلاً منها.';
+
+  @override
+  String get addMedicalDocument => 'إضافة مستند طبي';
+
+  @override
+  String get scanDocument => 'مسح المستند';
+
+  @override
+  String get scanDocumentSubtitle => 'استخدم كاميرتك لمسح صفحة أو أكثر.';
+
+  @override
+  String get selectDocumentType => 'اختر النوع';
+
+  @override
+  String get advancedDetails => 'التفاصيل المتقدمة';
+
+  @override
+  String get advancedDetailsSubtitle =>
+      'اختياري — يمكنك الإضافة أو التعديل لاحقاً.';
+
+  @override
+  String get scannedDocument => 'المستند الممسوح';
+
+  @override
+  String get pagesLabel => 'صفحات';
+
+  @override
+  String get rescan => 'إعادة المسح';
+
+  @override
+  String get scannerUnavailable => 'مسح المستندات غير متاح على هذا الجهاز.';
+
+  @override
+  String get scanCancelled => 'تم إلغاء المسح';
+
+  @override
+  String get startingScanner => 'جارٍ تشغيل الماسح…';
+
+  @override
+  String get chooseAnother => 'اختيار آخر';
 }

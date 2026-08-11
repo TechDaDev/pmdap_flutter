@@ -23,7 +23,10 @@ class FacilitiesApi {
   }) async {
     try {
       final qp = <String, dynamic>{
-        'page': page,
+        // Backend FacilityFilterSerializer rejects unknown query params and
+        // omits `page`; sending page=1 triggers 400. Omit it on the first page
+        // (workaround) — pagination stays blocked until the backend accepts `page`.
+        if (page > 1) 'page': page,
         if (active != null) 'active': active,
         if (country != null && country.isNotEmpty) 'country': country,
         if (region != null && region.isNotEmpty) 'region': region,

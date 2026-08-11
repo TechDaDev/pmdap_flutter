@@ -2167,6 +2167,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your initials will be shown instead.'**
   String get removePhotoExplain;
+
+  /// No description provided for @addMedicalDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Add medical document'**
+  String get addMedicalDocument;
+
+  /// No description provided for @scanDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan document'**
+  String get scanDocument;
+
+  /// No description provided for @scanDocumentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your camera to scan one or more pages.'**
+  String get scanDocumentSubtitle;
+
+  /// No description provided for @selectDocumentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select type'**
+  String get selectDocumentType;
+
+  /// No description provided for @advancedDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced details'**
+  String get advancedDetails;
+
+  /// No description provided for @advancedDetailsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — you can add or edit these later.'**
+  String get advancedDetailsSubtitle;
+
+  /// No description provided for @scannedDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned document'**
+  String get scannedDocument;
+
+  /// No description provided for @pagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'pages'**
+  String get pagesLabel;
+
+  /// No description provided for @rescan.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan'**
+  String get rescan;
+
+  /// No description provided for @scannerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Document scanning is not available on this device.'**
+  String get scannerUnavailable;
+
+  /// No description provided for @scanCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan cancelled'**
+  String get scanCancelled;
+
+  /// No description provided for @startingScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting scanner…'**
+  String get startingScanner;
+
+  /// No description provided for @chooseAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another'**
+  String get chooseAnother;
 }
 
 class _AppLocalizationsDelegate

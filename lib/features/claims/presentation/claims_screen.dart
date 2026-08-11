@@ -208,48 +208,104 @@ class _ClaimsScreenState extends ConsumerState<ClaimsScreen> {
                 ),
                 const SizedBox(height: 20),
                 Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.add_photo_alternate_outlined),
-                    title: Text(l10n.frontImage),
-                    subtitle: Text(_frontPath ?? ''),
-                    trailing: _frontPath != null
-                        ? IconButton(
-                            icon: const Icon(Icons.refresh),
-                            onPressed: () => _pickImage(front: true),
-                          )
-                        : OutlinedButton(
-                            onPressed: () => _pickImage(front: true),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(0, 40),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.add_photo_alternate_outlined),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.frontImage,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  if (_frontPath != null &&
+                                      _frontPath!.isNotEmpty)
+                                    Text(
+                                      _frontPath!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => _pickImage(front: true),
                             child: Text(l10n.chooseExistingImage),
                           ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.add_photo_alternate_outlined),
-                    title: Text(l10n.backImage),
-                    subtitle: Text(_backPath ?? ''),
-                    trailing: _backPath != null
-                        ? IconButton(
-                            icon: const Icon(Icons.refresh),
-                            onPressed: () => _pickImage(front: false),
-                          )
-                        : OutlinedButton(
-                            onPressed: () => _pickImage(front: false),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(0, 40),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.add_photo_alternate_outlined),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.backImage,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  if (_backPath != null &&
+                                      _backPath!.isNotEmpty)
+                                    Text(
+                                      _backPath!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => _pickImage(front: false),
                             child: Text(l10n.chooseExistingImage),
                           ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (_errorMessage != null) ...[
