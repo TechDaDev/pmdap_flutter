@@ -13,19 +13,37 @@ import '../data/archive_api.dart';
 
 /// Chronological archive with year/month/type/date-status filters.
 /// Optional [minorUuid] for guardian-scoped archives.
-class ArchiveScreen extends ConsumerWidget {
+class ArchiveScreen extends ConsumerStatefulWidget {
   const ArchiveScreen({super.key, this.minorUuid});
 
   final String? minorUuid;
 
-  ArchiveScope get _scope => minorUuid == null
-      ? const ArchiveScope.adult()
-      : ArchiveScope.minor(minorUuid!);
+  @override
+  ConsumerState<ArchiveScreen> createState() => _ArchiveScreenState();
+}
 
-  String get _filterKey => minorUuid ?? 'adult';
+class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
+  ArchiveScope get _scope => widget.minorUuid == null
+      ? const ArchiveScope.adult()
+      : ArchiveScope.minor(widget.minorUuid!);
+
+  String get _filterKey => widget.minorUuid ?? 'adult';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // Allow "Needs confirmation" shortcut to open the archive pre-filtered
+    // with date_status=UNCONFIRMED (never combined with year/month).
+    final extra = GoRouter.maybeOf(
+      context,
+    )?.routerDelegate.currentConfiguration.extra;
+    if (extra is ArchiveQuery) {
+      ref.read(archiveFilterProvider(_filterKey).notifier).state = extra;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scope = _scope;
     final async = ref.watch(archiveProvider(scope));
@@ -67,7 +85,7 @@ class ArchiveScreen extends ConsumerWidget {
                         document: doc,
                         onTap: () => context.push(
                           Routes.documentDetail(doc.uuid),
-                          extra: minorUuid,
+                          extra: widget.minorUuid,
                         ),
                       );
                     },

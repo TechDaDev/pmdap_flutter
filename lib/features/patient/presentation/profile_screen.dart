@@ -6,10 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/models/enums.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../../auth/application/session_controller.dart';
 import '../../patient/application/patient_providers.dart';
 
@@ -55,9 +54,7 @@ class ProfileScreen extends ConsumerWidget {
                     CircleAvatar(
                       radius: 40,
                       child: Text(
-                        profile.fullName.isEmpty
-                            ? '?'
-                            : profile.fullName.characters.first.toUpperCase(),
+                        patientInitials(profile.fullName),
                         style: const TextStyle(fontSize: 28),
                       ),
                     ),
@@ -67,16 +64,16 @@ class ProfileScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    StatusBadge.neutral(
-                      label: labels.identityLabel(profile.identityStatus),
-                    ),
+                    labels.identity(profile.identityStatus),
                     const SizedBox(height: 24),
                     Card(
                       child: Column(
                         children: [
                           _InfoRow(
                             label: l10n.digitalId,
+                            // Identifier — keep LTR inside Arabic UI.
                             value: profile.digitalId,
+                            forceLtr: true,
                           ),
                           _InfoRow(
                             label: l10n.fullName,
@@ -84,7 +81,10 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           _InfoRow(
                             label: l10n.dateOfBirth,
-                            value: formatApiDate(profile.dateOfBirth),
+                            value: _orNotProvided(
+                              l10n,
+                              localizedDate(l10n, profile.dateOfBirth),
+                            ),
                           ),
                           _InfoRow(label: l10n.age, value: '${profile.age}'),
                           _InfoRow(
@@ -97,7 +97,9 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           _InfoRow(
                             label: l10n.nationality,
-                            value: profile.nationality,
+                            value: profile.nationality.isEmpty
+                                ? l10n.notProvided
+                                : profile.nationality,
                           ),
                           if (user != null)
                             _InfoRow(label: l10n.email, value: user.email),
@@ -160,16 +162,31 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   String _bloodLabel(BloodGroup b) => b == BloodGroup.unknown ? '—' : b.api;
+
+  /// Empty display value (e.g. missing date) renders as "Not provided".
+  String _orNotProvided(AppLocalizations l10n, String value) =>
+      value.isEmpty ? l10n.notProvided : value;
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.forceLtr = false,
+  });
 
   final String label;
   final String value;
+  final bool forceLtr;
 
   @override
   Widget build(BuildContext context) {
+    final valueText = forceLtr
+        ? Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(value, textAlign: TextAlign.end),
+          )
+        : Text(value, textAlign: TextAlign.end);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -182,7 +199,7 @@ class _InfoRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Expanded(child: Text(value, textAlign: TextAlign.end)),
+          Expanded(child: valueText),
         ],
       ),
     );

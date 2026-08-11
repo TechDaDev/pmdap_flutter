@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/models/enums.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/patient_card.dart';
@@ -47,10 +47,14 @@ class MinorDetailScreen extends ConsumerWidget {
               Card(
                 child: Column(
                   children: [
+                    _InfoRow(l10n.digitalId, minor.digitalId, forceLtr: true),
                     _InfoRow(l10n.minorAge, '${minor.age}'),
                     _InfoRow(
                       l10n.dateOfBirth,
-                      formatApiDate(minor.dateOfBirth),
+                      _orNotProvided(
+                        l10n,
+                        localizedDate(l10n, minor.dateOfBirth),
+                      ),
                     ),
                     _InfoRow(l10n.sex, _sexLabel(l10n, minor.sex)),
                     _InfoRow(
@@ -59,12 +63,28 @@ class MinorDetailScreen extends ConsumerWidget {
                           ? '—'
                           : minor.bloodGroup.api,
                     ),
-                    _InfoRow(l10n.nationality, minor.nationality),
+                    _InfoRow(
+                      l10n.nationality,
+                      minor.nationality.isEmpty
+                          ? l10n.notProvided
+                          : minor.nationality,
+                    ),
+                    _InfoRow(
+                      l10n.identityStatus,
+                      labels.identityLabel(minor.identityStatus),
+                    ),
                     _InfoRow(
                       l10n.relationship,
                       labels.relationshipLabel(
                         minor.relationship?.relationship ??
                             Relationship.unknown,
+                      ),
+                    ),
+                    _InfoRow(
+                      l10n.relationshipStatus,
+                      labels.verificationLabel(
+                        minor.relationship?.verificationStatus ??
+                            VerificationStatus.unknown,
                       ),
                     ),
                   ],
@@ -118,13 +138,17 @@ class MinorDetailScreen extends ConsumerWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow(this.label, this.value);
+  const _InfoRow(this.label, this.value, {this.forceLtr = false});
 
   final String label;
   final String value;
+  final bool forceLtr;
 
   @override
   Widget build(BuildContext context) {
+    final valueText = forceLtr
+        ? Directionality(textDirection: TextDirection.ltr, child: Text(value))
+        : Text(value);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -135,9 +159,13 @@ class _InfoRow extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.outline),
             ),
           ),
-          Text(value),
+          valueText,
         ],
       ),
     );
   }
 }
+
+/// Empty display value (e.g. missing date) renders as "Not provided".
+String _orNotProvided(AppLocalizations l10n, String value) =>
+    value.isEmpty ? l10n.notProvided : value;

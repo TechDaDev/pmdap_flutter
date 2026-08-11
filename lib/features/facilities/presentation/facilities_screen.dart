@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../core/models/facility.dart';
+import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../facilities/application/facilities_providers.dart';
@@ -58,6 +59,7 @@ class _FacilitiesScreenState extends ConsumerState<FacilitiesScreen> {
                     )
                   : null,
               builder: (page) {
+                final labels = StatusLabels(l10n);
                 final all = _collectAll(page);
                 final filtered = all.where((f) {
                   if (_query.isEmpty) return true;
@@ -87,7 +89,9 @@ class _FacilitiesScreenState extends ConsumerState<FacilitiesScreen> {
                       ),
                       title: Text(f.name),
                       subtitle: Text(
-                        place.isEmpty ? f.facilityType.api : place,
+                        place.isEmpty
+                            ? labels.facilityTypeLabel(f.facilityType)
+                            : place,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

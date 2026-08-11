@@ -4,11 +4,11 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/providers.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/models/enums.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/private_image_viewer.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../application/identity_providers.dart';
 
 /// Identity document detail — verification state + private image viewing
@@ -43,8 +43,12 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Center(
-                child: StatusBadge.neutral(
-                  label: labels.verificationLabel(doc.verificationStatus),
+                child: Column(
+                  children: [
+                    labels.verification(doc.verificationStatus),
+                    const SizedBox(height: 6),
+                    labels.lifecycle(doc.status),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
@@ -61,8 +65,18 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
                     if (doc.familyNumber.isNotEmpty)
                       _Row(l10n.familyNumber, doc.familyNumber),
                     _Row(l10n.issuingCountry, doc.issuingCountry),
-                    _Row(l10n.issueDate, formatApiDate(doc.issueDate)),
-                    _Row(l10n.expiryDate, formatApiDate(doc.expiryDate)),
+                    _Row(
+                      l10n.issueDate,
+                      _orNotProvided(l10n, localizedDate(l10n, doc.issueDate)),
+                    ),
+                    _Row(
+                      l10n.expiryDate,
+                      _orNotProvided(l10n, localizedDate(l10n, doc.expiryDate)),
+                    ),
+                    _Row(
+                      l10n.lifecycleStatus,
+                      labels.lifecycleLabel(doc.status),
+                    ),
                     _Row(
                       l10n.verificationStatus,
                       labels.verificationLabel(doc.verificationStatus),
@@ -70,7 +84,8 @@ class IdentityDocumentDetailScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (doc.rejectionReason.isNotEmpty) ...[
+              if (doc.verificationStatus == VerificationStatus.rejected &&
+                  doc.rejectionReason.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
                   doc.rejectionReason,
@@ -117,12 +132,12 @@ class _ImageButtons extends StatelessWidget {
         for (final side in images)
           ActionChip(
             avatar: const Icon(Icons.image_outlined),
-            label: Text(l10n.viewImage),
+            label: Text(side == 'front' ? l10n.viewFront : l10n.viewBack),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => PrivateImageViewer(
-                    title: '$l10n.viewImage ($side)',
+                    title: side == 'front' ? l10n.viewFront : l10n.viewBack,
                     fetchBytes: () =>
                         ref.read(identityApiProvider).fetchImage(uuid, side),
                   ),
@@ -163,3 +178,7 @@ class _Row extends StatelessWidget {
     );
   }
 }
+
+/// Empty display value (e.g. missing date) renders as "Not provided".
+String _orNotProvided(AppLocalizations l10n, String value) =>
+    value.isEmpty ? l10n.notProvided : value;

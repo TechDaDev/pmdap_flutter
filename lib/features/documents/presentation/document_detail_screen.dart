@@ -13,7 +13,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/security/private_media_cache.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
 
@@ -133,6 +133,18 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     return 'jpg';
   }
 
+  /// Localized report-date value with a semantic fallback when the API has
+  /// not produced a date yet.
+  String _dateLabel(AppLocalizations l10n, MedicalDocumentDetail doc) {
+    if (doc.documentDate != null) {
+      return localizedDate(l10n, doc.documentDate);
+    }
+    if (doc.processingStatus.needsDateAction) {
+      return l10n.needsDateConfirmation;
+    }
+    return l10n.dateNotDetected;
+  }
+
   Future<void> _delete(MedicalDocumentDetail doc) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -232,22 +244,63 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                 child: Column(
                   children: [
                     _Row(l10n.title, doc.title),
-                    _Row(l10n.documentType, doc.documentType.api),
-                    _Row(l10n.description, doc.description),
-                    _Row(l10n.reportDate, formatApiDate(doc.documentDate)),
-                    _Row(l10n.facility, doc.facilityName),
-                    _Row(l10n.department, doc.department),
-                    _Row(l10n.physician, doc.physicianName),
-                    _Row(l10n.location, doc.locationText),
+                    _Row(
+                      l10n.documentType,
+                      labels.medicalDocumentTypeLabel(doc.documentType),
+                    ),
+                    if (doc.description.isNotEmpty)
+                      _Row(l10n.description, doc.description),
+                    _Row(l10n.reportDate, _dateLabel(l10n, doc)),
+                    if (doc.healthcareFacility != null ||
+                        doc.facilityName.isNotEmpty ||
+                        doc.locationText.isNotEmpty)
+                      _Row(
+                        l10n.facility,
+                        facilityDisplayName(
+                          healthcareFacility: doc.healthcareFacility,
+                          facilityName: doc.facilityName,
+                          locationText: doc.locationText,
+                        ),
+                      ),
+                    if (doc.department.isNotEmpty)
+                      _Row(l10n.department, doc.department),
+                    if (doc.physicianName.isNotEmpty)
+                      _Row(l10n.physician, doc.physicianName),
                     _Row(
                       l10n.dateVerifiedLabel,
                       doc.dateVerified
-                          ? l10n.statusVerified
-                          : l10n.dateUnconfirmed,
+                          ? l10n.dateConfirmedState
+                          : l10n.needsDateConfirmation,
                     ),
                   ],
                 ),
               ),
+              if (doc.file != null) ...[
+                const SizedBox(height: 12),
+                ExpansionTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(l10n.fileInfo),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                  childrenPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  children: [
+                    _Row(l10n.fileName, doc.file!.originalFilename),
+                    _Row(l10n.fileType, doc.file!.mimeType),
+                    _Row(l10n.fileSize, fileSizeLabel(doc.file!.sizeBytes)),
+                    if (doc.file!.pageCount != null)
+                      _Row(l10n.filePages, '${doc.file!.pageCount}'),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: labels.integrity(doc.file!.integrityStatus),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (doc.file != null) ...[
                 const SizedBox(height: 12),
                 OutlinedButton.icon(

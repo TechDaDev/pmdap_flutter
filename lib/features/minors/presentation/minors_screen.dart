@@ -5,13 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/models/enums.dart';
-import '../../../core/models/minor.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../application/minors_providers.dart';
 
 /// Guardian view of linked minor patients.
@@ -65,6 +63,7 @@ class MinorsScreen extends ConsumerWidget {
             final pending =
                 minor.relationship?.verificationStatus ==
                 VerificationStatus.pending;
+            final dob = localizedDate(l10n, minor.dateOfBirth);
             return ListTile(
               // PENDING relationships are not fully accessible — detail and
               // protected sub-routes require VERIFIED + active.
@@ -72,31 +71,40 @@ class MinorsScreen extends ConsumerWidget {
                   ? null
                   : () => context.push(Routes.minorDetail(minor.uuid)),
               enabled: !pending,
-              leading: CircleAvatar(child: Text(_initials(minor))),
-              title: Text(minor.fullName),
-              subtitle: Text(
-                pending
-                    ? l10n.relationshipPending
-                    : '${l10n.minorAge}: ${minor.age} · ${formatApiDate(minor.dateOfBirth)}',
+              leading: CircleAvatar(
+                child: Text(patientInitials(minor.fullName)),
               ),
-              trailing: pending
-                  ? StatusBadge.warning(label: l10n.relationshipPending)
-                  : StatusBadge.neutral(
-                      label: labels.identityLabel(minor.identityStatus),
+              title: Text(minor.fullName),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    pending
+                        ? l10n.relationshipPending
+                        : '${l10n.minorAge}: ${minor.age} · $dob',
+                  ),
+                  if (!pending) ...[
+                    const SizedBox(height: 2),
+                    // Digital ID — keep LTR inside Arabic UI.
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        '${l10n.digitalId}: ${minor.digitalId}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
+                  ],
+                ],
+              ),
+              trailing: labels.verification(
+                minor.relationship?.verificationStatus ??
+                    VerificationStatus.unknown,
+              ),
             );
           },
         );
       },
     );
-  }
-
-  String _initials(Minor minor) {
-    final parts = minor.fullName.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || minor.fullName.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first)
-        .toUpperCase();
   }
 }
 

@@ -4,12 +4,10 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
-import '../../../core/models/enums.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
-import '../../../core/widgets/status_badge.dart';
 import '../application/identity_providers.dart';
 
 class IdentityDocumentsScreen extends ConsumerWidget {
@@ -44,30 +42,23 @@ class IdentityDocumentsScreen extends ConsumerWidget {
             separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final doc = page.results[i];
-              final badge = switch (doc.verificationStatus) {
-                VerificationStatus.verified => StatusBadge.success(
-                  label: labels.verificationLabel(doc.verificationStatus),
-                ),
-                VerificationStatus.pending => StatusBadge.warning(
-                  label: labels.verificationLabel(doc.verificationStatus),
-                ),
-                VerificationStatus.rejected => StatusBadge.error(
-                  label: labels.verificationLabel(doc.verificationStatus),
-                ),
-                _ => StatusBadge.neutral(
-                  label: labels.verificationLabel(doc.verificationStatus),
-                ),
-              };
               return ListTile(
                 onTap: () => context.push(Routes.identityDetail(doc.uuid)),
                 leading: const CircleAvatar(child: Icon(Icons.badge_outlined)),
                 title: Text(labels.identityTypeLabel(doc.documentType)),
-                subtitle: Text(
-                  doc.issuingCountry.isNotEmpty
-                      ? doc.issuingCountry
-                      : l10n.noData,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      doc.issuingCountry.isNotEmpty
+                          ? doc.issuingCountry
+                          : l10n.noData,
+                    ),
+                    const SizedBox(height: 4),
+                    labels.lifecycle(doc.status),
+                  ],
                 ),
-                trailing: badge,
+                trailing: labels.verification(doc.verificationStatus),
               );
             },
           );

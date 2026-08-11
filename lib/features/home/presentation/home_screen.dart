@@ -6,14 +6,15 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/models/patient.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../archive/application/archive_providers.dart';
+import '../../archive/data/archive_api.dart';
 import '../../documents/application/documents_providers.dart';
 import '../../documents/presentation/medical_document_card.dart';
 import '../../patient/application/patient_providers.dart';
-import '../../auth/application/session_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -26,7 +27,6 @@ class HomeScreen extends ConsumerWidget {
       archiveSummaryProvider(const ArchiveScope.adult()),
     );
     final docsAsync = ref.watch(documentsProvider);
-    final user = ref.watch(currentUserProvider);
 
     return Scaffold(
       backgroundColor: AppColors.pageBg,
@@ -40,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
               radius: 18,
               backgroundColor: AppColors.lightBlue,
               child: Text(
-                _initials(user?.email),
+                patientInitials(profileAsync.valueOrNull?.fullName ?? ''),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -128,11 +128,6 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-
-  String _initials(String? email) {
-    if (email == null || email.isEmpty) return '?';
-    return email.characters.first.toUpperCase();
-  }
 }
 
 class _Greeting extends StatelessWidget {
@@ -212,13 +207,17 @@ class _DigitalIdCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            profile.digitalId,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: Colors.white,
+          // Digital ID is an identifier — keep LTR even inside Arabic UI.
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(
+              profile.digitalId,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -250,7 +249,6 @@ class _IdentityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labels = StatusLabels(l10n);
-    final label = labels.identityLabel(profile.identityStatus);
 
     return Card(
       child: Padding(
@@ -283,13 +281,7 @@ class _IdentityCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
+                  labels.identity(profile.identityStatus),
                 ],
               ),
             ),
@@ -349,7 +341,11 @@ class _ShortcutGrid extends StatelessWidget {
               label: l10n.needsConfirmationShortcut,
               color: AppColors.warning,
               count: unconfirmedCount,
-              onTap: () => context.push(Routes.archive),
+              onTap: () => context.push(
+                Routes.archive,
+                // Pre-filter to documents needing date confirmation.
+                extra: const ArchiveQuery(dateStatus: 'UNCONFIRMED'),
+              ),
             ),
             _Shortcut(
               icon: Icons.family_restroom_rounded,
