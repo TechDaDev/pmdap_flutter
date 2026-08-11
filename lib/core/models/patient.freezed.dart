@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PatientProfile {
 
- String get uuid; String get digitalId; String get fullName; DateTime? get dateOfBirth; int get age; bool get isMinor;@JsonKey(fromJson: sexFromJson) Sex get sex; String get nationality;@JsonKey(fromJson: bloodGroupFromJson) BloodGroup get bloodGroup;@JsonKey(fromJson: identityStatusFromJson) IdentityStatus get identityStatus; DateTime? get createdAt; DateTime? get updatedAt;
+ String get uuid; String get digitalId; String get fullName; DateTime? get dateOfBirth; int get age; bool get isMinor;@JsonKey(fromJson: sexFromJson) Sex get sex; String get nationality;@JsonKey(fromJson: bloodGroupFromJson) BloodGroup get bloodGroup;@JsonKey(fromJson: identityStatusFromJson) IdentityStatus get identityStatus;/// Private authenticated avatar route hint (e.g. `/api/v1/patients/me/avatar/`).
+/// Null when the patient has no avatar. Never a public storage URL.
+ String? get avatarUrl; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of PatientProfile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $PatientProfileCopyWith<PatientProfile> get copyWith => _$PatientProfileCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PatientProfile&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.digitalId, digitalId) || other.digitalId == digitalId)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.age, age) || other.age == age)&&(identical(other.isMinor, isMinor) || other.isMinor == isMinor)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.bloodGroup, bloodGroup) || other.bloodGroup == bloodGroup)&&(identical(other.identityStatus, identityStatus) || other.identityStatus == identityStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PatientProfile&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.digitalId, digitalId) || other.digitalId == digitalId)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.age, age) || other.age == age)&&(identical(other.isMinor, isMinor) || other.isMinor == isMinor)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.bloodGroup, bloodGroup) || other.bloodGroup == bloodGroup)&&(identical(other.identityStatus, identityStatus) || other.identityStatus == identityStatus)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uuid,digitalId,fullName,dateOfBirth,age,isMinor,sex,nationality,bloodGroup,identityStatus,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,uuid,digitalId,fullName,dateOfBirth,age,isMinor,sex,nationality,bloodGroup,identityStatus,avatarUrl,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'PatientProfile(uuid: $uuid, digitalId: $digitalId, fullName: $fullName, dateOfBirth: $dateOfBirth, age: $age, isMinor: $isMinor, sex: $sex, nationality: $nationality, bloodGroup: $bloodGroup, identityStatus: $identityStatus, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'PatientProfile(uuid: $uuid, digitalId: $digitalId, fullName: $fullName, dateOfBirth: $dateOfBirth, age: $age, isMinor: $isMinor, sex: $sex, nationality: $nationality, bloodGroup: $bloodGroup, identityStatus: $identityStatus, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $PatientProfileCopyWith<$Res>  {
   factory $PatientProfileCopyWith(PatientProfile value, $Res Function(PatientProfile) _then) = _$PatientProfileCopyWithImpl;
 @useResult
 $Res call({
- String uuid, String digitalId, String fullName, DateTime? dateOfBirth, int age, bool isMinor,@JsonKey(fromJson: sexFromJson) Sex sex, String nationality,@JsonKey(fromJson: bloodGroupFromJson) BloodGroup bloodGroup,@JsonKey(fromJson: identityStatusFromJson) IdentityStatus identityStatus, DateTime? createdAt, DateTime? updatedAt
+ String uuid, String digitalId, String fullName, DateTime? dateOfBirth, int age, bool isMinor,@JsonKey(fromJson: sexFromJson) Sex sex, String nationality,@JsonKey(fromJson: bloodGroupFromJson) BloodGroup bloodGroup,@JsonKey(fromJson: identityStatusFromJson) IdentityStatus identityStatus, String? avatarUrl, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -65,7 +67,7 @@ class _$PatientProfileCopyWithImpl<$Res>
 
 /// Create a copy of PatientProfile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? digitalId = null,Object? fullName = null,Object? dateOfBirth = freezed,Object? age = null,Object? isMinor = null,Object? sex = null,Object? nationality = null,Object? bloodGroup = null,Object? identityStatus = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? digitalId = null,Object? fullName = null,Object? dateOfBirth = freezed,Object? age = null,Object? isMinor = null,Object? sex = null,Object? nationality = null,Object? bloodGroup = null,Object? identityStatus = null,Object? avatarUrl = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,digitalId: null == digitalId ? _self.digitalId : digitalId // ignore: cast_nullable_to_non_nullable
@@ -77,7 +79,8 @@ as bool,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nulla
 as Sex,nationality: null == nationality ? _self.nationality : nationality // ignore: cast_nullable_to_non_nullable
 as String,bloodGroup: null == bloodGroup ? _self.bloodGroup : bloodGroup // ignore: cast_nullable_to_non_nullable
 as BloodGroup,identityStatus: null == identityStatus ? _self.identityStatus : identityStatus // ignore: cast_nullable_to_non_nullable
-as IdentityStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as IdentityStatus,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -164,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  String? avatarUrl,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PatientProfile() when $default != null:
-return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.avatarUrl,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -185,10 +188,10 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  String? avatarUrl,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _PatientProfile():
-return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.avatarUrl,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +208,10 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid,  String digitalId,  String fullName,  DateTime? dateOfBirth,  int age,  bool isMinor, @JsonKey(fromJson: sexFromJson)  Sex sex,  String nationality, @JsonKey(fromJson: bloodGroupFromJson)  BloodGroup bloodGroup, @JsonKey(fromJson: identityStatusFromJson)  IdentityStatus identityStatus,  String? avatarUrl,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _PatientProfile() when $default != null:
-return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_that.age,_that.isMinor,_that.sex,_that.nationality,_that.bloodGroup,_that.identityStatus,_that.avatarUrl,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -220,7 +223,7 @@ return $default(_that.uuid,_that.digitalId,_that.fullName,_that.dateOfBirth,_tha
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _PatientProfile implements PatientProfile {
-  const _PatientProfile({required this.uuid, required this.digitalId, required this.fullName, this.dateOfBirth, this.age = 0, this.isMinor = false, @JsonKey(fromJson: sexFromJson) this.sex = Sex.unknown, this.nationality = '', @JsonKey(fromJson: bloodGroupFromJson) this.bloodGroup = BloodGroup.unknown, @JsonKey(fromJson: identityStatusFromJson) this.identityStatus = IdentityStatus.unknown, this.createdAt, this.updatedAt});
+  const _PatientProfile({required this.uuid, required this.digitalId, required this.fullName, this.dateOfBirth, this.age = 0, this.isMinor = false, @JsonKey(fromJson: sexFromJson) this.sex = Sex.unknown, this.nationality = '', @JsonKey(fromJson: bloodGroupFromJson) this.bloodGroup = BloodGroup.unknown, @JsonKey(fromJson: identityStatusFromJson) this.identityStatus = IdentityStatus.unknown, this.avatarUrl, this.createdAt, this.updatedAt});
   factory _PatientProfile.fromJson(Map<String, dynamic> json) => _$PatientProfileFromJson(json);
 
 @override final  String uuid;
@@ -233,6 +236,9 @@ class _PatientProfile implements PatientProfile {
 @override@JsonKey() final  String nationality;
 @override@JsonKey(fromJson: bloodGroupFromJson) final  BloodGroup bloodGroup;
 @override@JsonKey(fromJson: identityStatusFromJson) final  IdentityStatus identityStatus;
+/// Private authenticated avatar route hint (e.g. `/api/v1/patients/me/avatar/`).
+/// Null when the patient has no avatar. Never a public storage URL.
+@override final  String? avatarUrl;
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 
@@ -249,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PatientProfile&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.digitalId, digitalId) || other.digitalId == digitalId)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.age, age) || other.age == age)&&(identical(other.isMinor, isMinor) || other.isMinor == isMinor)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.bloodGroup, bloodGroup) || other.bloodGroup == bloodGroup)&&(identical(other.identityStatus, identityStatus) || other.identityStatus == identityStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PatientProfile&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.digitalId, digitalId) || other.digitalId == digitalId)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.age, age) || other.age == age)&&(identical(other.isMinor, isMinor) || other.isMinor == isMinor)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.bloodGroup, bloodGroup) || other.bloodGroup == bloodGroup)&&(identical(other.identityStatus, identityStatus) || other.identityStatus == identityStatus)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uuid,digitalId,fullName,dateOfBirth,age,isMinor,sex,nationality,bloodGroup,identityStatus,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,uuid,digitalId,fullName,dateOfBirth,age,isMinor,sex,nationality,bloodGroup,identityStatus,avatarUrl,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'PatientProfile(uuid: $uuid, digitalId: $digitalId, fullName: $fullName, dateOfBirth: $dateOfBirth, age: $age, isMinor: $isMinor, sex: $sex, nationality: $nationality, bloodGroup: $bloodGroup, identityStatus: $identityStatus, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'PatientProfile(uuid: $uuid, digitalId: $digitalId, fullName: $fullName, dateOfBirth: $dateOfBirth, age: $age, isMinor: $isMinor, sex: $sex, nationality: $nationality, bloodGroup: $bloodGroup, identityStatus: $identityStatus, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -269,7 +275,7 @@ abstract mixin class _$PatientProfileCopyWith<$Res> implements $PatientProfileCo
   factory _$PatientProfileCopyWith(_PatientProfile value, $Res Function(_PatientProfile) _then) = __$PatientProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String uuid, String digitalId, String fullName, DateTime? dateOfBirth, int age, bool isMinor,@JsonKey(fromJson: sexFromJson) Sex sex, String nationality,@JsonKey(fromJson: bloodGroupFromJson) BloodGroup bloodGroup,@JsonKey(fromJson: identityStatusFromJson) IdentityStatus identityStatus, DateTime? createdAt, DateTime? updatedAt
+ String uuid, String digitalId, String fullName, DateTime? dateOfBirth, int age, bool isMinor,@JsonKey(fromJson: sexFromJson) Sex sex, String nationality,@JsonKey(fromJson: bloodGroupFromJson) BloodGroup bloodGroup,@JsonKey(fromJson: identityStatusFromJson) IdentityStatus identityStatus, String? avatarUrl, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -286,7 +292,7 @@ class __$PatientProfileCopyWithImpl<$Res>
 
 /// Create a copy of PatientProfile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? digitalId = null,Object? fullName = null,Object? dateOfBirth = freezed,Object? age = null,Object? isMinor = null,Object? sex = null,Object? nationality = null,Object? bloodGroup = null,Object? identityStatus = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? digitalId = null,Object? fullName = null,Object? dateOfBirth = freezed,Object? age = null,Object? isMinor = null,Object? sex = null,Object? nationality = null,Object? bloodGroup = null,Object? identityStatus = null,Object? avatarUrl = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_PatientProfile(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,digitalId: null == digitalId ? _self.digitalId : digitalId // ignore: cast_nullable_to_non_nullable
@@ -298,7 +304,8 @@ as bool,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nulla
 as Sex,nationality: null == nationality ? _self.nationality : nationality // ignore: cast_nullable_to_non_nullable
 as String,bloodGroup: null == bloodGroup ? _self.bloodGroup : bloodGroup // ignore: cast_nullable_to_non_nullable
 as BloodGroup,identityStatus: null == identityStatus ? _self.identityStatus : identityStatus // ignore: cast_nullable_to_non_nullable
-as IdentityStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as IdentityStatus,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

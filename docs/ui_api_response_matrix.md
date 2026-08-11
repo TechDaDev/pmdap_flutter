@@ -20,6 +20,22 @@ error `{"error": {code, message, details}}`, page size 20.
 | `DocumentCard` | `lib/core/widgets/document_card.dart` | Archive/search card |
 | `MedicalDocumentCard` | `lib/features/documents/presentation/medical_document_card.dart` | Recent/home documents card |
 | `PatientCard` | `lib/core/widgets/patient_card.dart` | Patient/minor summary card |
+| `PatientAvatar` | `lib/core/widgets/patient_avatar.dart` | Authenticated avatar (bytes) or initials fallback |
+
+## Avatar contract
+
+- DTO: `PatientProfile.avatarUrl` (snake_case `avatar_url`) — route hint, `null`
+  when absent. Never a public storage URL.
+- Fetch: `GET /patients/me/avatar/` (authenticated, binary `image/*`).
+  `ApiPaths.patientAvatar` = `/patients/me/avatar/`. Uses `ResponseType.bytes`;
+  NOT the JSON envelope. 404/503/network → initials fallback.
+- Upload/change: `PATCH /patients/me/` multipart `avatar=<file>` (JPEG/PNG only).
+- Remove: `PATCH /patients/me/` JSON `{"avatar": null}`.
+- Cache: in-memory `patientAvatarProvider` (FutureProvider.autoDispose) — shared
+  by Profile + Home; recomputes on profile change (upload/remove) and on auth
+  change (login/logout/account switch). No disk, no public URL, no token in URL.
+- Editing is allowed even when `identity_status == VERIFIED` (avatar is not part
+  of the backend identity-locked fields).
 
 ## Status → badge semantics
 
@@ -36,7 +52,7 @@ error `{"error": {code, message, details}}`, page size 20.
 ### Home (`/`)
 - Endpoint: `GET /patients/me/`, `GET /documents/?page=…`, archive summary.
 - DTOs: `PatientProfile`, `MedicalDocument`, `ArchiveSummary`.
-- Avatar: `patientInitials(profile.fullName)`.
+- AppBar avatar: `PatientAvatar` (authenticated image, else initials); tap → Profile.
 - Digital ID card: `profile.digitalId` rendered LTR inside Arabic UI.
 - Identity card: `labels.identity(profile.identityStatus)` semantic badge.
 - "Needs confirmation" shortcut: `unconfirmedDateCount` → opens Archive with

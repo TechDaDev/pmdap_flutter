@@ -11,6 +11,7 @@ class ApiPaths {
   static const activateClaimedAccount = '/auth/activate-claimed-account/';
 
   static const patientsMe = '/patients/me/';
+  static const patientAvatar = '/patients/me/avatar/';
 
   static const identityDocuments = '/identity-documents/';
   static String identityDocumentDetail(String uuid) =>

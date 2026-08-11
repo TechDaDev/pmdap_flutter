@@ -334,5 +334,15 @@
   "english": "English",
   "arabic": "العربية",
   "light": "Light",
-  "dark": "Dark"
+  "dark": "Dark",
+  "profilePhoto": "Profile photo",
+  "choosePhoto": "Choose photo",
+  "changePhoto": "Change photo",
+  "removePhoto": "Remove photo",
+  "changeProfilePhoto": "Change profile photo",
+  "photoUpdated": "Photo updated",
+  "photoRemoved": "Photo removed",
+  "unableToUpdatePhoto": "Unable to update photo",
+  "removePhotoConfirm": "Remove profile photo?",
+  "removePhotoExplain": "Your initials will be shown instead."
 }

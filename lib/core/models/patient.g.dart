@@ -24,6 +24,7 @@ _PatientProfile _$PatientProfileFromJson(Map<String, dynamic> json) =>
       identityStatus: json['identity_status'] == null
           ? IdentityStatus.unknown
           : identityStatusFromJson(json['identity_status']),
+      avatarUrl: json['avatar_url'] as String?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -44,6 +45,7 @@ Map<String, dynamic> _$PatientProfileToJson(_PatientProfile instance) =>
       'nationality': instance.nationality,
       'blood_group': _$BloodGroupEnumMap[instance.bloodGroup]!,
       'identity_status': _$IdentityStatusEnumMap[instance.identityStatus]!,
+      'avatar_url': instance.avatarUrl,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

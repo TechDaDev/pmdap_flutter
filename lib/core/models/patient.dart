@@ -27,6 +27,10 @@ abstract class PatientProfile with _$PatientProfile {
     @JsonKey(fromJson: identityStatusFromJson)
     @Default(IdentityStatus.unknown)
     IdentityStatus identityStatus,
+
+    /// Private authenticated avatar route hint (e.g. `/api/v1/patients/me/avatar/`).
+    /// Null when the patient has no avatar. Never a public storage URL.
+    String? avatarUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _PatientProfile;

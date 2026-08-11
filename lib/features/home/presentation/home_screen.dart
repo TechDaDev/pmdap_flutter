@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/models/patient.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
+import '../../../core/widgets/patient_avatar.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../archive/application/archive_providers.dart';
 import '../../archive/data/archive_api.dart';
@@ -34,17 +34,12 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: AppSpacing.lg),
-            child: CircleAvatar(
+            child: PatientAvatar(
+              fullName: profileAsync.valueOrNull?.fullName ?? '',
+              avatarUrl: profileAsync.valueOrNull?.avatarUrl,
               radius: 18,
-              backgroundColor: AppColors.lightBlue,
-              child: Text(
-                patientInitials(profileAsync.valueOrNull?.fullName ?? ''),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryNavy,
-                ),
-              ),
+              onTap: () => context.push(Routes.profile),
+              semanticLabel: l10n.profile,
             ),
           ),
         ],

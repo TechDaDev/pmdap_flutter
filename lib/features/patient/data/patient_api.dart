@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/api/api_client.dart';
@@ -39,6 +41,57 @@ class PatientApi {
         if (bloodGroup != null) 'blood_group': bloodGroup.api,
       };
       final resp = await _dio.patch<dynamic>(ApiPaths.patientsMe, data: body);
+      return decodeData<PatientProfile>(resp.data, PatientProfile.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Fetch the private avatar as authenticated raw image bytes.
+  ///
+  /// Authorization comes from the shared [AuthInterceptor] — never passed
+  /// around screens. The response is binary, not the JSON envelope, so it is
+  /// read directly with `ResponseType.bytes` (no [decodeData]).
+  ///
+  /// Throws mapped [ApiException] (e.g. 404/503); callers decide fallback.
+  Future<Uint8List> fetchAvatar() async {
+    try {
+      final resp = await _dio.get<List<int>>(
+        ApiPaths.patientAvatar,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final data = resp.data;
+      if (data is Uint8List) return data;
+      return Uint8List.fromList(data ?? const []);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Upload/replace the avatar (multipart PATCH). Sends only the avatar field.
+  Future<PatientProfile> updateAvatar({
+    required String filePath,
+    required String filename,
+  }) async {
+    try {
+      final form = FormData.fromMap({
+        'avatar': await MultipartFile.fromFile(filePath, filename: filename),
+      });
+      final resp = await _dio.patch<dynamic>(ApiPaths.patientsMe, data: form);
+      return decodeData<PatientProfile>(resp.data, PatientProfile.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Clear the avatar. Backend serializer accepts `avatar: null`; sent as JSON
+  /// (DRF multipart cannot reliably represent null).
+  Future<PatientProfile> removeAvatar() async {
+    try {
+      final resp = await _dio.patch<dynamic>(
+        ApiPaths.patientsMe,
+        data: {'avatar': null},
+      );
       return decodeData<PatientProfile>(resp.data, PatientProfile.fromJson);
     } on DioException catch (e) {
       throw _mapper.map(e);

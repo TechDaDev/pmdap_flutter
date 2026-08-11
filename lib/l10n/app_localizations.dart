@@ -2089,6 +2089,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get dark;
+
+  /// No description provided for @profilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get profilePhoto;
+
+  /// No description provided for @choosePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get choosePhoto;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get changePhoto;
+
+  /// No description provided for @removePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get removePhoto;
+
+  /// No description provided for @changeProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get changeProfilePhoto;
+
+  /// No description provided for @photoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo updated'**
+  String get photoUpdated;
+
+  /// No description provided for @photoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo removed'**
+  String get photoRemoved;
+
+  /// No description provided for @unableToUpdatePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update photo'**
+  String get unableToUpdatePhoto;
+
+  /// No description provided for @removePhotoConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove profile photo?'**
+  String get removePhotoConfirm;
+
+  /// No description provided for @removePhotoExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Your initials will be shown instead.'**
+  String get removePhotoExplain;
 }
 
 class _AppLocalizationsDelegate

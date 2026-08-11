@@ -1021,4 +1021,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dark => 'Dark';
+
+  @override
+  String get profilePhoto => 'Profile photo';
+
+  @override
+  String get choosePhoto => 'Choose photo';
+
+  @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get removePhoto => 'Remove photo';
+
+  @override
+  String get changeProfilePhoto => 'Change profile photo';
+
+  @override
+  String get photoUpdated => 'Photo updated';
+
+  @override
+  String get photoRemoved => 'Photo removed';
+
+  @override
+  String get unableToUpdatePhoto => 'Unable to update photo';
+
+  @override
+  String get removePhotoConfirm => 'Remove profile photo?';
+
+  @override
+  String get removePhotoExplain => 'Your initials will be shown instead.';
 }

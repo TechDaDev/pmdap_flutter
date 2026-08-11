@@ -1013,4 +1013,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dark => 'داكن';
+
+  @override
+  String get profilePhoto => 'صورة الملف الشخصي';
+
+  @override
+  String get choosePhoto => 'اختيار صورة';
+
+  @override
+  String get changePhoto => 'تغيير الصورة';
+
+  @override
+  String get removePhoto => 'إزالة الصورة';
+
+  @override
+  String get changeProfilePhoto => 'تغيير صورة الملف الشخصي';
+
+  @override
+  String get photoUpdated => 'تم تحديث الصورة';
+
+  @override
+  String get photoRemoved => 'تمت إزالة الصورة';
+
+  @override
+  String get unableToUpdatePhoto => 'تعذر تحديث الصورة';
+
+  @override
+  String get removePhotoConfirm => 'إزالة صورة الملف الشخصي؟';
+
+  @override
+  String get removePhotoExplain => 'ستظهر الأحرف الأولى من اسمك بدلاً منها.';
 }
