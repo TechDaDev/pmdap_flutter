@@ -626,6 +626,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get apiBaseUrl => 'API base URL';
 
   @override
+  String get environment => 'Environment';
+
+  @override
+  String get environmentOnline => 'Online';
+
+  @override
+  String get environmentLocal => 'Local';
+
+  @override
   String get appFullName => 'PMDAP Records';
 
   @override

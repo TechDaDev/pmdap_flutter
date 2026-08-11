@@ -52,9 +52,20 @@ class _DevHealthScreenState extends ConsumerState<DevHealthScreen> {
         children: [
           Card(
             child: ListTile(
+              leading: const Icon(Icons.cloud_outlined),
+              title: Text(l10n.environment),
+              subtitle: Text(
+                AppConfig.isOnline
+                    ? l10n.environmentOnline
+                    : l10n.environmentLocal,
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
               leading: const Icon(Icons.dns_outlined),
               title: Text(l10n.apiBaseHost),
-              subtitle: Text(AppConfig.apiBaseUrl),
+              subtitle: Text(AppConfig.apiHost),
             ),
           ),
           const SizedBox(height: 12),

@@ -1,9 +1,10 @@
 # PMDAP Mobile (pre-camera stage)
 
-Patient Medical Document Archiving Platform — Flutter mobile client connected
-to the frozen local Django backend at `/api/v1/`.
+Patient Medical Document Archiving Platform — Flutter mobile client.
 
-> **Pre-camera milestone.** Existing files can be selected from the device
+By default the app targets the **deployed backend** at
+`https://pmdapbackend.up.railway.app/api/v1` (HTTPS). A local Django backend
+at `/api/v1/` is supported through a build-time override for development.
 > (gallery/file picker). Camera capture is NOT implemented yet and is the next
 > explicitly approved milestone.
 
@@ -82,22 +83,49 @@ settings; do not use `ALLOWED_HOSTS=*`. Verify from the phone:
 GET http://192.168.88.20:8000/api/v1/health/
 ```
 
-## API base URL (dart-define)
+## API base URL
 
-Pass the LAN base at run/build time — never hard-code an IP:
+The default target is the deployed Railway backend:
+
+```
+https://pmdapbackend.up.railway.app/api/v1
+```
+
+No override is needed for online use — just build/run normally.
+
+### Local override
+
+For a local backend pass the LAN base at run/build time — never hard-code an
+IP:
 
 ```bash
 flutter run -d <device> \
   --dart-define=PMDAP_API_BASE_URL=http://192.168.88.20:8000/api/v1
 ```
 
-Default (desktop/testing only) is `http://localhost:8000/api/v1`.
+Both forms behave identically regarding trailing slash — a trailing `/` is
+normalized so path joins never produce `//`.
 
-### HTTP cleartext policy
+### HTTPS policy
 
-Debug builds allow cleartext HTTP to the LAN backend
-(`android/app/src/debug/AndroidManifest.xml`). Release builds keep cleartext
-disabled — HTTPS only.
+Online mode always uses HTTPS with normal TLS validation (no bypass, no
+certificate trust override). Debug builds additionally allow cleartext HTTP to
+the LAN backend (`android/app/src/debug/AndroidManifest.xml`). Release builds
+keep cleartext disabled — HTTPS only.
+
+## Physical-device testing
+
+USB is only for install/debug. The phone connects to Railway over normal
+internet — it does not depend on `localhost`, LAN IPs, or USB port forwarding:
+
+```bash
+flutter run -d <device-id>                     # online (Railway default)
+flutter run -d <device-id> \
+  --dart-define=PMDAP_API_BASE_URL=http://<LAN-IP>:8000/api/v1   # local
+```
+
+Use an **owner-provided test account** to sign in on the device (never commit
+credentials).
 
 ## ADB phone setup
 
@@ -137,14 +165,29 @@ PMDAP_API_BASE_URL=http://192.168.88.20:8000/api/v1 \
 ## Debug APK build + install
 
 ```bash
+flutter build apk --debug                                   # online (Railway)
 flutter build apk --debug \
-  --dart-define=PMDAP_API_BASE_URL=http://192.168.88.20:8000/api/v1
+  --dart-define=PMDAP_API_BASE_URL=http://192.168.88.20:8000/api/v1   # local
 # artifact: build/app/outputs/flutter-apk/app-debug.apk
 
 adb install -r build/app/outputs/flutter-apk/app-debug.apk
 # or
 flutter install -d <device-id>
 ```
+
+## Known Railway OCR limitation
+
+PaddleOCR CPU inference on the deployed Railway hardware (AVX-512) currently
+returns **zero text detections**. Consequences for online processing:
+
+- **Native-text PDFs** (embedded text layer): work — extraction and date
+  candidates succeed.
+- **Scanned/image-only documents** requiring OCR: may fail server-side with an
+  OCR-required/processing failure state.
+
+The Flutter app does not perform client-side OCR, does not endlessly retry,
+and displays the backend failure state safely. This is a backend deployment
+limitation, not a mobile bug.
 
 No production signing keys are created in this milestone; a signed release APK
 is a later step.

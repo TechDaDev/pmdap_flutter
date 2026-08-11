@@ -622,6 +622,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get apiBaseUrl => 'عنوان API الأساسي';
 
   @override
+  String get environment => 'البيئة';
+
+  @override
+  String get environmentOnline => 'متصل';
+
+  @override
+  String get environmentLocal => 'محلي';
+
+  @override
   String get appFullName => 'PMDAP Records';
 
   @override

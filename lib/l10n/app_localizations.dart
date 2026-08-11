@@ -1316,6 +1316,24 @@ abstract class AppLocalizations {
   /// **'API base URL'**
   String get apiBaseUrl;
 
+  /// No description provided for @environment.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment'**
+  String get environment;
+
+  /// No description provided for @environmentOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get environmentOnline;
+
+  /// No description provided for @environmentLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get environmentLocal;
+
   /// No description provided for @appFullName.
   ///
   /// In en, this message translates to:

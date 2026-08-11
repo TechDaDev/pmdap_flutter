@@ -47,22 +47,31 @@ class SessionController extends Notifier<AuthState> {
   AuthApi get _authApi => ref.read(authApiProvider);
 
   /// On app launch: read secure refresh → refresh → /auth/me/.
+  ///
+  /// Defensively guarded: if secure storage is unavailable (fresh install,
+  /// Keystore locked, platform error) or a call stalls, we degrade to the
+  /// signed-out state instead of leaving the user stuck on the splash screen.
   Future<void> restoreSession() async {
-    final refresh = await _store.readRefresh();
-    if (refresh == null || refresh.isEmpty) {
-      state = const AuthUnauthenticated();
-      return;
-    }
-    final pair = await _refresher.refresh();
-    if (pair == null) {
-      state = const AuthUnauthenticated();
-      return;
-    }
     try {
+      final refresh = await _store.readRefresh().timeout(
+        const Duration(seconds: 5),
+      );
+      if (refresh == null || refresh.isEmpty) {
+        state = const AuthUnauthenticated();
+        return;
+      }
+      final pair = await _refresher.refresh();
+      if (pair == null) {
+        state = const AuthUnauthenticated();
+        return;
+      }
       final user = await _authApi.me();
       state = AuthAuthenticated(user);
     } on ApiException {
       await _store.clearAll();
+      state = const AuthUnauthenticated();
+    } catch (_) {
+      // Storage/platform failure or timeout: treat as signed out.
       state = const AuthUnauthenticated();
     }
   }

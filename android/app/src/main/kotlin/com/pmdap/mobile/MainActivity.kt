@@ -1,4 +1,4 @@
-package com.pmdap.pmdap_mobile
+package com.pmdap.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
