@@ -182,7 +182,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get identityState => 'حالة الهوية';
 
   @override
-  String get needsDateConfirmation => 'مستندات بحاجة لتأكيد التاريخ';
+  String get needsDateConfirmation => 'بحاجة لتأكيد التاريخ';
 
   @override
   String get recentDocuments => 'أحدث المستندات';
@@ -521,6 +521,144 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get statusFailed => 'فشل';
+
+  @override
+  String get typeLaboratory => 'مخبري';
+
+  @override
+  String get typeRadiology => 'أشعة';
+
+  @override
+  String get typePrescription => 'وصفة طبية';
+
+  @override
+  String get typeConsultation => 'استشارة';
+
+  @override
+  String get typeMedicalReport => 'تقرير طبي';
+
+  @override
+  String get typeHospitalAdmission => 'تنويم مستشفى';
+
+  @override
+  String get typeDischargeSummary => 'ملخص الخروج';
+
+  @override
+  String get typeSurgeryProcedure => 'إجراء جراحي';
+
+  @override
+  String get typePathology => 'علم الأمراض';
+
+  @override
+  String get typeVaccination => 'تطعيم';
+
+  @override
+  String get typeVitalSigns => 'علامات حيوية';
+
+  @override
+  String get typeOther => 'مستند';
+
+  @override
+  String get lifecycleCurrent => 'حالي';
+
+  @override
+  String get lifecycleExpired => 'منتهي';
+
+  @override
+  String get lifecycleReplaced => 'مستبدل';
+
+  @override
+  String get lifecycleRevoked => 'ملغي';
+
+  @override
+  String get lifecycleStatus => 'حالة دورة الحياة';
+
+  @override
+  String get identityStatus => 'حالة الهوية';
+
+  @override
+  String get relationshipStatus => 'حالة العلاقة';
+
+  @override
+  String get facilityHospital => 'مستشفى';
+
+  @override
+  String get facilityClinic => 'عيادة';
+
+  @override
+  String get facilityLaboratory => 'مخبر';
+
+  @override
+  String get facilityRadiologyCenter => 'مركز أشعة';
+
+  @override
+  String get facilityPharmacy => 'صيدلية';
+
+  @override
+  String get facilityPrimaryCareCenter => 'مركز رعاية أولية';
+
+  @override
+  String get facilitySpecializedCenter => 'مركز تخصصي';
+
+  @override
+  String get facilityUniversityHospital => 'مستشفى جامعي';
+
+  @override
+  String get facilityOther => 'منشأة أخرى';
+
+  @override
+  String get dateConfirmedState => 'مؤكد';
+
+  @override
+  String get dateNotDetected => 'لم يتم العثور على تاريخ';
+
+  @override
+  String get processingDate => 'تاريخ قيد المعالجة';
+
+  @override
+  String get fileInfo => 'معلومات الملف';
+
+  @override
+  String get fileName => 'اسم الملف';
+
+  @override
+  String get fileType => 'النوع';
+
+  @override
+  String get fileSize => 'الحجم';
+
+  @override
+  String get filePages => 'الصفحات';
+
+  @override
+  String get integrityCorrupted => 'يبدو الملف تالفًا';
+
+  @override
+  String get integrityQuarantined => 'الملف غير متاح';
+
+  @override
+  String get integrityMissing => 'الملف مفقود';
+
+  @override
+  String get integrityPending => 'فحص الملف قيد الانتظار';
+
+  @override
+  String get viewFront => 'عرض الوجه الأمامي';
+
+  @override
+  String get viewBack => 'عرض الوجه الخلفي';
+
+  @override
+  String get notProvided => 'غير مقدم';
+
+  @override
+  String get notAvailable => 'غير متاح';
+
+  @override
+  String get permanentPatientId => 'معرّف المريض الدائم';
+
+  @override
+  String get noUnconfirmedDocuments => 'لا يوجد';
 
   @override
   String get viewFile => 'عرض الملف';

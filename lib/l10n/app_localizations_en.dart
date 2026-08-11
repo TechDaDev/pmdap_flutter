@@ -184,7 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get identityState => 'Identity status';
 
   @override
-  String get needsDateConfirmation => 'Documents needing date confirmation';
+  String get needsDateConfirmation => 'Needs date confirmation';
 
   @override
   String get recentDocuments => 'Recent documents';
@@ -528,6 +528,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusFailed => 'Failed';
+
+  @override
+  String get typeLaboratory => 'Laboratory';
+
+  @override
+  String get typeRadiology => 'Radiology';
+
+  @override
+  String get typePrescription => 'Prescription';
+
+  @override
+  String get typeConsultation => 'Consultation';
+
+  @override
+  String get typeMedicalReport => 'Medical report';
+
+  @override
+  String get typeHospitalAdmission => 'Hospital admission';
+
+  @override
+  String get typeDischargeSummary => 'Discharge summary';
+
+  @override
+  String get typeSurgeryProcedure => 'Surgery procedure';
+
+  @override
+  String get typePathology => 'Pathology';
+
+  @override
+  String get typeVaccination => 'Vaccination';
+
+  @override
+  String get typeVitalSigns => 'Vital signs';
+
+  @override
+  String get typeOther => 'Document';
+
+  @override
+  String get lifecycleCurrent => 'Current';
+
+  @override
+  String get lifecycleExpired => 'Expired';
+
+  @override
+  String get lifecycleReplaced => 'Replaced';
+
+  @override
+  String get lifecycleRevoked => 'Revoked';
+
+  @override
+  String get lifecycleStatus => 'Lifecycle status';
+
+  @override
+  String get identityStatus => 'Identity status';
+
+  @override
+  String get relationshipStatus => 'Relationship status';
+
+  @override
+  String get facilityHospital => 'Hospital';
+
+  @override
+  String get facilityClinic => 'Clinic';
+
+  @override
+  String get facilityLaboratory => 'Laboratory';
+
+  @override
+  String get facilityRadiologyCenter => 'Radiology center';
+
+  @override
+  String get facilityPharmacy => 'Pharmacy';
+
+  @override
+  String get facilityPrimaryCareCenter => 'Primary care center';
+
+  @override
+  String get facilitySpecializedCenter => 'Specialized center';
+
+  @override
+  String get facilityUniversityHospital => 'University hospital';
+
+  @override
+  String get facilityOther => 'Other facility';
+
+  @override
+  String get dateConfirmedState => 'Confirmed';
+
+  @override
+  String get dateNotDetected => 'No date detected';
+
+  @override
+  String get processingDate => 'Processing date';
+
+  @override
+  String get fileInfo => 'File information';
+
+  @override
+  String get fileName => 'File name';
+
+  @override
+  String get fileType => 'Type';
+
+  @override
+  String get fileSize => 'Size';
+
+  @override
+  String get filePages => 'Pages';
+
+  @override
+  String get integrityCorrupted => 'File appears damaged';
+
+  @override
+  String get integrityQuarantined => 'File unavailable';
+
+  @override
+  String get integrityMissing => 'File missing';
+
+  @override
+  String get integrityPending => 'File check pending';
+
+  @override
+  String get viewFront => 'View front';
+
+  @override
+  String get viewBack => 'View back';
+
+  @override
+  String get notProvided => 'Not provided';
+
+  @override
+  String get notAvailable => 'Not available';
+
+  @override
+  String get permanentPatientId => 'Permanent patient identifier';
+
+  @override
+  String get noUnconfirmedDocuments => 'None';
 
   @override
   String get viewFile => 'View file';

@@ -4,6 +4,7 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import '../../core/models/archive.dart';
 import '../../core/models/enums.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/presentation.dart';
 import '../../core/utils/status_labels.dart';
 
 /// Archive/search document list card. Never shows OCR/extracted text.
@@ -19,8 +20,14 @@ class DocumentCard extends StatelessWidget {
     final labels = StatusLabels(l10n);
     final theme = Theme.of(context);
     final hasDate = document.documentDate != null;
+    final facility = facilityDisplayName(
+      facilityName: document.facilityName.isNotEmpty
+          ? document.facilityName
+          : (document.healthcareFacility?.name ?? ''),
+      locationText: document.locationText,
+    );
     final subtitle = [
-      if (document.facilityName.isNotEmpty) document.facilityName,
+      if (facility.isNotEmpty) facility,
       if (document.department.isNotEmpty) document.department,
     ].join(' · ');
 
@@ -44,7 +51,7 @@ class DocumentCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      _typeIcon(document.documentType),
+                      documentTypeIcon(document.documentType),
                       color: AppColors.primaryNavy,
                       size: 22,
                     ),
@@ -55,11 +62,7 @@ class DocumentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          document.title.isEmpty
-                              ? labels.processingLabel(
-                                  document.processingStatus,
-                                )
-                              : document.title,
+                          _title(l10n, labels),
                           style: theme.textTheme.titleMedium,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -84,7 +87,7 @@ class DocumentCard extends StatelessWidget {
                 children: [
                   if (hasDate)
                     _Meta(
-                      label: _fmtDay(document.documentDate!),
+                      label: localizedDate(l10n, document.documentDate),
                       icon: Icons.calendar_month_outlined,
                     )
                   else
@@ -100,37 +103,14 @@ class DocumentCard extends StatelessWidget {
     );
   }
 
-  String _fmtDay(DateTime d) {
-    final m = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${d.day} ${m[d.month - 1]} ${d.year}';
-  }
-
-  IconData _typeIcon(MedicalDocumentType type) {
-    switch (type) {
-      case MedicalDocumentType.laboratory:
-        return Icons.science_outlined;
-      case MedicalDocumentType.radiology:
-        return Icons.medical_information_outlined;
-      case MedicalDocumentType.prescription:
-        return Icons.medication_outlined;
-      case MedicalDocumentType.vaccination:
-        return Icons.vaccines_outlined;
-      default:
-        return Icons.description_outlined;
+  /// Blank title falls back to the localized document type first; only when
+  /// the type is unknown do we fall back to the processing state label.
+  String _title(AppLocalizations l10n, StatusLabels labels) {
+    if (document.title.trim().isNotEmpty) return document.title;
+    if (document.documentType != MedicalDocumentType.unknown) {
+      return labels.medicalDocumentTypeLabel(document.documentType);
     }
+    return labels.processingLabel(document.processingStatus);
   }
 }
 

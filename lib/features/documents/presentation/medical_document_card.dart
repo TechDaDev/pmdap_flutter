@@ -3,9 +3,11 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../core/models/medical_document.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 
-/// Card for document list (recent on home, documents page).
+/// Card for document list (recent on home, documents page). Shares the same
+/// type icon / facility / date / status mapping as [DocumentCard].
 class MedicalDocumentCard extends StatelessWidget {
   const MedicalDocumentCard({super.key, required this.document, this.onTap});
 
@@ -17,8 +19,13 @@ class MedicalDocumentCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final labels = StatusLabels(l10n);
     final theme = Theme.of(context);
+    final facility = facilityDisplayName(
+      healthcareFacility: document.healthcareFacility,
+      facilityName: document.facilityName,
+      locationText: document.locationText,
+    );
     final subtitle = [
-      if (document.facilityName.isNotEmpty) document.facilityName,
+      if (facility.isNotEmpty) facility,
       if (document.department.isNotEmpty) document.department,
     ].join(' · ');
 
@@ -41,8 +48,8 @@ class MedicalDocumentCard extends StatelessWidget {
                       color: AppColors.lightBlue,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.description_outlined,
+                    child: Icon(
+                      documentTypeIcon(document.documentType),
                       color: AppColors.primaryNavy,
                       size: 22,
                     ),
@@ -53,11 +60,11 @@ class MedicalDocumentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          document.title.isEmpty
-                              ? labels.processingLabel(
-                                  document.processingStatus,
-                                )
-                              : document.title,
+                          document.title.trim().isNotEmpty
+                              ? document.title
+                              : labels.medicalDocumentTypeLabel(
+                                  document.documentType,
+                                ),
                           style: theme.textTheme.titleMedium,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -82,7 +89,7 @@ class MedicalDocumentCard extends StatelessWidget {
                 children: [
                   if (document.documentDate != null)
                     _Meta(
-                      label: _fmtDay(document.documentDate!),
+                      label: localizedDate(l10n, document.documentDate),
                       icon: Icons.calendar_month_outlined,
                     )
                   else
@@ -96,24 +103,6 @@ class MedicalDocumentCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _fmtDay(DateTime d) {
-    final m = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${d.day} ${m[d.month - 1]} ${d.year}';
   }
 }
 

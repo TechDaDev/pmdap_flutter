@@ -443,7 +443,7 @@ abstract class AppLocalizations {
   /// No description provided for @needsDateConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'Documents needing date confirmation'**
+  /// **'Needs date confirmation'**
   String get needsDateConfirmation;
 
   /// No description provided for @recentDocuments.
@@ -1111,6 +1111,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get statusFailed;
+
+  /// No description provided for @typeLaboratory.
+  ///
+  /// In en, this message translates to:
+  /// **'Laboratory'**
+  String get typeLaboratory;
+
+  /// No description provided for @typeRadiology.
+  ///
+  /// In en, this message translates to:
+  /// **'Radiology'**
+  String get typeRadiology;
+
+  /// No description provided for @typePrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription'**
+  String get typePrescription;
+
+  /// No description provided for @typeConsultation.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation'**
+  String get typeConsultation;
+
+  /// No description provided for @typeMedicalReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical report'**
+  String get typeMedicalReport;
+
+  /// No description provided for @typeHospitalAdmission.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital admission'**
+  String get typeHospitalAdmission;
+
+  /// No description provided for @typeDischargeSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge summary'**
+  String get typeDischargeSummary;
+
+  /// No description provided for @typeSurgeryProcedure.
+  ///
+  /// In en, this message translates to:
+  /// **'Surgery procedure'**
+  String get typeSurgeryProcedure;
+
+  /// No description provided for @typePathology.
+  ///
+  /// In en, this message translates to:
+  /// **'Pathology'**
+  String get typePathology;
+
+  /// No description provided for @typeVaccination.
+  ///
+  /// In en, this message translates to:
+  /// **'Vaccination'**
+  String get typeVaccination;
+
+  /// No description provided for @typeVitalSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Vital signs'**
+  String get typeVitalSigns;
+
+  /// No description provided for @typeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get typeOther;
+
+  /// No description provided for @lifecycleCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get lifecycleCurrent;
+
+  /// No description provided for @lifecycleExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get lifecycleExpired;
+
+  /// No description provided for @lifecycleReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced'**
+  String get lifecycleReplaced;
+
+  /// No description provided for @lifecycleRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get lifecycleRevoked;
+
+  /// No description provided for @lifecycleStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifecycle status'**
+  String get lifecycleStatus;
+
+  /// No description provided for @identityStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity status'**
+  String get identityStatus;
+
+  /// No description provided for @relationshipStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship status'**
+  String get relationshipStatus;
+
+  /// No description provided for @facilityHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get facilityHospital;
+
+  /// No description provided for @facilityClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get facilityClinic;
+
+  /// No description provided for @facilityLaboratory.
+  ///
+  /// In en, this message translates to:
+  /// **'Laboratory'**
+  String get facilityLaboratory;
+
+  /// No description provided for @facilityRadiologyCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Radiology center'**
+  String get facilityRadiologyCenter;
+
+  /// No description provided for @facilityPharmacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pharmacy'**
+  String get facilityPharmacy;
+
+  /// No description provided for @facilityPrimaryCareCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary care center'**
+  String get facilityPrimaryCareCenter;
+
+  /// No description provided for @facilitySpecializedCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialized center'**
+  String get facilitySpecializedCenter;
+
+  /// No description provided for @facilityUniversityHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'University hospital'**
+  String get facilityUniversityHospital;
+
+  /// No description provided for @facilityOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other facility'**
+  String get facilityOther;
+
+  /// No description provided for @dateConfirmedState.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get dateConfirmedState;
+
+  /// No description provided for @dateNotDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No date detected'**
+  String get dateNotDetected;
+
+  /// No description provided for @processingDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing date'**
+  String get processingDate;
+
+  /// No description provided for @fileInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'File information'**
+  String get fileInfo;
+
+  /// No description provided for @fileName.
+  ///
+  /// In en, this message translates to:
+  /// **'File name'**
+  String get fileName;
+
+  /// No description provided for @fileType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get fileType;
+
+  /// No description provided for @fileSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get fileSize;
+
+  /// No description provided for @filePages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get filePages;
+
+  /// No description provided for @integrityCorrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'File appears damaged'**
+  String get integrityCorrupted;
+
+  /// No description provided for @integrityQuarantined.
+  ///
+  /// In en, this message translates to:
+  /// **'File unavailable'**
+  String get integrityQuarantined;
+
+  /// No description provided for @integrityMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'File missing'**
+  String get integrityMissing;
+
+  /// No description provided for @integrityPending.
+  ///
+  /// In en, this message translates to:
+  /// **'File check pending'**
+  String get integrityPending;
+
+  /// No description provided for @viewFront.
+  ///
+  /// In en, this message translates to:
+  /// **'View front'**
+  String get viewFront;
+
+  /// No description provided for @viewBack.
+  ///
+  /// In en, this message translates to:
+  /// **'View back'**
+  String get viewBack;
+
+  /// No description provided for @notProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'Not provided'**
+  String get notProvided;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get notAvailable;
+
+  /// No description provided for @permanentPatientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent patient identifier'**
+  String get permanentPatientId;
+
+  /// No description provided for @noUnconfirmedDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noUnconfirmedDocuments;
 
   /// No description provided for @viewFile.
   ///

@@ -129,4 +129,127 @@ class StatusLabels {
         return l10n.unknownStatus;
     }
   }
+
+  /// Localized label for a medical document type (never the raw enum).
+  String medicalDocumentTypeLabel(MedicalDocumentType t) {
+    switch (t) {
+      case MedicalDocumentType.laboratory:
+        return l10n.typeLaboratory;
+      case MedicalDocumentType.radiology:
+        return l10n.typeRadiology;
+      case MedicalDocumentType.prescription:
+        return l10n.typePrescription;
+      case MedicalDocumentType.consultation:
+        return l10n.typeConsultation;
+      case MedicalDocumentType.medicalReport:
+        return l10n.typeMedicalReport;
+      case MedicalDocumentType.hospitalAdmission:
+        return l10n.typeHospitalAdmission;
+      case MedicalDocumentType.dischargeSummary:
+        return l10n.typeDischargeSummary;
+      case MedicalDocumentType.surgeryProcedure:
+        return l10n.typeSurgeryProcedure;
+      case MedicalDocumentType.pathology:
+        return l10n.typePathology;
+      case MedicalDocumentType.vaccination:
+        return l10n.typeVaccination;
+      case MedicalDocumentType.vitalSigns:
+        return l10n.typeVitalSigns;
+      case MedicalDocumentType.other:
+        return l10n.typeOther;
+      case MedicalDocumentType.unknown:
+        return l10n.unknownStatus;
+    }
+  }
+
+  /// Localized label for a facility type (never the raw enum).
+  String facilityTypeLabel(FacilityType t) {
+    switch (t) {
+      case FacilityType.hospital:
+        return l10n.facilityHospital;
+      case FacilityType.clinic:
+        return l10n.facilityClinic;
+      case FacilityType.laboratory:
+        return l10n.facilityLaboratory;
+      case FacilityType.radiologyCenter:
+        return l10n.facilityRadiologyCenter;
+      case FacilityType.pharmacy:
+        return l10n.facilityPharmacy;
+      case FacilityType.primaryCareCenter:
+        return l10n.facilityPrimaryCareCenter;
+      case FacilityType.specializedCenter:
+        return l10n.facilitySpecializedCenter;
+      case FacilityType.universityHospital:
+        return l10n.facilityUniversityHospital;
+      case FacilityType.other:
+        return l10n.facilityOther;
+      case FacilityType.unknown:
+        return l10n.unknownStatus;
+    }
+  }
+
+  /// Semantic badge for an identity-document verification status.
+  StatusBadge verification(VerificationStatus s) {
+    final label = verificationLabel(s);
+    switch (s) {
+      case VerificationStatus.verified:
+        return StatusBadge.success(label: label);
+      case VerificationStatus.pending:
+        return StatusBadge.warning(label: label);
+      case VerificationStatus.rejected:
+        return StatusBadge.error(label: label);
+      case VerificationStatus.unknown:
+        return StatusBadge.neutral(label: label);
+    }
+  }
+
+  /// Semantic badge for an identity-document lifecycle status.
+  StatusBadge lifecycle(IdentityDocumentLifecycleStatus s) {
+    final label = lifecycleLabel(s);
+    switch (s) {
+      case IdentityDocumentLifecycleStatus.current:
+        return StatusBadge.success(label: label);
+      case IdentityDocumentLifecycleStatus.expired:
+        return StatusBadge.warning(label: label);
+      case IdentityDocumentLifecycleStatus.replaced:
+        return StatusBadge.neutral(label: label);
+      case IdentityDocumentLifecycleStatus.revoked:
+        return StatusBadge.error(label: label);
+      case IdentityDocumentLifecycleStatus.unknown:
+        return StatusBadge.neutral(label: label);
+    }
+  }
+
+  String lifecycleLabel(IdentityDocumentLifecycleStatus s) {
+    switch (s) {
+      case IdentityDocumentLifecycleStatus.current:
+        return l10n.lifecycleCurrent;
+      case IdentityDocumentLifecycleStatus.expired:
+        return l10n.lifecycleExpired;
+      case IdentityDocumentLifecycleStatus.replaced:
+        return l10n.lifecycleReplaced;
+      case IdentityDocumentLifecycleStatus.revoked:
+        return l10n.lifecycleRevoked;
+      case IdentityDocumentLifecycleStatus.unknown:
+        return l10n.unknownStatus;
+    }
+  }
+
+  /// Semantic badge for file integrity state (corrupted/quarantined/missing).
+  StatusBadge integrity(IntegrityStatus s) {
+    switch (s) {
+      case IntegrityStatus.corrupted:
+        return StatusBadge.error(label: l10n.integrityCorrupted);
+      case IntegrityStatus.quarantined:
+        return StatusBadge.error(label: l10n.integrityQuarantined);
+      case IntegrityStatus.missing:
+        return StatusBadge.error(label: l10n.integrityMissing);
+      case IntegrityStatus.pending:
+        return StatusBadge.warning(label: l10n.integrityPending);
+      case IntegrityStatus.valid:
+        return StatusBadge.success(label: l10n.statusVerified);
+      case IntegrityStatus.unknown:
+        return StatusBadge.neutral(label: l10n.unknownStatus);
+    }
+  }
 }

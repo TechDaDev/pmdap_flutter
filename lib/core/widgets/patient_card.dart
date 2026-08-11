@@ -4,7 +4,7 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import '../../core/models/enums.dart';
 import '../../core/models/minor.dart';
 import '../../core/models/patient.dart';
-import '../../core/utils/date_utils.dart';
+import '../../core/utils/presentation.dart';
 import '../../core/utils/status_labels.dart';
 
 /// Patient card (profile summary) and minor card (guardian).
@@ -62,7 +62,7 @@ class PatientCard extends StatelessWidget {
                 radius: 26,
                 backgroundColor: theme.colorScheme.primaryContainer,
                 child: Text(
-                  _initials(fullName ?? '?'),
+                  patientInitials(fullName ?? ''),
                   style: TextStyle(
                     color: theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
@@ -77,15 +77,19 @@ class PatientCard extends StatelessWidget {
                     Text(fullName ?? '—', style: theme.textTheme.titleMedium),
                     if (digitalId != null && digitalId!.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(
-                        '${l10n.digitalId}: $digitalId',
-                        style: theme.textTheme.bodySmall,
+                      // Identifier — keep LTR even inside Arabic UI.
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Text(
+                          '${l10n.digitalId}: $digitalId',
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ),
                     ],
                     if (dateOfBirth != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        '${l10n.dateOfBirth}: ${formatApiDate(dateOfBirth)}',
+                        '${l10n.dateOfBirth}: ${_dobLabel(l10n, dateOfBirth!)}',
                         style: theme.textTheme.bodySmall,
                       ),
                     ],
@@ -104,11 +108,9 @@ class PatientCard extends StatelessWidget {
     );
   }
 
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first)
-        .toUpperCase();
+  /// Localized date, or "Not provided" when the API has no date.
+  String _dobLabel(AppLocalizations l10n, DateTime date) {
+    final value = localizedDate(l10n, date);
+    return value.isEmpty ? l10n.notProvided : value;
   }
 }
