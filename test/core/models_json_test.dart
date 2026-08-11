@@ -41,6 +41,27 @@ void main() {
       expect(profile.nationality, 'ZZ');
       expect(profile.createdAt, isNotNull);
       expect(profile.updatedAt, isNotNull);
+      expect(profile.avatarUrl, isNull);
+    });
+
+    test('avatar_url null -> avatarUrl null', () {
+      final profile = PatientProfile.fromJson({
+        'uuid': 'u1',
+        'digital_id': 'PT-AAAA-BBBB-0001',
+        'full_name': 'A',
+        'avatar_url': null,
+      });
+      expect(profile.avatarUrl, isNull);
+    });
+
+    test('avatar_url present -> avatarUrl contains authenticated path', () {
+      final profile = PatientProfile.fromJson({
+        'uuid': 'u1',
+        'digital_id': 'PT-AAAA-BBBB-0001',
+        'full_name': 'A',
+        'avatar_url': '/api/v1/patients/me/avatar/',
+      });
+      expect(profile.avatarUrl, '/api/v1/patients/me/avatar/');
     });
   });
 

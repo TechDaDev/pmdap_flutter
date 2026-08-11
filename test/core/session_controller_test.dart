@@ -8,9 +8,14 @@ import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/token_pair.dart';
 import 'package:pmdap_mobile/core/models/user.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/core/models/patient.dart';
 import 'package:pmdap_mobile/core/storage/refresh_token_storage.dart';
 import 'package:pmdap_mobile/features/auth/application/session_controller.dart';
 import 'package:pmdap_mobile/features/auth/data/auth_api.dart';
+import 'package:pmdap_mobile/features/patient/application/patient_providers.dart';
+import 'package:pmdap_mobile/features/patient/data/patient_api.dart';
+
+import '../helpers/fixtures.dart';
 
 class _FakeStorage implements RefreshTokenStorage {
   String? value;
@@ -63,6 +68,18 @@ class _FakeAuthApi extends AuthApi {
   Future<void> logout(String refresh) async {}
 }
 
+class _FakePatientApi extends PatientApi {
+  _FakePatientApi() : super(Dio());
+
+  int meCalls = 0;
+
+  @override
+  Future<PatientProfile> me() async {
+    meCalls++;
+    return sampleProfile();
+  }
+}
+
 class _FakeRefresher extends TokenRefresher {
   _FakeRefresher(TokenStore store) : super(dio: Dio(), store: store);
 
@@ -83,11 +100,13 @@ class _FakeRefresher extends TokenRefresher {
 void main() {
   late _FakeStorage storage;
   late _FakeAuthApi authApi;
+  late _FakePatientApi patientApi;
   late ProviderContainer container;
 
   setUp(() {
     storage = _FakeStorage();
     authApi = _FakeAuthApi();
+    patientApi = _FakePatientApi();
   });
 
   ProviderContainer buildContainer() {
@@ -95,6 +114,7 @@ void main() {
       overrides: [
         refreshTokenStorageProvider.overrideWithValue(storage),
         authApiProvider.overrideWithValue(authApi),
+        patientApiProvider.overrideWithValue(patientApi),
         tokenRefresherProvider.overrideWith((ref) {
           final store = ref.watch(tokenStoreProvider);
           return _FakeRefresher(store);
@@ -179,5 +199,29 @@ void main() {
     );
     expect(storage.value, isNull);
     expect(container.read(tokenStoreProvider).accessToken, isNull);
+  });
+
+  test('account change never leaks the previous profile', () async {
+    container = buildContainer();
+
+    // Signed out: profile provider is auth-gated and fails cleanly.
+    await expectLater(
+      container.read(patientProfileProvider.future),
+      throwsA(isA<ApiException>()),
+    );
+
+    await container
+        .read(sessionControllerProvider.notifier)
+        .login(email: 'p@example.com', password: 'secret');
+    final profile = await container.read(patientProfileProvider.future);
+    expect(profile.fullName, 'Synthetic Patient');
+    expect(patientApi.meCalls, 1);
+
+    // Logout re-gates the provider — next account must re-fetch, not reuse.
+    await container.read(sessionControllerProvider.notifier).logout();
+    await expectLater(
+      container.read(patientProfileProvider.future),
+      throwsA(isA<ApiException>()),
+    );
   });
 }
