@@ -983,4 +983,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get documentsAndActions => 'المستندات والإجراءات';
+
+  @override
+  String get appSettings => 'إعدادات التطبيق';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get theme => 'السمة';
+
+  @override
+  String get systemDefault => 'إعداد النظام';
+
+  @override
+  String get useDeviceSettings => 'استخدام إعدادات الجهاز';
+
+  @override
+  String get english => 'الإنجليزية';
+
+  @override
+  String get arabic => 'العربية';
+
+  @override
+  String get light => 'فاتح';
+
+  @override
+  String get dark => 'داكن';
 }

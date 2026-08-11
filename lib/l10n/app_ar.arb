@@ -324,5 +324,15 @@
   "removeThisDocumentDescription": "لن يظهر بعد الآن في أرشيفك أو نتائج البحث.",
   "remove": "إزالة",
   "logoutTitle": "تسجيل الخروج من PMDAP Records؟",
-  "documentsAndActions": "المستندات والإجراءات"
+  "documentsAndActions": "المستندات والإجراءات",
+  "appSettings": "إعدادات التطبيق",
+  "language": "اللغة",
+  "appearance": "المظهر",
+  "theme": "السمة",
+  "systemDefault": "إعداد النظام",
+  "useDeviceSettings": "استخدام إعدادات الجهاز",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "light": "فاتح",
+  "dark": "داكن"
 }

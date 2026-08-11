@@ -25,6 +25,7 @@ import '../features/minors/presentation/minors_screen.dart';
 import '../features/patient/presentation/profile_edit_screen.dart';
 import '../features/patient/presentation/profile_screen.dart';
 import '../features/search/presentation/search_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/tools/presentation/dev_health_screen.dart';
 import 'main_shell.dart';
 
@@ -40,6 +41,7 @@ class Routes {
   static const search = '/search';
   static const profile = '/profile';
   static const profileEdit = '/profile/edit';
+  static const settings = '/settings';
 
   static const identity = '/identity';
   static const identityNew = '/identity/new';
@@ -110,6 +112,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: Routes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

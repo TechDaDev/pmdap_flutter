@@ -991,4 +991,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get documentsAndActions => 'Documents & Actions';
+
+  @override
+  String get appSettings => 'App settings';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get systemDefault => 'System default';
+
+  @override
+  String get useDeviceSettings => 'Use device settings';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get arabic => 'العربية';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
 }

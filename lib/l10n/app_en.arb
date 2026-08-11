@@ -324,5 +324,15 @@
   "removeThisDocumentDescription": "It will no longer appear in your archive or search results.",
   "remove": "Remove",
   "logoutTitle": "Log out of PMDAP Records?",
-  "documentsAndActions": "Documents & Actions"
+  "documentsAndActions": "Documents & Actions",
+  "appSettings": "App settings",
+  "language": "Language",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "systemDefault": "System default",
+  "useDeviceSettings": "Use device settings",
+  "english": "English",
+  "arabic": "العربية",
+  "light": "Light",
+  "dark": "Dark"
 }
