@@ -79,8 +79,9 @@ Future<IdentityImagePart> identityImagePart(
       );
     }
     final ext = format == IdentityImageFormat.jpeg ? 'jpg' : 'png';
-    final mime =
-        format == IdentityImageFormat.jpeg ? 'image/jpeg' : 'image/png';
+    final mime = format == IdentityImageFormat.jpeg
+        ? 'image/jpeg'
+        : 'image/png';
     return IdentityImagePart(
       path: path,
       filename: '$side.$ext',

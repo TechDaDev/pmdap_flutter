@@ -34,6 +34,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
   String? _backPath;
 
   bool _reading = false;
+  int? _uploadPercent;
   String? _errorMessage;
 
   bool get _isNationalCard =>
@@ -103,14 +104,28 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
     if (!_canRead) return;
     setState(() {
       _reading = true;
+      _uploadPercent = null;
       _errorMessage = null;
     });
+    final Stopwatch uploadTimer = Stopwatch()..start();
     try {
       final api = ref.read(identityApiProvider);
       final job = await api.extract(
         documentType: _docType,
         frontPath: _frontPath!,
         backPath: _isNationalCard ? _backPath : null,
+        onSendProgress: (sent, total) {
+          if (!mounted) return;
+          setState(() {
+            _uploadPercent = total > 0 ? (sent * 100 / total).round() : null;
+          });
+        },
+      );
+      uploadTimer.stop();
+      // Debug-safe upload telemetry: bytes + elapsed only, never content.
+      // ignore: avoid_print
+      print(
+        '[pmdap] identity initial upload: sent=${uploadTimer.elapsedMilliseconds}ms',
       );
 
       // Poll the async job (OCR worker). Bounded so a stuck job never blanks
@@ -133,9 +148,13 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
       }
       if (status.status == ExtractionJobStatus.failed ||
           status.result == null) {
+        _logExtractionFailure(job.jobId, status.errorCode);
+        final message = status.errorCode == 'OCR_UNAVAILABLE'
+            ? l10n.identityExtractionUnavailable
+            : l10n.documentReadingFailed;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(l10n.documentReadingFailed)));
+        ).showSnackBar(SnackBar(content: Text(message)));
         return;
       }
       final result = status.result!;
@@ -152,6 +171,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
             documentType: _docType,
             frontPath: _frontPath!,
             backPath: _isNationalCard ? _backPath : null,
+            extractionJobId: job.jobId,
             replaceUuid: widget.replaceUuid,
           ),
         ),
@@ -167,6 +187,16 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
     } finally {
       if (mounted) setState(() => _reading = false);
     }
+  }
+
+  /// Safe telemetry for a failed extraction: job id + document type + error
+  /// code only. Never OCR text, identity values or image content.
+  void _logExtractionFailure(String jobId, String errorCode) {
+    // ignore: avoid_print
+    print(
+      '[pmdap] identity extraction failed: job=$jobId '
+      'type=${_docType.api} code=$errorCode',
+    );
   }
 
   @override
@@ -247,6 +277,16 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                 loading: _reading,
                 icon: Icons.document_scanner_outlined,
               ),
+              if (_reading && _uploadPercent != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.uploadingIdentityDocumentProgress(_uploadPercent!),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
               Text(
                 l10n.identityExtractionAdvisory,

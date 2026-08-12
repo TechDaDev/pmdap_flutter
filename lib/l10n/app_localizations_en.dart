@@ -1172,6 +1172,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadingIdentityDocument => 'Uploading identity document…';
 
   @override
+  String uploadingIdentityDocumentProgress(Object percent) {
+    return 'Uploading identity document… $percent%';
+  }
+
+  @override
+  String get submittingIdentityDocument => 'Submitting identity document…';
+
+  @override
+  String get identityExtractionUnavailable =>
+      'Document reading is temporarily unavailable.';
+
+  @override
   String get identityConflictPending =>
       'An identity document of this type is already awaiting verification.';
 

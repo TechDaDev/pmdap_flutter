@@ -36,6 +36,7 @@ class _FakeIdentityApi extends IdentityApi {
   final List<String> replaceUuids = [];
   IdentityExtractionResult? extractionResult;
   ExtractionJobStatus jobStatus = ExtractionJobStatus.success;
+  String failureErrorCode = 'OCR_UNAVAILABLE';
   int pollCount = 0;
   ApiException? submitError;
   Page<IdentityDocumentSummary>? listResult;
@@ -56,6 +57,7 @@ class _FakeIdentityApi extends IdentityApi {
     required IdentityDocumentType documentType,
     required String frontPath,
     String? backPath,
+    void Function(int, int)? onSendProgress,
   }) async {
     return ExtractionJobDto(
       jobId: 'job-1',
@@ -70,7 +72,7 @@ class _FakeIdentityApi extends IdentityApi {
       jobId: jobId,
       status: jobStatus,
       errorCode: jobStatus == ExtractionJobStatus.failed
-          ? 'OCR_UNAVAILABLE'
+          ? failureErrorCode
           : '',
       result: jobStatus == ExtractionJobStatus.success
           ? extractionResult
@@ -329,7 +331,11 @@ void main() {
       expect(s.nationalNumber, '012345678901234');
       expect(s.familyNumber, '1234');
       expect(s.issuingCountry, 'IQ');
-      expect(s.backPath, isNotNull);
+      // OCR-review submit uses the extraction job (single upload), never
+      // local image paths.
+      final source = s.source;
+      expect(source, isA<ExtractionJob>());
+      expect((source as ExtractionJob).jobId, 'job-1');
     });
 
     testWidgets('missing field shows needs review + could-not-read label', (
@@ -436,10 +442,37 @@ void main() {
       expect(find.text(en.errorGeneric), findsNothing);
     });
 
-    testWidgets('failed extraction keeps images and shows safe message', (
+    testWidgets('OCR unavailable keeps images and shows unavailable message', (
       tester,
     ) async {
       fakeApi.jobStatus = ExtractionJobStatus.failed;
+      fakeApi.failureErrorCode = 'OCR_UNAVAILABLE';
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+
+      await tester.ensureVisible(primaryButton(en.readDocument));
+      await tester.pumpAndSettle();
+      await tester.tap(primaryButton(en.readDocument));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Safe, specific message — never a generic error.
+      expect(find.text(en.identityExtractionUnavailable), findsOneWidget);
+      expect(find.text(en.documentReadingFailed), findsNothing);
+      // Images preserved — retry without rescan.
+      expect(
+        tester.widget<FilledButton>(primaryButton(en.readDocument)).onPressed,
+        isNotNull,
+      );
+      expect(find.text(en.rescan), findsWidgets);
+    });
+
+    testWidgets('EXTRACTION_FAILED keeps images and shows safe message', (
+      tester,
+    ) async {
+      fakeApi.jobStatus = ExtractionJobStatus.failed;
+      fakeApi.failureErrorCode = 'EXTRACTION_FAILED';
       await tester.pumpWidget(host(const IdentitySubmitScreen()));
       await tester.pumpAndSettle();
       await scanFront(tester);

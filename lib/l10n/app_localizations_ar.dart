@@ -1161,6 +1161,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get uploadingIdentityDocument => 'جارٍ رفع وثيقة الهوية…';
 
   @override
+  String uploadingIdentityDocumentProgress(Object percent) {
+    return 'جارٍ رفع وثيقة الهوية… $percent%';
+  }
+
+  @override
+  String get submittingIdentityDocument => 'جارٍ إرسال وثيقة الهوية…';
+
+  @override
+  String get identityExtractionUnavailable => 'قراءة الوثيقة غير متاحة مؤقتًا.';
+
+  @override
   String get identityConflictPending =>
       'توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.';
 

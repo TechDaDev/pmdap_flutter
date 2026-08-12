@@ -28,6 +28,7 @@ class IdentityExtractionReviewScreen extends ConsumerStatefulWidget {
     required this.documentType,
     required this.frontPath,
     required this.backPath,
+    this.extractionJobId,
     this.replaceUuid,
   });
 
@@ -35,6 +36,11 @@ class IdentityExtractionReviewScreen extends ConsumerStatefulWidget {
   final IdentityDocumentType documentType;
   final String frontPath;
   final String? backPath;
+
+  /// Staging job id from the extract call. When present the final submit uses
+  /// [ExtractionJob] (no second image upload); when null the legacy
+  /// [ExistingImages] multipart path is used.
+  final String? extractionJobId;
   final String? replaceUuid;
 
   @override
@@ -65,6 +71,7 @@ class _IdentityExtractionReviewScreenState
   List<_ReviewField> _fields = const [];
   bool _initialized = false;
   bool _submitting = false;
+  int? _uploadPercent;
   String? _errorMessage;
 
   IdentityDocumentType get _type => widget.documentType;
@@ -216,6 +223,12 @@ class _IdentityExtractionReviewScreenState
       return;
     }
 
+    final source = widget.extractionJobId != null
+        ? ExtractionJob(jobId: widget.extractionJobId!)
+        : ExistingImages(
+            frontPath: widget.frontPath,
+            backPath: widget.backPath,
+          );
     final submission = IdentitySubmission(
       documentType: _type,
       documentNumber: byKey['document_number'] ?? '',
@@ -224,21 +237,24 @@ class _IdentityExtractionReviewScreenState
       issuingCountry: (byKey['issuing_country'] ?? 'IQ').toUpperCase(),
       issueDate: issueDate,
       expiryDate: expiryDate,
-      frontPath: widget.frontPath,
-      backPath: widget.backPath,
+      source: source,
     );
 
     try {
       final api = ref.read(identityApiProvider);
+      final isJob = widget.extractionJobId != null;
       if (widget.replaceUuid != null) {
         await api.replace(
           widget.replaceUuid!,
           submission,
-          onSendProgress: _onUploadProgress,
+          onSendProgress: isJob ? null : _onUploadProgress,
         );
         ref.invalidate(identityDocumentDetailProvider(widget.replaceUuid!));
       } else {
-        await api.submit(submission, onSendProgress: _onUploadProgress);
+        await api.submit(
+          submission,
+          onSendProgress: isJob ? null : _onUploadProgress,
+        );
       }
       ref.invalidate(identityDocumentsProvider);
       if (!mounted) return;
@@ -266,9 +282,15 @@ class _IdentityExtractionReviewScreenState
     }
   }
 
-  /// Multipart send progress. The submit button already shows a loading state
-  /// and is disabled while [_submitting], so the user cannot tap Submit twice.
-  void _onUploadProgress(int sent, int total) {}
+  /// Multipart send progress (LEGACY direct-image path only). The submit
+  /// button already shows a loading state and is disabled while
+  /// [_submitting], so the user cannot tap Submit twice.
+  void _onUploadProgress(int sent, int total) {
+    if (!mounted) return;
+    final percent = total > 0 ? (sent * 100 / total).round() : null;
+    setState(() => _uploadPercent = percent);
+    // Debug-safe: sent/total bytes + elapsed only, never content.
+  }
 
   /// 409 `identity_document_conflict` — a CURRENT PENDING or VERIFIED document
   /// of this type already exists. Never auto-retry the POST.
@@ -393,7 +415,9 @@ class _IdentityExtractionReviewScreenState
               if (_submitting) ...[
                 const SizedBox(height: 12),
                 Text(
-                  l10n.uploadingIdentityDocument,
+                  _uploadPercent != null
+                      ? l10n.uploadingIdentityDocumentProgress(_uploadPercent!)
+                      : l10n.submittingIdentityDocument,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,

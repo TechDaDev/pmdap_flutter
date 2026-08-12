@@ -13,11 +13,38 @@ import '../../../core/utils/date_utils.dart';
 import 'extraction_models.dart';
 import 'identity_image_part.dart';
 
-/// Selected existing file/image to submit for an identity document.
+/// Source of identity images for a submission.
 ///
-/// Filenames/content types are NOT hardcoded here — they are derived from the
-/// real image bytes by [identityMultipartFile] so extraction, final submit and
-/// replacement always agree on the format.
+/// Either already-staged images uploaded once at extraction time
+/// ([ExtractionJob]) or local images submitted directly (legacy
+/// [ExistingImages], used by older clients / manual flows).
+sealed class IdentitySubmissionSource {
+  const IdentitySubmissionSource();
+}
+
+/// Images already uploaded once during extraction; the final submit carries
+/// only corrected strings + the job id (NO second image upload).
+class ExtractionJob extends IdentitySubmissionSource {
+  const ExtractionJob({required this.jobId});
+
+  final String jobId;
+}
+
+/// Direct local images submitted as multipart (legacy path).
+class ExistingImages extends IdentitySubmissionSource {
+  const ExistingImages({required this.frontPath, this.backPath});
+
+  final String frontPath;
+  final String? backPath;
+}
+
+/// Selected source for an identity document submission.
+///
+/// Filenames/content types for the legacy [ExistingImages] path are NOT
+/// hardcoded here — they are derived from the real image bytes by
+/// [identityMultipartFile] so extraction and legacy submission agree on the
+/// format. OCR-review submissions always use [ExtractionJob] and send no
+/// image bytes.
 class IdentitySubmission {
   const IdentitySubmission({
     required this.documentType,
@@ -27,8 +54,7 @@ class IdentitySubmission {
     this.issuingCountry = 'IQ',
     this.issueDate,
     this.expiryDate,
-    required this.frontPath,
-    this.backPath,
+    required this.source,
   });
 
   final IdentityDocumentType documentType;
@@ -38,8 +64,7 @@ class IdentitySubmission {
   final String issuingCountry;
   final DateTime? issueDate;
   final DateTime? expiryDate;
-  final String frontPath;
-  final String? backPath;
+  final IdentitySubmissionSource source;
 }
 
 class IdentityApi {
@@ -83,13 +108,18 @@ class IdentityApi {
     void Function(int, int)? onSendProgress,
   }) async {
     try {
-      final form = await _identityForm(s);
-      final resp = await _dio.post<dynamic>(
-        ApiPaths.identityDocuments,
-        data: form,
-        options: _uploadOptions(),
-        onSendProgress: onSendProgress,
-      );
+      final resp = switch (s.source) {
+        ExtractionJob(:final jobId) => await _dio.post<dynamic>(
+          ApiPaths.identityDocuments,
+          data: _identityJson(s, jobId),
+        ),
+        ExistingImages() => await _dio.post<dynamic>(
+          ApiPaths.identityDocuments,
+          data: await _identityForm(s),
+          options: _uploadOptions(),
+          onSendProgress: onSendProgress,
+        ),
+      };
       return decodeData<IdentityDocumentDetail>(
         resp.data,
         IdentityDocumentDetail.fromJson,
@@ -105,13 +135,18 @@ class IdentityApi {
     void Function(int, int)? onSendProgress,
   }) async {
     try {
-      final form = await _identityForm(s);
-      final resp = await _dio.post<dynamic>(
-        ApiPaths.identityDocumentReplace(uuid),
-        data: form,
-        options: _uploadOptions(),
-        onSendProgress: onSendProgress,
-      );
+      final resp = switch (s.source) {
+        ExtractionJob(:final jobId) => await _dio.post<dynamic>(
+          ApiPaths.identityDocumentReplace(uuid),
+          data: _identityJson(s, jobId),
+        ),
+        ExistingImages() => await _dio.post<dynamic>(
+          ApiPaths.identityDocumentReplace(uuid),
+          data: await _identityForm(s),
+          options: _uploadOptions(),
+          onSendProgress: onSendProgress,
+        ),
+      };
       return decodeData<IdentityDocumentDetail>(
         resp.data,
         IdentityDocumentDetail.fromJson,
@@ -137,10 +172,14 @@ class IdentityApi {
   /// Advisory field extraction (async). Returns the job id; poll
   /// [extractStatus] for the result. No IdentityDocument is created; the
   /// result is for human review before the real [submit]/[replace] call.
+  ///
+  /// This is the ONLY image upload in the review flow — the final submit
+  /// reuses the staged job via [ExtractionJob] and sends no image bytes.
   Future<ExtractionJobDto> extract({
     required IdentityDocumentType documentType,
     required String frontPath,
     String? backPath,
+    void Function(int, int)? onSendProgress,
   }) async {
     try {
       final form = FormData.fromMap({
@@ -153,6 +192,7 @@ class IdentityApi {
         ApiPaths.identityExtract,
         data: form,
         options: _uploadOptions(),
+        onSendProgress: onSendProgress,
       );
       return decodeData<ExtractionJobDto>(resp.data, ExtractionJobDto.fromJson);
     } on DioException catch (e) {
@@ -160,9 +200,23 @@ class IdentityApi {
     }
   }
 
-  /// Build the multipart form for [submit]/[replace] using the shared
-  /// identity-image helper so the declared MIME always matches the real bytes.
+  /// JSON body for the extraction-job finalize contract (no image bytes).
+  Map<String, dynamic> _identityJson(IdentitySubmission s, String jobId) => {
+    'document_type': s.documentType.api,
+    'document_number': s.documentNumber,
+    'national_number': s.nationalNumber,
+    'family_number': s.familyNumber,
+    'issuing_country': s.issuingCountry,
+    if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
+    if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
+    'extraction_job_id': jobId,
+  };
+
+  /// Build the multipart form for the legacy [ExistingImages] path using the
+  /// shared identity-image helper so the declared MIME always matches the
+  /// real bytes.
   Future<FormData> _identityForm(IdentitySubmission s) async {
+    final images = s.source as ExistingImages;
     final form = FormData.fromMap({
       'document_type': s.documentType.api,
       'document_number': s.documentNumber,
@@ -171,9 +225,15 @@ class IdentityApi {
       'issuing_country': s.issuingCountry,
       if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
       if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
-      'front_image': await identityMultipartFile(s.frontPath, side: 'front'),
-      if (s.backPath != null)
-        'back_image': await identityMultipartFile(s.backPath!, side: 'back'),
+      'front_image': await identityMultipartFile(
+        images.frontPath,
+        side: 'front',
+      ),
+      if (images.backPath != null)
+        'back_image': await identityMultipartFile(
+          images.backPath!,
+          side: 'back',
+        ),
     });
     return form;
   }

@@ -2372,6 +2372,24 @@ abstract class AppLocalizations {
   /// **'Uploading identity document…'**
   String get uploadingIdentityDocument;
 
+  /// No description provided for @uploadingIdentityDocumentProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading identity document… {percent}%'**
+  String uploadingIdentityDocumentProgress(Object percent);
+
+  /// No description provided for @submittingIdentityDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting identity document…'**
+  String get submittingIdentityDocument;
+
+  /// No description provided for @identityExtractionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Document reading is temporarily unavailable.'**
+  String get identityExtractionUnavailable;
+
   /// No description provided for @identityConflictPending.
   ///
   /// In en, this message translates to:
