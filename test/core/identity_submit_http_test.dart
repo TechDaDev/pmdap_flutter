@@ -94,11 +94,10 @@ void main() {
   test('passport job submit sends dates + job id', () async {
     await api.submit(
       jobSubmission(
-            type: IdentityDocumentType.passport,
-            documentNumber: 'P1234',
-            jobId: 'job-p',
-          )
-          as IdentitySubmission,
+        type: IdentityDocumentType.passport,
+        documentNumber: 'P1234',
+        jobId: 'job-p',
+      ),
     );
 
     final data = adapter.captured!.data as Map<String, dynamic>;
@@ -148,11 +147,9 @@ void main() {
     expect(
       () => api.submit(jobSubmission()),
       throwsA(
-        isA<ApiException>().having(
-          (e) => e.code,
-          'code',
-          'extraction_job_conflict',
-        )..having((e) => e.statusCode, 'statusCode', 409),
+        isA<ApiException>()
+            .having((e) => e.code, 'code', 'extraction_job_conflict')
+            .having((e) => e.statusCode, 'statusCode', 409),
       ),
     );
   });
@@ -167,11 +164,9 @@ void main() {
     expect(
       () => api.submit(jobSubmission()),
       throwsA(
-        isA<ApiException>().having(
-          (e) => e.code,
-          'code',
-          'extraction_job_not_found',
-        )..having((e) => e.statusCode, 'statusCode', 404),
+        isA<ApiException>()
+            .having((e) => e.code, 'code', 'extraction_job_not_found')
+            .having((e) => e.statusCode, 'statusCode', 404),
       ),
     );
   });

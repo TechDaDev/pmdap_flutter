@@ -39,12 +39,16 @@ void main() async {
       ..writeAsBytesSync(jpgBytes);
 
     void part(String field, MultipartFile f) {
-      stdout.writeln('  $field  |  ${f.filename ?? '<null>'}  |  '
-          '${f.contentType ?? '<null>'}');
+      stdout.writeln(
+        '  $field  |  ${f.filename ?? '<null>'}  |  '
+        '${f.contentType ?? '<null>'}',
+      );
     }
 
-    stdout.writeln('EXTRACTION path (MultipartFile.fromFile(path), '
-        'no explicit filename/contentType):');
+    stdout.writeln(
+      'EXTRACTION path (MultipartFile.fromFile(path), '
+      'no explicit filename/contentType):',
+    );
     var form = FormData.fromMap({
       'document_type': 'UNIFIED_NATIONAL_CARD',
       'front_image': await MultipartFile.fromFile(scanFront.path),
@@ -55,7 +59,9 @@ void main() async {
     }
 
     stdout.writeln();
-    stdout.writeln('FINAL SUBMIT path (filename hardcoded front.jpg/back.jpg):');
+    stdout.writeln(
+      'FINAL SUBMIT path (filename hardcoded front.jpg/back.jpg):',
+    );
     form = FormData.fromMap({
       'document_type': 'UNIFIED_NATIONAL_CARD',
       'document_number': 'x',
@@ -76,8 +82,10 @@ void main() async {
     }
 
     stdout.writeln();
-    stdout.writeln('PNG gallery pick through FINAL SUBMIT path '
-        '(front.jpg hardcoded):');
+    stdout.writeln(
+      'PNG gallery pick through FINAL SUBMIT path '
+      '(front.jpg hardcoded):',
+    );
     form = FormData.fromMap({
       'document_type': 'UNIFIED_NATIONAL_CARD',
       'front_image': await MultipartFile.fromFile(
@@ -94,8 +102,10 @@ void main() async {
     }
 
     stdout.writeln();
-    stdout.writeln('EXTRACTION path with NO-EXTENSION file '
-        '(basename used):');
+    stdout.writeln(
+      'EXTRACTION path with NO-EXTENSION file '
+      '(basename used):',
+    );
     form = FormData.fromMap({
       'document_type': 'UNIFIED_NATIONAL_CARD',
       'front_image': await MultipartFile.fromFile(noExt.path),
@@ -105,8 +115,10 @@ void main() async {
     }
 
     stdout.writeln();
-    stdout.writeln('FINAL SUBMIT path with no-extension file '
-        '(front.jpg hardcoded):');
+    stdout.writeln(
+      'FINAL SUBMIT path with no-extension file '
+      '(front.jpg hardcoded):',
+    );
     form = FormData.fromMap({
       'document_type': 'UNIFIED_NATIONAL_CARD',
       'front_image': await MultipartFile.fromFile(

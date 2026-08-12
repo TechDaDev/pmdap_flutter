@@ -8,14 +8,36 @@ void main() {
   group('detectIdentityImageFormat', () {
     test('detects JPEG from FF D8 FF magic', () {
       final bytes = Uint8List.fromList([
-        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
+        0xff,
+        0xd8,
+        0xff,
+        0xe0,
+        0x00,
+        0x10,
+        0x4a,
+        0x46,
+        0x49,
+        0x46,
+        0x00,
+        0x01,
       ]);
       expect(detectIdentityImageFormat(bytes), IdentityImageFormat.jpeg);
     });
 
     test('detects PNG from 89 50 4E 47 magic', () {
       final bytes = Uint8List.fromList([
-        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+        0x89,
+        0x50,
+        0x4e,
+        0x47,
+        0x0d,
+        0x0a,
+        0x1a,
+        0x0a,
+        0x00,
+        0x00,
+        0x00,
+        0x0d,
       ]);
       expect(detectIdentityImageFormat(bytes), IdentityImageFormat.png);
     });
@@ -32,15 +54,24 @@ void main() {
       expect(
         detectIdentityImageFormat(
           Uint8List.fromList([
-            0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,
+            0x47,
+            0x49,
+            0x46,
+            0x38,
+            0x39,
+            0x61,
+            0x01,
+            0x00,
+            0x01,
+            0x00,
+            0x00,
+            0x00,
           ]),
         ),
         isNull,
       );
       expect(
-        detectIdentityImageFormat(
-          Uint8List.fromList('hello world'.codeUnits),
-        ),
+        detectIdentityImageFormat(Uint8List.fromList('hello world'.codeUnits)),
         isNull,
       );
     });
@@ -60,8 +91,20 @@ void main() {
     test('JPEG -> front.jpg + image/jpeg', () async {
       final file = File('${dir.path}/scan_page_1.jpg')
         ..writeAsBytesSync(const <int>[
-          0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
-          0xff, 0xd9,
+          0xff,
+          0xd8,
+          0xff,
+          0xe0,
+          0x00,
+          0x10,
+          0x4a,
+          0x46,
+          0x49,
+          0x46,
+          0x00,
+          0x01,
+          0xff,
+          0xd9,
         ]);
       final part = await identityImagePart(file.path, side: 'front');
       expect(part.filename, 'front.jpg');
@@ -73,8 +116,26 @@ void main() {
       // never from the extension.
       final file = File('${dir.path}/front.jpg')
         ..writeAsBytesSync(const <int>[
-          0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x00,
-          0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+          0x89,
+          0x50,
+          0x4e,
+          0x47,
+          0x0d,
+          0x0a,
+          0x1a,
+          0x0a,
+          0x00,
+          0x00,
+          0x00,
+          0x00,
+          0x49,
+          0x45,
+          0x4e,
+          0x44,
+          0xae,
+          0x42,
+          0x60,
+          0x82,
         ]);
       final part = await identityImagePart(file.path, side: 'front');
       expect(part.filename, 'front.png');
@@ -84,8 +145,20 @@ void main() {
     test('back side -> back.jpg / back.png', () async {
       final jpeg = File('${dir.path}/b.jpg')
         ..writeAsBytesSync(const <int>[
-          0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
-          0xff, 0xd9,
+          0xff,
+          0xd8,
+          0xff,
+          0xe0,
+          0x00,
+          0x10,
+          0x4a,
+          0x46,
+          0x49,
+          0x46,
+          0x00,
+          0x01,
+          0xff,
+          0xd9,
         ]);
       final part = await identityImagePart(jpeg.path, side: 'back');
       expect(part.filename, 'back.jpg');
@@ -113,8 +186,26 @@ void main() {
       addTearDown(() => dir.deleteSync(recursive: true));
       final png = File('${dir.path}/photo.png')
         ..writeAsBytesSync(const <int>[
-          0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x00,
-          0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+          0x89,
+          0x50,
+          0x4e,
+          0x47,
+          0x0d,
+          0x0a,
+          0x1a,
+          0x0a,
+          0x00,
+          0x00,
+          0x00,
+          0x00,
+          0x49,
+          0x45,
+          0x4e,
+          0x44,
+          0xae,
+          0x42,
+          0x60,
+          0x82,
         ]);
 
       final part = await identityMultipartFile(png.path, side: 'front');
