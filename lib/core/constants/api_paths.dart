@@ -15,6 +15,8 @@ class ApiPaths {
 
   static const identityDocuments = '/identity-documents/';
   static const identityExtract = '/identity-documents/extract/';
+  static String identityExtractStatus(String jobId) =>
+      '/identity-documents/extract/$jobId/';
   static String identityDocumentDetail(String uuid) =>
       '/identity-documents/$uuid/';
   static String identityDocumentReplace(String uuid) =>

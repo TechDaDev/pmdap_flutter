@@ -158,9 +158,10 @@ class IdentityApi {
     }
   }
 
-  /// Advisory field extraction. No IdentityDocument is created; the result is
-  /// for human review before the real [submit]/[replace] call.
-  Future<IdentityExtractionResult> extract({
+  /// Advisory field extraction (async). Returns the job id; poll
+  /// [extractStatus] for the result. No IdentityDocument is created; the
+  /// result is for human review before the real [submit]/[replace] call.
+  Future<ExtractionJobDto> extract({
     required IdentityDocumentType documentType,
     required String frontPath,
     String? backPath,
@@ -176,10 +177,20 @@ class IdentityApi {
         ApiPaths.identityExtract,
         data: form,
       );
-      return decodeData<IdentityExtractionResult>(
-        resp.data,
-        IdentityExtractionResult.fromJson,
+      return decodeData<ExtractionJobDto>(resp.data, ExtractionJobDto.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Poll an async extraction job. Terminal states carry the result or an
+  /// error code; the job is consumed server-side on read.
+  Future<ExtractionStatus> extractStatus(String jobId) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.identityExtractStatus(jobId),
       );
+      return decodeData<ExtractionStatus>(resp.data, ExtractionStatus.fromJson);
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

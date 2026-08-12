@@ -103,3 +103,68 @@ class IdentityExtractionResult {
     );
   }
 }
+
+/// Status of an async extraction job.
+enum ExtractionJobStatus {
+  pending,
+  processing,
+  success,
+  failed,
+  unknown;
+
+  static ExtractionJobStatus fromApi(String? value) {
+    return switch (value) {
+      'PENDING' => ExtractionJobStatus.pending,
+      'PROCESSING' => ExtractionJobStatus.processing,
+      'SUCCESS' => ExtractionJobStatus.success,
+      'FAILED' => ExtractionJobStatus.failed,
+      _ => ExtractionJobStatus.unknown,
+    };
+  }
+}
+
+/// POST /extract/ 202 response.
+class ExtractionJobDto {
+  const ExtractionJobDto({required this.jobId, required this.status});
+
+  final String jobId;
+  final ExtractionJobStatus status;
+
+  factory ExtractionJobDto.fromJson(Map<String, dynamic> json) {
+    return ExtractionJobDto(
+      jobId: (json['job_id'] as String?) ?? '',
+      status: ExtractionJobStatus.fromApi(json['status'] as String?),
+    );
+  }
+}
+
+/// Poll response for the extraction status endpoint.
+class ExtractionStatus {
+  const ExtractionStatus({
+    required this.jobId,
+    required this.status,
+    this.errorCode = '',
+    this.result,
+  });
+
+  final String jobId;
+  final ExtractionJobStatus status;
+  final String errorCode;
+  final IdentityExtractionResult? result;
+
+  bool get isTerminal =>
+      status == ExtractionJobStatus.success ||
+      status == ExtractionJobStatus.failed;
+
+  factory ExtractionStatus.fromJson(Map<String, dynamic> json) {
+    final status = ExtractionJobStatus.fromApi(json['status'] as String?);
+    return ExtractionStatus(
+      jobId: (json['job_id'] as String?) ?? '',
+      status: status,
+      errorCode: (json['error_code'] as String?) ?? '',
+      result: status == ExtractionJobStatus.success
+          ? IdentityExtractionResult.fromJson(json)
+          : null,
+    );
+  }
+}

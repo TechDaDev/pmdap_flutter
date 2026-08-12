@@ -10,6 +10,7 @@ import '../../../core/models/enums.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../documents/scanner/document_scanner.dart';
+import '../data/extraction_models.dart';
 import 'identity_extraction_review_screen.dart';
 
 /// Scan / capture an identity document, then read it (advisory extraction),
@@ -106,12 +107,38 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
     });
     try {
       final api = ref.read(identityApiProvider);
-      final result = await api.extract(
+      final job = await api.extract(
         documentType: _docType,
         frontPath: _frontPath!,
         backPath: _isNationalCard ? _backPath : null,
       );
+
+      // Poll the async job (OCR worker). Bounded so a stuck job never blanks
+      // the screen — images are preserved and the user can retry.
+      ExtractionStatus? status;
+      const pollInterval = Duration(seconds: 2);
+      const maxPolls = 45; // ~90s budget
+      for (var attempt = 0; attempt < maxPolls; attempt++) {
+        if (!mounted) return;
+        status = await api.extractStatus(job.jobId);
+        if (status.isTerminal) break;
+        await Future<void>.delayed(pollInterval);
+      }
       if (!mounted) return;
+      if (status == null || !status.isTerminal) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.documentReadingFailed)));
+        return;
+      }
+      if (status.status == ExtractionJobStatus.failed ||
+          status.result == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.documentReadingFailed)));
+        return;
+      }
+      final result = status.result!;
       if (result.fields.isEmpty) {
         ScaffoldMessenger.of(
           context,

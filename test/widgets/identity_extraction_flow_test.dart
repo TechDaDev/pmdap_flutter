@@ -33,14 +33,34 @@ class _FakeIdentityApi extends IdentityApi {
   final List<IdentitySubmission> submitted = [];
   final List<String> replaceUuids = [];
   IdentityExtractionResult? extractionResult;
+  ExtractionJobStatus jobStatus = ExtractionJobStatus.success;
+  int pollCount = 0;
 
   @override
-  Future<IdentityExtractionResult> extract({
+  Future<ExtractionJobDto> extract({
     required IdentityDocumentType documentType,
     required String frontPath,
     String? backPath,
   }) async {
-    return extractionResult!;
+    return ExtractionJobDto(
+      jobId: 'job-1',
+      status: ExtractionJobStatus.pending,
+    );
+  }
+
+  @override
+  Future<ExtractionStatus> extractStatus(String jobId) async {
+    pollCount++;
+    return ExtractionStatus(
+      jobId: jobId,
+      status: jobStatus,
+      errorCode: jobStatus == ExtractionJobStatus.failed
+          ? 'OCR_UNAVAILABLE'
+          : '',
+      result: jobStatus == ExtractionJobStatus.success
+          ? extractionResult
+          : null,
+    );
   }
 
   @override
@@ -319,6 +339,30 @@ void main() {
       await tapPrimary(tester, en.submitForVerification);
 
       expect(fakeApi.replaceUuids, ['old-1']);
+    });
+
+    testWidgets('failed extraction keeps images and shows safe message', (
+      tester,
+    ) async {
+      fakeApi.jobStatus = ExtractionJobStatus.failed;
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+
+      await tester.ensureVisible(primaryButton(en.readDocument));
+      await tester.pumpAndSettle();
+      await tester.tap(primaryButton(en.readDocument));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Safe failure message, no blank screen.
+      expect(find.text(en.documentReadingFailed), findsOneWidget);
+      // Images preserved — read still available for retry.
+      expect(
+        tester.widget<FilledButton>(primaryButton(en.readDocument)).onPressed,
+        isNotNull,
+      );
+      expect(find.text(en.rescan), findsWidgets);
     });
   });
 
