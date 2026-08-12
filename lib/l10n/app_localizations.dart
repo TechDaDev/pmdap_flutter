@@ -2390,6 +2390,12 @@ abstract class AppLocalizations {
   /// **'Document reading is temporarily unavailable.'**
   String get identityExtractionUnavailable;
 
+  /// No description provided for @documentReadingMayTakeLonger.
+  ///
+  /// In en, this message translates to:
+  /// **'Document reading may take a little longer. You can keep this screen open.'**
+  String get documentReadingMayTakeLonger;
+
   /// No description provided for @identityConflictPending.
   ///
   /// In en, this message translates to:

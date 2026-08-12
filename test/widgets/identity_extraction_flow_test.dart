@@ -38,6 +38,7 @@ class _FakeIdentityApi extends IdentityApi {
   ExtractionJobStatus jobStatus = ExtractionJobStatus.success;
   String failureErrorCode = 'OCR_UNAVAILABLE';
   int pollCount = 0;
+  int extractCount = 0;
   ApiException? submitError;
   Page<IdentityDocumentSummary>? listResult;
 
@@ -59,6 +60,7 @@ class _FakeIdentityApi extends IdentityApi {
     String? backPath,
     void Function(int, int)? onSendProgress,
   }) async {
+    extractCount++;
     return ExtractionJobDto(
       jobId: 'job-1',
       status: ExtractionJobStatus.pending,
@@ -491,6 +493,64 @@ void main() {
         isNotNull,
       );
       expect(find.text(en.rescan), findsWidgets);
+    });
+
+    testWidgets('long PROCESSING shows reassurance and stays on reading screen', (
+      tester,
+    ) async {
+      fakeApi.jobStatus = ExtractionJobStatus.processing;
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+
+      await tester.ensureVisible(primaryButton(en.readDocument));
+      await tester.pumpAndSettle();
+      await tester.tap(primaryButton(en.readDocument));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Still reading: review did NOT appear yet.
+      expect(find.text(en.reviewDocumentInformation), findsNothing);
+
+      // After ~25s of OCR the reassurance message appears; no failure shown.
+      await tester.pump(const Duration(seconds: 25));
+      expect(find.text(en.documentReadingMayTakeLonger), findsOneWidget);
+      expect(find.text(en.documentReadingFailed), findsNothing);
+      expect(find.text(en.reviewDocumentInformation), findsNothing);
+
+      // Multiple polls happened against the SAME job (no duplicate extraction).
+      expect(fakeApi.pollCount, greaterThan(2));
+      expect(fakeApi.extractCount, 1);
+
+      // Tear down and let the still-running poll loop drain its timers.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('widget rebuild does not create a duplicate extraction job', (
+      tester,
+    ) async {
+      fakeApi.jobStatus = ExtractionJobStatus.processing;
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+
+      await tester.ensureVisible(primaryButton(en.readDocument));
+      await tester.pumpAndSettle();
+      await tester.tap(primaryButton(en.readDocument));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Rebuild the tree (simulate route/dependency rebuild).
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pump(const Duration(seconds: 6));
+
+      // Extraction was still triggered only once.
+      expect(fakeApi.extractCount, 1);
+
+      // Drain any timers left by the disposed screen's poll loop.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 3));
     });
   });
 

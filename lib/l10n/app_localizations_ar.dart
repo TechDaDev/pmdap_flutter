@@ -1172,6 +1172,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get identityExtractionUnavailable => 'قراءة الوثيقة غير متاحة مؤقتًا.';
 
   @override
+  String get documentReadingMayTakeLonger =>
+      'قد تستغرق قراءة الوثيقة وقتًا أطول قليلاً. يمكنك إبقاء هذه الشاشة مفتوحة.';
+
+  @override
   String get identityConflictPending =>
       'توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.';
 

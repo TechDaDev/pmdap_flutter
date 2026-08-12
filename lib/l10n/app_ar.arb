@@ -388,6 +388,7 @@
   "uploadingIdentityDocumentProgress": "جارٍ رفع وثيقة الهوية… {percent}%",
   "submittingIdentityDocument": "جارٍ إرسال وثيقة الهوية…",
   "identityExtractionUnavailable": "قراءة الوثيقة غير متاحة مؤقتًا.",
+  "documentReadingMayTakeLonger": "قد تستغرق قراءة الوثيقة وقتًا أطول قليلاً. يمكنك إبقاء هذه الشاشة مفتوحة.",
   "identityConflictPending": "توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.",
   "identityConflictVerified": "استخدم استبدال الوثيقة لإرسال نسخة جديدة.",
   "viewIdentityDocuments": "عرض وثائق الهوية",

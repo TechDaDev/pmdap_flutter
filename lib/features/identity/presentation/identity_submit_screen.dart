@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -34,8 +35,16 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
   String? _backPath;
 
   bool _reading = false;
+  bool _longReadNotice = false;
   int? _uploadPercent;
   String? _errorMessage;
+  Timer? _longReadTimer;
+
+  @override
+  void dispose() {
+    _longReadTimer?.cancel();
+    super.dispose();
+  }
 
   bool get _isNationalCard =>
       _docType == IdentityDocumentType.unifiedNationalCard;
@@ -104,8 +113,14 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
     if (!_canRead) return;
     setState(() {
       _reading = true;
+      _longReadNotice = false;
       _uploadPercent = null;
       _errorMessage = null;
+    });
+    _longReadTimer?.cancel();
+    _longReadTimer = Timer(const Duration(seconds: 25), () {
+      // Secondary reassurance: long OCR is normal, not failure.
+      if (mounted && _reading) setState(() => _longReadNotice = true);
     });
     final Stopwatch uploadTimer = Stopwatch()..start();
     try {
@@ -129,10 +144,11 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
       );
 
       // Poll the async job (OCR worker). Bounded so a stuck job never blanks
-      // the screen — images are preserved and the user can retry.
+      // the screen — images are preserved and the user can retry. Deadline is
+      // well beyond realistic OCR duration (warm ~11s, cold worker ~15-30s).
       ExtractionStatus? status;
       const pollInterval = Duration(seconds: 2);
-      const maxPolls = 45; // ~90s budget
+      const maxPolls = 120; // ~4 minute budget
       for (var attempt = 0; attempt < maxPolls; attempt++) {
         if (!mounted) return;
         status = await api.extractStatus(job.jobId);
@@ -185,6 +201,7 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.documentReadingFailed)));
     } finally {
+      _longReadTimer?.cancel();
       if (mounted) setState(() => _reading = false);
     }
   }
@@ -281,6 +298,16 @@ class _IdentitySubmitScreenState extends ConsumerState<IdentitySubmitScreen> {
                 const SizedBox(height: 12),
                 Text(
                   l10n.uploadingIdentityDocumentProgress(_uploadPercent!),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              if (_reading && _longReadNotice) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.documentReadingMayTakeLonger,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,

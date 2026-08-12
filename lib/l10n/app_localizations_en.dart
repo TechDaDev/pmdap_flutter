@@ -1184,6 +1184,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Document reading is temporarily unavailable.';
 
   @override
+  String get documentReadingMayTakeLonger =>
+      'Document reading may take a little longer. You can keep this screen open.';
+
+  @override
   String get identityConflictPending =>
       'An identity document of this type is already awaiting verification.';
 
