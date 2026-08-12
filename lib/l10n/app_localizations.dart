@@ -2359,6 +2359,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Extraction is a suggestion only — please verify all values before submitting.'**
   String get identityExtractionAdvisory;
+
+  /// No description provided for @identityImagesJpegOrPng.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity images must be JPEG or PNG.'**
+  String get identityImagesJpegOrPng;
+
+  /// No description provided for @uploadingIdentityDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading identity document…'**
+  String get uploadingIdentityDocument;
+
+  /// No description provided for @identityConflictPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An identity document of this type is already awaiting verification.'**
+  String get identityConflictPending;
+
+  /// No description provided for @identityConflictVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Replace document to submit a new copy.'**
+  String get identityConflictVerified;
+
+  /// No description provided for @viewIdentityDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'View identity documents'**
+  String get viewIdentityDocuments;
+
+  /// No description provided for @identityConflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity document already exists'**
+  String get identityConflictTitle;
 }
 
 class _AppLocalizationsDelegate

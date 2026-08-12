@@ -1,16 +1,21 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
+import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/models/identity.dart';
+import '../../../core/models/pagination.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/buttons.dart';
 import '../application/identity_providers.dart';
 import '../data/extraction_models.dart';
 import '../data/identity_api.dart';
+import '../data/identity_image_part.dart';
 
 /// Human confirmation of advisory extraction results before the real submit.
 ///
@@ -220,18 +225,20 @@ class _IdentityExtractionReviewScreenState
       issueDate: issueDate,
       expiryDate: expiryDate,
       frontPath: widget.frontPath,
-      frontFilename: 'front.jpg',
       backPath: widget.backPath,
-      backFilename: 'back.jpg',
     );
 
     try {
       final api = ref.read(identityApiProvider);
       if (widget.replaceUuid != null) {
-        await api.replace(widget.replaceUuid!, submission);
+        await api.replace(
+          widget.replaceUuid!,
+          submission,
+          onSendProgress: _onUploadProgress,
+        );
         ref.invalidate(identityDocumentDetailProvider(widget.replaceUuid!));
       } else {
-        await api.submit(submission);
+        await api.submit(submission, onSendProgress: _onUploadProgress);
       }
       ref.invalidate(identityDocumentsProvider);
       if (!mounted) return;
@@ -239,13 +246,85 @@ class _IdentityExtractionReviewScreenState
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.identitySubmitted)));
       Navigator.of(context).pop(true);
+    } on IdentityImageException {
+      // Local pre-flight: the file is not a real JPEG/PNG. Backend remains
+      // authoritative, but we reject the obvious case before uploading.
+      setState(() => _errorMessage = l10n.identityImagesJpegOrPng);
     } on ApiException catch (e) {
+      if (e.code == 'identity_document_conflict') {
+        // Stop the loading state before the dialog so the user is not left
+        // staring at a spinner behind the modal.
+        setState(() => _submitting = false);
+        await _handleConflict();
+        return;
+      }
       setState(() => _errorMessage = e.message);
     } catch (_) {
       setState(() => _errorMessage = l10n.errorGeneric);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  /// Multipart send progress. The submit button already shows a loading state
+  /// and is disabled while [_submitting], so the user cannot tap Submit twice.
+  void _onUploadProgress(int sent, int total) {}
+
+  /// 409 `identity_document_conflict` — a CURRENT PENDING or VERIFIED document
+  /// of this type already exists. Never auto-retry the POST.
+  Future<void> _handleConflict() async {
+    Page<IdentityDocumentSummary>? page;
+    try {
+      page = await ref.read(identityApiProvider).list();
+    } catch (_) {
+      page = null;
+    }
+    if (!mounted) return;
+    final sameType =
+        page?.results
+            .where(
+              (d) =>
+                  d.documentType == _type &&
+                  d.status == IdentityDocumentLifecycleStatus.current,
+            )
+            .toList() ??
+        const <IdentityDocumentSummary>[];
+    final hasPending = sameType.any(
+      (d) => d.verificationStatus == VerificationStatus.pending,
+    );
+    final hasVerified = sameType.any(
+      (d) => d.verificationStatus == VerificationStatus.verified,
+    );
+
+    final String message;
+    if (hasPending) {
+      message = l10n.identityConflictPending;
+    } else if (hasVerified) {
+      message = l10n.identityConflictVerified;
+    } else {
+      message = l10n.errorGeneric;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.identityConflictTitle),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.push(Routes.identity);
+            },
+            child: Text(l10n.viewIdentityDocuments),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -311,6 +390,16 @@ class _IdentityExtractionReviewScreenState
                 loading: _submitting,
                 icon: Icons.verified_user_outlined,
               ),
+              if (_submitting) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.uploadingIdentityDocument,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

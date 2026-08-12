@@ -1164,4 +1164,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get identityExtractionAdvisory =>
       'Extraction is a suggestion only — please verify all values before submitting.';
+
+  @override
+  String get identityImagesJpegOrPng => 'Identity images must be JPEG or PNG.';
+
+  @override
+  String get uploadingIdentityDocument => 'Uploading identity document…';
+
+  @override
+  String get identityConflictPending =>
+      'An identity document of this type is already awaiting verification.';
+
+  @override
+  String get identityConflictVerified =>
+      'Use Replace document to submit a new copy.';
+
+  @override
+  String get viewIdentityDocuments => 'View identity documents';
+
+  @override
+  String get identityConflictTitle => 'Identity document already exists';
 }

@@ -4,14 +4,20 @@ import 'package:dio/dio.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/identity.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/utils/date_utils.dart';
 import 'extraction_models.dart';
+import 'identity_image_part.dart';
 
 /// Selected existing file/image to submit for an identity document.
+///
+/// Filenames/content types are NOT hardcoded here — they are derived from the
+/// real image bytes by [identityMultipartFile] so extraction, final submit and
+/// replacement always agree on the format.
 class IdentitySubmission {
   const IdentitySubmission({
     required this.documentType,
@@ -22,9 +28,7 @@ class IdentitySubmission {
     this.issueDate,
     this.expiryDate,
     required this.frontPath,
-    required this.frontFilename,
     this.backPath,
-    this.backFilename,
   });
 
   final IdentityDocumentType documentType;
@@ -35,9 +39,7 @@ class IdentitySubmission {
   final DateTime? issueDate;
   final DateTime? expiryDate;
   final String frontPath;
-  final String frontFilename;
   final String? backPath;
-  final String? backFilename;
 }
 
 class IdentityApi {
@@ -76,29 +78,17 @@ class IdentityApi {
     }
   }
 
-  Future<IdentityDocumentDetail> submit(IdentitySubmission s) async {
+  Future<IdentityDocumentDetail> submit(
+    IdentitySubmission s, {
+    void Function(int, int)? onSendProgress,
+  }) async {
     try {
-      final form = FormData.fromMap({
-        'document_type': s.documentType.api,
-        'document_number': s.documentNumber,
-        'national_number': s.nationalNumber,
-        'family_number': s.familyNumber,
-        'issuing_country': s.issuingCountry,
-        if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
-        if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
-        'front_image': await MultipartFile.fromFile(
-          s.frontPath,
-          filename: s.frontFilename,
-        ),
-        if (s.backPath != null)
-          'back_image': await MultipartFile.fromFile(
-            s.backPath!,
-            filename: s.backFilename ?? 'back',
-          ),
-      });
+      final form = await _identityForm(s);
       final resp = await _dio.post<dynamic>(
         ApiPaths.identityDocuments,
         data: form,
+        options: _uploadOptions(),
+        onSendProgress: onSendProgress,
       );
       return decodeData<IdentityDocumentDetail>(
         resp.data,
@@ -111,30 +101,16 @@ class IdentityApi {
 
   Future<IdentityDocumentDetail> replace(
     String uuid,
-    IdentitySubmission s,
-  ) async {
+    IdentitySubmission s, {
+    void Function(int, int)? onSendProgress,
+  }) async {
     try {
-      final form = FormData.fromMap({
-        'document_type': s.documentType.api,
-        'document_number': s.documentNumber,
-        'national_number': s.nationalNumber,
-        'family_number': s.familyNumber,
-        'issuing_country': s.issuingCountry,
-        if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
-        if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
-        'front_image': await MultipartFile.fromFile(
-          s.frontPath,
-          filename: s.frontFilename,
-        ),
-        if (s.backPath != null)
-          'back_image': await MultipartFile.fromFile(
-            s.backPath!,
-            filename: s.backFilename ?? 'back',
-          ),
-      });
+      final form = await _identityForm(s);
       final resp = await _dio.post<dynamic>(
         ApiPaths.identityDocumentReplace(uuid),
         data: form,
+        options: _uploadOptions(),
+        onSendProgress: onSendProgress,
       );
       return decodeData<IdentityDocumentDetail>(
         resp.data,
@@ -169,19 +145,45 @@ class IdentityApi {
     try {
       final form = FormData.fromMap({
         'document_type': documentType.api,
-        'front_image': await MultipartFile.fromFile(frontPath),
+        'front_image': await identityMultipartFile(frontPath, side: 'front'),
         if (backPath != null)
-          'back_image': await MultipartFile.fromFile(backPath),
+          'back_image': await identityMultipartFile(backPath, side: 'back'),
       });
       final resp = await _dio.post<dynamic>(
         ApiPaths.identityExtract,
         data: form,
+        options: _uploadOptions(),
       );
       return decodeData<ExtractionJobDto>(resp.data, ExtractionJobDto.fromJson);
     } on DioException catch (e) {
       throw _mapper.map(e);
     }
   }
+
+  /// Build the multipart form for [submit]/[replace] using the shared
+  /// identity-image helper so the declared MIME always matches the real bytes.
+  Future<FormData> _identityForm(IdentitySubmission s) async {
+    final form = FormData.fromMap({
+      'document_type': s.documentType.api,
+      'document_number': s.documentNumber,
+      'national_number': s.nationalNumber,
+      'family_number': s.familyNumber,
+      'issuing_country': s.issuingCountry,
+      if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
+      if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
+      'front_image': await identityMultipartFile(s.frontPath, side: 'front'),
+      if (s.backPath != null)
+        'back_image': await identityMultipartFile(s.backPath!, side: 'back'),
+    });
+    return form;
+  }
+
+  /// Upload-timeout options. Uploads of identity images are intentionally
+  /// given a longer (still finite) send window than regular requests.
+  Options _uploadOptions() => Options(
+    sendTimeout: AppConfig.uploadSendTimeout,
+    receiveTimeout: AppConfig.uploadReceiveTimeout,
+  );
 
   /// Poll an async extraction job. Terminal states carry the result or an
   /// error code; the job is consumed server-side on read.

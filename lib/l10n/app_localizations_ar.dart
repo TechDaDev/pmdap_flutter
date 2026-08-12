@@ -1152,4 +1152,25 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get identityExtractionAdvisory =>
       'الاستخراج مجرد اقتراح — يرجى التحقق من جميع القيم قبل الإرسال.';
+
+  @override
+  String get identityImagesJpegOrPng =>
+      'يجب أن تكون صور الهوية بصيغة JPEG أو PNG.';
+
+  @override
+  String get uploadingIdentityDocument => 'جارٍ رفع وثيقة الهوية…';
+
+  @override
+  String get identityConflictPending =>
+      'توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.';
+
+  @override
+  String get identityConflictVerified =>
+      'استخدم استبدال الوثيقة لإرسال نسخة جديدة.';
+
+  @override
+  String get viewIdentityDocuments => 'عرض وثائق الهوية';
+
+  @override
+  String get identityConflictTitle => 'وثيقة الهوية موجودة بالفعل';
 }

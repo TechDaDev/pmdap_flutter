@@ -47,4 +47,12 @@ class AppConfig {
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 60);
   static const Duration sendTimeout = Duration(seconds: 60);
+
+  /// Identity document uploads carry large front/back images over the
+  /// multipart body. A tiny send timeout would abort legitimate slow-upload
+  /// sessions, so these use a longer, still-finite window. Deliberately
+  /// separated from [sendTimeout]/[receiveTimeout] so transport timeouts are
+  /// not conflated with upload throughput.
+  static const Duration uploadSendTimeout = Duration(seconds: 120);
+  static const Duration uploadReceiveTimeout = Duration(seconds: 90);
 }

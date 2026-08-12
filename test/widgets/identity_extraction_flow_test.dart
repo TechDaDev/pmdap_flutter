@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pmdap_mobile/core/api/api_exception.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/identity.dart';
+import 'package:pmdap_mobile/core/models/pagination.dart';
 import 'package:pmdap_mobile/features/identity/data/extraction_models.dart';
 import 'package:pmdap_mobile/features/identity/data/identity_api.dart';
 import 'package:pmdap_mobile/features/identity/presentation/identity_extraction_review_screen.dart';
@@ -35,6 +37,19 @@ class _FakeIdentityApi extends IdentityApi {
   IdentityExtractionResult? extractionResult;
   ExtractionJobStatus jobStatus = ExtractionJobStatus.success;
   int pollCount = 0;
+  ApiException? submitError;
+  Page<IdentityDocumentSummary>? listResult;
+
+  @override
+  Future<Page<IdentityDocumentSummary>> list({int page = 1}) async {
+    return listResult ??
+        const Page<IdentityDocumentSummary>(
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        );
+  }
 
   @override
   Future<ExtractionJobDto> extract({
@@ -64,7 +79,11 @@ class _FakeIdentityApi extends IdentityApi {
   }
 
   @override
-  Future<IdentityDocumentDetail> submit(IdentitySubmission s) async {
+  Future<IdentityDocumentDetail> submit(
+    IdentitySubmission s, {
+    void Function(int, int)? onSendProgress,
+  }) async {
+    if (submitError != null) throw submitError!;
     submitted.add(s);
     return const IdentityDocumentDetail(
       uuid: 'id-1',
@@ -76,8 +95,9 @@ class _FakeIdentityApi extends IdentityApi {
   @override
   Future<IdentityDocumentDetail> replace(
     String uuid,
-    IdentitySubmission s,
-  ) async {
+    IdentitySubmission s, {
+    void Function(int, int)? onSendProgress,
+  }) async {
     replaceUuids.add(uuid);
     submitted.add(s);
     return IdentityDocumentDetail(
@@ -339,6 +359,81 @@ void main() {
       await tapPrimary(tester, en.submitForVerification);
 
       expect(fakeApi.replaceUuids, ['old-1']);
+    });
+
+    testWidgets('409 conflict shows pending message, never generic error', (
+      tester,
+    ) async {
+      fakeApi.extractionResult = _ncResult();
+      fakeApi.submitError = const ApiException(
+        statusCode: 409,
+        code: 'identity_document_conflict',
+        message:
+            'Use the explicit replacement workflow for this document type.',
+      );
+      fakeApi.listResult = Page<IdentityDocumentSummary>(
+        count: 1,
+        next: null,
+        previous: null,
+        results: [
+          IdentityDocumentSummary(
+            uuid: 'id-1',
+            documentType: IdentityDocumentType.unifiedNationalCard,
+            verificationStatus: VerificationStatus.pending,
+            status: IdentityDocumentLifecycleStatus.current,
+          ),
+        ],
+      );
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+      await tapPrimary(tester, en.submitForVerification);
+      await tester.pumpAndSettle();
+
+      expect(find.text(en.identityConflictTitle), findsOneWidget);
+      expect(find.text(en.identityConflictPending), findsOneWidget);
+      expect(find.text(en.viewIdentityDocuments), findsOneWidget);
+      expect(find.text(en.errorGeneric), findsNothing);
+      // No automatic retry: exactly one submit attempt was made.
+      expect(fakeApi.submitted, isEmpty);
+    });
+
+    testWidgets('409 conflict with verified current doc suggests replace', (
+      tester,
+    ) async {
+      fakeApi.extractionResult = _ncResult();
+      fakeApi.submitError = const ApiException(
+        statusCode: 409,
+        code: 'identity_document_conflict',
+        message:
+            'Use the explicit replacement workflow for this document type.',
+      );
+      fakeApi.listResult = Page<IdentityDocumentSummary>(
+        count: 1,
+        next: null,
+        previous: null,
+        results: [
+          IdentityDocumentSummary(
+            uuid: 'id-9',
+            documentType: IdentityDocumentType.unifiedNationalCard,
+            verificationStatus: VerificationStatus.verified,
+            status: IdentityDocumentLifecycleStatus.current,
+          ),
+        ],
+      );
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+      await tapPrimary(tester, en.submitForVerification);
+      await tester.pumpAndSettle();
+
+      expect(find.text(en.identityConflictTitle), findsOneWidget);
+      expect(find.text(en.identityConflictVerified), findsOneWidget);
+      expect(find.text(en.errorGeneric), findsNothing);
     });
 
     testWidgets('failed extraction keeps images and shows safe message', (

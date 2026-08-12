@@ -382,5 +382,11 @@
   "nationality": "الجنسية",
   "sex": "الجنس",
   "dateOfBirth": "تاريخ الميلاد",
-  "identityExtractionAdvisory": "الاستخراج مجرد اقتراح — يرجى التحقق من جميع القيم قبل الإرسال."
+  "identityExtractionAdvisory": "الاستخراج مجرد اقتراح — يرجى التحقق من جميع القيم قبل الإرسال.",
+  "identityImagesJpegOrPng": "يجب أن تكون صور الهوية بصيغة JPEG أو PNG.",
+  "uploadingIdentityDocument": "جارٍ رفع وثيقة الهوية…",
+  "identityConflictPending": "توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.",
+  "identityConflictVerified": "استخدم استبدال الوثيقة لإرسال نسخة جديدة.",
+  "viewIdentityDocuments": "عرض وثائق الهوية",
+  "identityConflictTitle": "وثيقة الهوية موجودة بالفعل"
 }
