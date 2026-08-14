@@ -176,6 +176,36 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get errorGeneric;
 
+  /// No description provided for @errorEmailExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered. Please sign in instead.'**
+  String get errorEmailExists;
+
+  /// No description provided for @errorCardAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This National Card is already registered.'**
+  String get errorCardAlreadyRegistered;
+
+  /// No description provided for @errorRegistrationExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your registration session expired. Please scan your card again.'**
+  String get errorRegistrationExpired;
+
+  /// No description provided for @errorRegistrationAlreadyCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This registration was already completed. Please sign in instead.'**
+  String get errorRegistrationAlreadyCompleted;
+
+  /// No description provided for @errorRegistrationSessionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your registration session is no longer valid. Please scan your card again.'**
+  String get errorRegistrationSessionInvalid;
+
   /// No description provided for @networkError.
   ///
   /// In en, this message translates to:

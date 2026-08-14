@@ -48,6 +48,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorGeneric => 'Something went wrong. Please try again.';
 
   @override
+  String get errorEmailExists =>
+      'This email is already registered. Please sign in instead.';
+
+  @override
+  String get errorCardAlreadyRegistered =>
+      'This National Card is already registered.';
+
+  @override
+  String get errorRegistrationExpired =>
+      'Your registration session expired. Please scan your card again.';
+
+  @override
+  String get errorRegistrationAlreadyCompleted =>
+      'This registration was already completed. Please sign in instead.';
+
+  @override
+  String get errorRegistrationSessionInvalid =>
+      'Your registration session is no longer valid. Please scan your card again.';
+
+  @override
   String get networkError =>
       'Network error. Check your connection and try again.';
 

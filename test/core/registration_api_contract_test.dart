@@ -1,0 +1,190 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:pmdap_mobile/core/api/api_exception.dart';
+import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/features/auth/data/registration_api.dart';
+import 'package:pmdap_mobile/features/auth/data/registration_models.dart';
+
+/// Captures the exact request Dio would send and returns a canned response.
+class _CaptureAdapter implements HttpClientAdapter {
+  RequestOptions? captured;
+  int status = 201;
+  String body = '';
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    captured = options;
+    return ResponseBody.fromString(
+      body.isEmpty
+          ? '{"data": {"uuid": "u1", "email": "x@example.com", '
+                '"role": "PATIENT", "status": "ACTIVE"}}'
+          : body,
+      status,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+const _pngBytes = <int>[
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, //
+  0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, //
+  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, //
+  0x0D, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x62, 0x00, 0x01, 0x00, 0x00, //
+  0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, //
+  0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+];
+
+RegistrationIdentityInput _identity() => RegistrationIdentityInput(
+  jobId: 'job-1',
+  jobToken: 'token-1',
+  documentType: IdentityDocumentType.unifiedNationalCard,
+  documentNumber: '123456789012',
+  nationalCardNumber: '123456789012',
+  familyNumber: 'SYNTHFAM123456',
+  uniqueCardBodyNumber: 'G12345678',
+  name: 'SYNTHNAME',
+  fatherName: 'SYNTHFATHER',
+  grandfatherName: 'SYNTHGRAND',
+  confirmation: true,
+  dateOfBirth: DateTime(1990, 5, 17),
+  sex: Sex.male,
+  nationality: 'IQ',
+  bloodGroup: BloodGroup.oPos,
+);
+
+void main() {
+  late _CaptureAdapter adapter;
+  late Dio dio;
+  late RegistrationApi api;
+
+  setUp(() {
+    adapter = _CaptureAdapter();
+    dio = Dio()..httpClientAdapter = adapter;
+    api = RegistrationApi(dio);
+  });
+
+  test(
+    'registerScanFirst sends exact JSON: account + capability, NO images',
+    () async {
+      await api.registerScanFirst(
+        email: 'synth@example.com',
+        phone: '07700000000',
+        password: 'StrongPass123!',
+        governorate: 'BAGHDAD',
+        identity: _identity(),
+      );
+
+      expect(adapter.captured, isNotNull);
+      final path = adapter.captured!.path;
+      expect(path, '/auth/register/');
+      expect(adapter.captured!.method, 'POST');
+
+      final data = adapter.captured!.data as Map<String, dynamic>;
+      // Account fields.
+      expect(data['email'], 'synth@example.com');
+      expect(data['password'], 'StrongPass123!');
+      expect(data['phone'], '07700000000');
+      expect(data['governorate'], 'BAGHDAD');
+      // No image bytes anywhere in the complete request.
+      expect(data.containsKey('front_image'), isFalse);
+      expect(data.containsKey('back_image'), isFalse);
+
+      final id = data['registration_identity'] as Map<String, dynamic>;
+      expect(id, {
+        'job_id': 'job-1',
+        'job_token': 'token-1',
+        'document_type': 'UNIFIED_NATIONAL_CARD',
+        'document_number': '123456789012',
+        'national_card_number': '123456789012',
+        'family_number': 'SYNTHFAM123456',
+        'unique_card_body_number': 'G12345678',
+        'name': 'SYNTHNAME',
+        'father_name': 'SYNTHFATHER',
+        'grandfather_name': 'SYNTHGRAND',
+        'confirmation': true,
+        'date_of_birth': '1990-05-17',
+        'sex': 'MALE',
+        'nationality': 'IQ',
+        'blood_group': 'O+',
+      });
+    },
+  );
+
+  test(
+    'startExtraction sends multipart only — credentials NEVER included',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('reg_api_test');
+      final file = File('${dir.path}/front.png');
+      await file.writeAsBytes(Uint8List.fromList(_pngBytes));
+
+      await api.startExtraction(frontPath: file.path, backPath: file.path);
+
+      expect(adapter.captured, isNotNull);
+      expect(adapter.captured!.path, '/auth/register/identity/extract/');
+      expect(adapter.captured!.data, isA<FormData>());
+      final form = adapter.captured!.data as FormData;
+      final fields = form.fields.map((f) => f.key).toSet();
+      expect(fields, contains('document_type'));
+      expect(
+        form.files.map((f) => f.key),
+        containsAll(['front_image', 'back_image']),
+      );
+      // The extraction request carries NO account credentials.
+      expect(fields.contains('password'), isFalse);
+      expect(fields.contains('email'), isFalse);
+    },
+  );
+
+  test('maps backend error envelope to typed ApiException', () async {
+    adapter.status = 400;
+    adapter.body =
+        '{"error":{"code":"validation_error","message":"Validation failed.",'
+        '"details":{"email":["An account with this email already exists."]}}}';
+    try {
+      await api.registerScanFirst(
+        email: 'synth@example.com',
+        password: 'StrongPass123!',
+        governorate: 'BAGHDAD',
+        identity: _identity(),
+      );
+      fail('expected ApiException');
+    } on ApiException catch (e) {
+      expect(e.code, 'validation_error');
+      expect(
+        e.details['email'],
+        contains('An account with this email already exists.'),
+      );
+    }
+  });
+
+  test('maps job-expired 410 code', () async {
+    adapter.status = 410;
+    adapter.body =
+        '{"error":{"code":"registration_job_expired",'
+        '"message":"Registration identity session has expired."}}';
+    try {
+      await api.registerScanFirst(
+        email: 'synth@example.com',
+        password: 'StrongPass123!',
+        governorate: 'BAGHDAD',
+        identity: _identity(),
+      );
+      fail('expected ApiException');
+    } on ApiException catch (e) {
+      expect(e.code, 'registration_job_expired');
+    }
+  });
+}

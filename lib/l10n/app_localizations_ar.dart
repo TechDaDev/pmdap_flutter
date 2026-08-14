@@ -48,6 +48,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorGeneric => 'حدث خطأ. حاول مرة أخرى.';
 
   @override
+  String get errorEmailExists =>
+      'هذا البريد الإلكتروني مسجّل مسبقاً. سجّل الدخول بدلاً من ذلك.';
+
+  @override
+  String get errorCardAlreadyRegistered => 'هذه البطاقة الوطنية مسجّلة مسبقاً.';
+
+  @override
+  String get errorRegistrationExpired =>
+      'انتهت صلاحية جلسة التسجيل. يرجى مسح بطاقتك مرة أخرى.';
+
+  @override
+  String get errorRegistrationAlreadyCompleted =>
+      'اكتمل هذا التسجيل مسبقاً. يرجى تسجيل الدخول بدلاً من ذلك.';
+
+  @override
+  String get errorRegistrationSessionInvalid =>
+      'جلسة التسجيل لم تعد صالحة. يرجى مسح بطاقتك مرة أخرى.';
+
+  @override
   String get networkError => 'خطأ في الشبكة. تحقق من الاتصال وحاول مرة أخرى.';
 
   @override

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pmdap_mobile/core/api/api_exception.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/user.dart';
@@ -28,6 +29,7 @@ class _FakeRegistrationApi extends RegistrationApi {
   String? lastPassword;
   String? lastGovernorate;
   bool failRegister = false;
+  ApiException? submitError;
 
   @override
   Future<RegistrationExtractionJob> startExtraction({
@@ -65,6 +67,7 @@ class _FakeRegistrationApi extends RegistrationApi {
     required String governorate,
     required RegistrationIdentityInput identity,
   }) async {
+    if (submitError != null) throw submitError!;
     if (failRegister) throw Exception('network');
     registerCount++;
     lastEmail = email;
@@ -405,5 +408,103 @@ void main() {
       find.widgetWithText(FilledButton, 'Read document'),
     );
     expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('email-exists error surfaces specific message', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..submitError = const ApiException(
+        code: 'validation_error',
+        message: 'Validation failed.',
+        details: {
+          'email': ['An account with this email already exists.'],
+        },
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(
+      find.text('This email is already registered. Please sign in instead.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('expired job error surfaces scan-again message', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..submitError = const ApiException(
+        code: 'registration_job_expired',
+        message: 'Registration identity session has expired.',
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(
+      find.text(
+        'Your registration session expired. Please scan your card again.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('server error maps to server message as last resort', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..submitError = const ApiException(
+        statusCode: 500,
+        code: 'http_500',
+        message: 'Server error.',
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Server error. Please try again later.'), findsOneWidget);
   });
 }

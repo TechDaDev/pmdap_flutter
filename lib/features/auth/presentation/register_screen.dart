@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../app/router.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -255,9 +256,45 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ).showSnackBar(SnackBar(content: Text(l10n.registrationSuccess)));
       context.go(Routes.login);
     } else {
+      final err = ref.read(registrationControllerProvider).submitError;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      ).showSnackBar(SnackBar(content: Text(_submitErrorMessage(err))));
+    }
+  }
+
+  /// Maps a backend final-registration error to a safe, localized message.
+  /// Specific codes (email exists, expired/consumed session, card conflict)
+  /// get a useful message; generic 5xx/unknown falls back to the last resort.
+  String _submitErrorMessage(ApiException? e) {
+    if (e == null) return l10n.errorGeneric;
+    switch (e.code) {
+      case 'validation_error':
+        if (e.details.containsKey('email')) return l10n.errorEmailExists;
+        if (e.details.containsKey('registration_identity')) {
+          return l10n.errorCardAlreadyRegistered;
+        }
+        return l10n.validationFailed;
+      case 'registration_job_expired':
+        return l10n.errorRegistrationExpired;
+      case 'registration_job_conflict':
+        return l10n.errorRegistrationAlreadyCompleted;
+      case 'registration_job_not_found':
+        return l10n.errorRegistrationSessionInvalid;
+      case 'registration_storage_failed':
+        return l10n.errorGeneric;
+      case 'connection_timeout':
+      case 'send_timeout':
+      case 'receive_timeout':
+      case 'request_cancelled':
+      case 'network_error':
+        return l10n.networkError;
+      default:
+        if (e.isThrottled) return l10n.throttled;
+        if (e.statusCode != null && e.statusCode! >= 500) {
+          return l10n.serverError;
+        }
+        return l10n.errorGeneric;
     }
   }
 

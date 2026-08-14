@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/utils/date_utils.dart';
@@ -98,6 +99,7 @@ class RegistrationFlowState {
     this.uploadProgress,
     this.reading = false,
     this.errorMessage,
+    this.submitError,
     this.review = const RegistrationReviewValues(),
     this.submitting = false,
   });
@@ -113,6 +115,9 @@ class RegistrationFlowState {
   final int? uploadProgress;
   final bool reading;
   final String? errorMessage;
+
+  /// Typed backend error from the final register attempt (never logs values).
+  final ApiException? submitError;
   final RegistrationReviewValues review;
   final bool submitting;
 
@@ -128,6 +133,7 @@ class RegistrationFlowState {
     int? uploadProgress,
     bool? reading,
     String? errorMessage,
+    ApiException? submitError,
     RegistrationReviewValues? review,
     bool? submitting,
   }) {
@@ -143,6 +149,7 @@ class RegistrationFlowState {
       uploadProgress: uploadProgress ?? this.uploadProgress,
       reading: reading ?? this.reading,
       errorMessage: errorMessage ?? this.errorMessage,
+      submitError: submitError ?? this.submitError,
       review: review ?? this.review,
       submitting: submitting ?? this.submitting,
     );
@@ -327,7 +334,11 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     final jobToken = state.jobToken;
     final review = state.review;
     if (draft == null || jobId == null || jobToken == null) return false;
-    state = state.copyWith(submitting: true, errorMessage: null);
+    state = state.copyWith(
+      submitting: true,
+      errorMessage: null,
+      submitError: null,
+    );
     try {
       await _api.registerScanFirst(
         email: draft.email,
@@ -355,8 +366,17 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       // Clear in-memory sensitive state (incl. password) after success.
       state = const RegistrationFlowState(step: RegistrationStep.account);
       return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(submitting: false, submitError: e);
+      return false;
     } on Exception {
-      state = state.copyWith(submitting: false);
+      state = state.copyWith(
+        submitting: false,
+        submitError: const ApiException(
+          code: 'unknown',
+          message: 'Unexpected error.',
+        ),
+      );
       return false;
     }
   }
