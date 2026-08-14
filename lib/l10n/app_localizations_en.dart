@@ -494,6 +494,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dobNotFuture => 'Date of birth cannot be in the future.';
 
   @override
+  String get requiredField => 'This field is required.';
+
+  @override
+  String get selectSex => 'Please select your sex.';
+
+  @override
+  String get confirmRequired =>
+      'Please confirm that the information above matches your National Card.';
+
+  @override
   String get unsupportedImageFormat =>
       'This image format is not supported. Use JPEG or PNG.';
 

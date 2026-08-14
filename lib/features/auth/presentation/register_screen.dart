@@ -53,6 +53,20 @@ const List<String> _governorates = [
   'WASIT',
 ];
 
+/// Review fields in display order — used to scroll to the FIRST invalid one.
+enum _ReviewFieldKey {
+  name,
+  fatherName,
+  grandfatherName,
+  sex,
+  dateOfBirth,
+  bloodGroup,
+  nationalCardNumber,
+  familyNumber,
+  uniqueCardBodyNumber,
+  confirmation,
+}
+
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
@@ -75,6 +89,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscureConfirm = true;
   bool _capturing = false;
   bool _reviewInitialized = false;
+
+  /// Stable per-field targets for scroll-to-first-error + inline messages.
+  final Map<_ReviewFieldKey, GlobalKey> _reviewFieldKeys = {
+    for (final k in _ReviewFieldKey.values) k: GlobalKey(),
+  };
+  Map<_ReviewFieldKey, String> _reviewErrors = const {};
 
   @override
   void dispose() {
@@ -224,6 +244,71 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  /// Deterministic review validation. Mirrors the final-registration
+  /// contract: Arabic-safe name components, canonical sex, canonical DOB
+  /// (never the localized display string), non-empty identifiers. Blood
+  /// group is NOT required (backend stores UNKNOWN when OCR misses it).
+  /// Low OCR confidence never blocks — only structural validity does.
+  Map<_ReviewFieldKey, String> _validateReview(
+    RegistrationReviewValues review,
+  ) {
+    final errors = <_ReviewFieldKey, String>{};
+    if (review.name.trim().isEmpty) {
+      errors[_ReviewFieldKey.name] = l10n.requiredField;
+    }
+    if (review.fatherName.trim().isEmpty) {
+      errors[_ReviewFieldKey.fatherName] = l10n.requiredField;
+    }
+    if (review.grandfatherName.trim().isEmpty) {
+      errors[_ReviewFieldKey.grandfatherName] = l10n.requiredField;
+    }
+    if (review.sex != Sex.male && review.sex != Sex.female) {
+      errors[_ReviewFieldKey.sex] = l10n.selectSex;
+    }
+    final dob = review.dateOfBirth;
+    if (dob == null) {
+      errors[_ReviewFieldKey.dateOfBirth] = l10n.requiredField;
+    } else if (dob.isAfter(DateTime.now())) {
+      errors[_ReviewFieldKey.dateOfBirth] = l10n.dobNotFuture;
+    }
+    if (review.nationalCardNumber.trim().isEmpty) {
+      errors[_ReviewFieldKey.nationalCardNumber] = l10n.requiredField;
+    }
+    if (review.familyNumber.trim().isEmpty) {
+      errors[_ReviewFieldKey.familyNumber] = l10n.requiredField;
+    }
+    if (review.uniqueCardBodyNumber.trim().isEmpty) {
+      errors[_ReviewFieldKey.uniqueCardBodyNumber] = l10n.requiredField;
+    }
+    if (!review.confirmation) {
+      errors[_ReviewFieldKey.confirmation] = l10n.confirmRequired;
+    }
+    return errors;
+  }
+
+  void _clearFieldError(_ReviewFieldKey key) {
+    if (_reviewErrors.containsKey(key)) {
+      setState(() {
+        _reviewErrors = Map.of(_reviewErrors)..remove(key);
+      });
+    }
+  }
+
+  void _scrollToFirstError(Map<_ReviewFieldKey, String> errors) {
+    for (final key in _ReviewFieldKey.values) {
+      if (!errors.containsKey(key)) continue;
+      final ctx = _reviewFieldKeys[key]?.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 300),
+          alignment: 0.2,
+        );
+        break;
+      }
+    }
+  }
+
   Future<void> _submitReview() async {
     final state = ref.read(registrationControllerProvider);
     final review = state.review.copyWith(
@@ -235,18 +320,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       familyNumber: _familyNumberController.text.trim(),
       uniqueCardBodyNumber: _bodyNumberController.text.trim(),
     );
-    if (!review.confirmation ||
-        review.name.isEmpty ||
-        review.fatherName.isEmpty ||
-        review.grandfatherName.isEmpty ||
-        review.nationalCardNumber.isEmpty ||
-        review.familyNumber.isEmpty ||
-        review.dateOfBirth == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.validationFailed)));
+    final errors = _validateReview(review);
+    if (errors.isNotEmpty) {
+      setState(() => _reviewErrors = errors);
+      _scrollToFirstError(errors);
       return;
     }
+    setState(() => _reviewErrors = const {});
     _controller.updateReview(review);
     final ok = await _controller.submit();
     if (!mounted) return;
@@ -274,7 +354,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         if (e.details.containsKey('registration_identity')) {
           return l10n.errorCardAlreadyRegistered;
         }
-        return l10n.validationFailed;
+        // Show the backend's specific field message (e.g. an adult-ownership
+        // DOB rejection) instead of an unhelpful generic validation hint.
+        final fieldMsg = e.firstFieldMessage;
+        return fieldMsg ?? l10n.validationFailed;
       case 'registration_job_expired':
         return l10n.errorRegistrationExpired;
       case 'registration_job_conflict':
@@ -534,55 +617,75 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Text(l10n.personalInformation, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.name],
           label: l10n.name,
           controller: _nameController,
           direction: TextDirection.rtl,
           bucket: bucket('name'),
           hasValue: state.review.name.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.name],
+          onValueChanged: () => _clearFieldError(_ReviewFieldKey.name),
         ),
         const SizedBox(height: 12),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.fatherName],
           label: l10n.fathersName,
           controller: _fatherNameController,
           direction: TextDirection.rtl,
           bucket: bucket('father_name'),
           hasValue: state.review.fatherName.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.fatherName],
+          onValueChanged: () => _clearFieldError(_ReviewFieldKey.fatherName),
         ),
         const SizedBox(height: 12),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.grandfatherName],
           label: l10n.grandfathersName,
           controller: _grandfatherNameController,
           direction: TextDirection.rtl,
           bucket: bucket('grandfather_name'),
           hasValue: state.review.grandfatherName.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.grandfatherName],
+          onValueChanged: () =>
+              _clearFieldError(_ReviewFieldKey.grandfatherName),
         ),
         const SizedBox(height: 12),
         _SexField(
+          key: _reviewFieldKeys[_ReviewFieldKey.sex],
           label: l10n.sex,
           value: state.review.sex,
           bucket: bucket('sex'),
           hasValue:
               state.review.sex != Sex.unspecified &&
               state.review.sex != Sex.unknown,
-          onChanged: (s) =>
-              _controller.updateReview(state.review.copyWith(sex: s)),
+          errorText: _reviewErrors[_ReviewFieldKey.sex],
+          onChanged: (s) {
+            _clearFieldError(_ReviewFieldKey.sex);
+            _controller.updateReview(state.review.copyWith(sex: s));
+          },
         ),
         const SizedBox(height: 12),
         _DateField(
+          key: _reviewFieldKeys[_ReviewFieldKey.dateOfBirth],
           label: l10n.dateOfBirth,
           value: state.review.dateOfBirth,
           bucket: bucket('date_of_birth'),
           hasValue: state.review.dateOfBirth != null,
+          errorText: _reviewErrors[_ReviewFieldKey.dateOfBirth],
           onTap: _pickDob,
         ),
         const SizedBox(height: 12),
         _BloodGroupField(
+          key: _reviewFieldKeys[_ReviewFieldKey.bloodGroup],
           label: l10n.bloodGroup,
           value: state.review.bloodGroup,
           bucket: bucket('blood_group'),
           hasValue: state.review.bloodGroup != BloodGroup.unknown,
-          onChanged: (g) =>
-              _controller.updateReview(state.review.copyWith(bloodGroup: g)),
+          errorText: _reviewErrors[_ReviewFieldKey.bloodGroup],
+          onChanged: (g) {
+            _clearFieldError(_ReviewFieldKey.bloodGroup);
+            _controller.updateReview(state.review.copyWith(bloodGroup: g));
+          },
         ),
         const SizedBox(height: 20),
         // --- Account information ---
@@ -599,39 +702,70 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Text(l10n.cardInformation, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.nationalCardNumber],
           label: l10n.nationalCardNumber,
           controller: _cardNumberController,
           direction: TextDirection.ltr,
           bucket: bucket('national_card_number'),
           hasValue: state.review.nationalCardNumber.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.nationalCardNumber],
+          onValueChanged: () =>
+              _clearFieldError(_ReviewFieldKey.nationalCardNumber),
         ),
         const SizedBox(height: 12),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.familyNumber],
           label: l10n.familyNumber,
           controller: _familyNumberController,
           direction: TextDirection.ltr,
           bucket: bucket('family_number'),
           hasValue: state.review.familyNumber.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.familyNumber],
+          onValueChanged: () => _clearFieldError(_ReviewFieldKey.familyNumber),
         ),
         const SizedBox(height: 12),
         _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.uniqueCardBodyNumber],
           label: l10n.uniqueCardBodyNumber,
           controller: _bodyNumberController,
           direction: TextDirection.ltr,
           bucket: bucket('unique_card_body_number'),
           hasValue: state.review.uniqueCardBodyNumber.isNotEmpty,
+          errorText: _reviewErrors[_ReviewFieldKey.uniqueCardBodyNumber],
+          onValueChanged: () =>
+              _clearFieldError(_ReviewFieldKey.uniqueCardBodyNumber),
         ),
         const SizedBox(height: 20),
         // --- Explicit acknowledgement ---
-        CheckboxListTile(
-          value: state.review.confirmation,
-          onChanged: state.submitting
-              ? null
-              : (v) => _controller.updateReview(
-                  state.review.copyWith(confirmation: v ?? false),
+        KeyedSubtree(
+          key: _reviewFieldKeys[_ReviewFieldKey.confirmation],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CheckboxListTile(
+                value: state.review.confirmation,
+                onChanged: state.submitting
+                    ? null
+                    : (v) {
+                        _clearFieldError(_ReviewFieldKey.confirmation);
+                        _controller.updateReview(
+                          state.review.copyWith(confirmation: v ?? false),
+                        );
+                      },
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(l10n.confirmCardMatches),
+              ),
+              if (_reviewErrors[_ReviewFieldKey.confirmation] != null) ...[
+                Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: Text(
+                    _reviewErrors[_ReviewFieldKey.confirmation]!,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
                 ),
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(l10n.confirmCardMatches),
+              ],
+            ],
+          ),
         ),
         const SizedBox(height: 8),
         PrimaryButton(
@@ -693,10 +827,13 @@ class _ConfidenceBadge extends StatelessWidget {
 
 class _ReviewField extends StatelessWidget {
   const _ReviewField({
+    super.key,
     required this.label,
     required this.controller,
     required this.bucket,
     required this.hasValue,
+    this.errorText,
+    this.onValueChanged,
     this.direction,
   });
 
@@ -704,6 +841,8 @@ class _ReviewField extends StatelessWidget {
   final TextEditingController controller;
   final _ConfidenceBucket bucket;
   final bool hasValue;
+  final String? errorText;
+  final VoidCallback? onValueChanged;
   final TextDirection? direction;
 
   @override
@@ -731,7 +870,8 @@ class _ReviewField extends StatelessWidget {
         AppTextField(
           label: label,
           controller: controller,
-          onChanged: (_) {},
+          errorText: errorText,
+          onChanged: (_) => onValueChanged?.call(),
           maxLines: 1,
         ),
       ],
@@ -778,11 +918,13 @@ class _InfoRow extends StatelessWidget {
 
 class _SexField extends StatelessWidget {
   const _SexField({
+    super.key,
     required this.label,
     required this.value,
     required this.bucket,
     required this.hasValue,
     required this.onChanged,
+    this.errorText,
   });
 
   final String label;
@@ -790,6 +932,7 @@ class _SexField extends StatelessWidget {
   final _ConfidenceBucket bucket;
   final bool hasValue;
   final ValueChanged<Sex> onChanged;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -819,6 +962,7 @@ class _SexField extends StatelessWidget {
           decoration: InputDecoration(
             labelText: label,
             border: const OutlineInputBorder(),
+            errorText: errorText,
           ),
           items: const [
             DropdownMenuItem(value: Sex.male, child: Text('Male')),
@@ -835,11 +979,13 @@ class _SexField extends StatelessWidget {
 
 class _BloodGroupField extends StatelessWidget {
   const _BloodGroupField({
+    super.key,
     required this.label,
     required this.value,
     required this.bucket,
     required this.hasValue,
     required this.onChanged,
+    this.errorText,
   });
 
   final String label;
@@ -847,6 +993,7 @@ class _BloodGroupField extends StatelessWidget {
   final _ConfidenceBucket bucket;
   final bool hasValue;
   final ValueChanged<BloodGroup> onChanged;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -877,6 +1024,7 @@ class _BloodGroupField extends StatelessWidget {
           decoration: InputDecoration(
             labelText: label,
             border: const OutlineInputBorder(),
+            errorText: errorText,
           ),
           items: [
             for (final g in values)
@@ -893,11 +1041,13 @@ class _BloodGroupField extends StatelessWidget {
 
 class _DateField extends StatelessWidget {
   const _DateField({
+    super.key,
     required this.label,
     required this.value,
     required this.bucket,
     required this.hasValue,
     required this.onTap,
+    this.errorText,
   });
 
   final String label;
@@ -905,6 +1055,7 @@ class _DateField extends StatelessWidget {
   final _ConfidenceBucket bucket;
   final bool hasValue;
   final VoidCallback onTap;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -946,6 +1097,7 @@ class _DateField extends StatelessWidget {
             decoration: InputDecoration(
               labelText: label,
               border: const OutlineInputBorder(),
+              errorText: errorText,
             ),
             child: Text(text),
           ),

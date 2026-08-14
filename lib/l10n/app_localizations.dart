@@ -1034,6 +1034,24 @@ abstract class AppLocalizations {
   /// **'Date of birth cannot be in the future.'**
   String get dobNotFuture;
 
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get requiredField;
+
+  /// No description provided for @selectSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your sex.'**
+  String get selectSex;
+
+  /// No description provided for @confirmRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm that the information above matches your National Card.'**
+  String get confirmRequired;
+
   /// No description provided for @unsupportedImageFormat.
   ///
   /// In en, this message translates to:

@@ -489,6 +489,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dobNotFuture => 'لا يمكن أن يكون تاريخ الميلاد في المستقبل.';
 
   @override
+  String get requiredField => 'هذا الحقل مطلوب.';
+
+  @override
+  String get selectSex => 'يرجى اختيار الجنس.';
+
+  @override
+  String get confirmRequired =>
+      'يرجى تأكيد أن المعلومات أعلاه مطابقة لبطاقتك الوطنية.';
+
+  @override
   String get unsupportedImageFormat =>
       'صيغة الصورة غير مدعومة. استخدم JPEG أو PNG.';
 

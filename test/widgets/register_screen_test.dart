@@ -8,6 +8,7 @@ import 'package:pmdap_mobile/core/api/api_exception.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/user.dart';
+import 'package:pmdap_mobile/core/widgets/app_text_field.dart';
 import 'package:pmdap_mobile/features/auth/application/registration_controller.dart';
 import 'package:pmdap_mobile/features/auth/data/registration_api.dart';
 import 'package:pmdap_mobile/features/auth/data/registration_models.dart';
@@ -109,6 +110,50 @@ IdentityExtractionResult _successResult() {
       'unique_card_body_number': f('H12345678'),
       'issuing_country': f('IQ'),
     },
+    warnings: const [],
+  );
+}
+
+IdentityExtractionResult _resultWith({
+  String? name,
+  String? fatherName,
+  String? grandfatherName,
+  String? sex,
+  String? dateOfBirth,
+  String? bloodGroup,
+  String? documentNumber,
+  String? nationalCardNumber,
+  String? familyNumber,
+  String? uniqueCardBodyNumber,
+  bool removeDocumentNumber = false,
+}) {
+  ExtractedIdentityField f(String v) => ExtractedIdentityField(
+    value: v,
+    confidence: 0.95,
+    source: IdentityExtractionSource.frontPrinted,
+  );
+  final base = _successResult();
+  final fields = Map<String, ExtractedIdentityField>.of(base.fields);
+  void apply(String k, String? v) {
+    if (v != null) fields[k] = f(v);
+  }
+
+  apply('name', name);
+  apply('father_name', fatherName);
+  apply('grandfather_name', grandfatherName);
+  apply('sex', sex);
+  apply('date_of_birth', dateOfBirth);
+  apply('blood_group', bloodGroup);
+  apply('document_number', documentNumber);
+  apply('national_card_number', nationalCardNumber);
+  apply('family_number', familyNumber);
+  apply('unique_card_body_number', uniqueCardBodyNumber);
+  if (removeDocumentNumber) fields.remove('document_number');
+  return IdentityExtractionResult(
+    documentType: base.documentType,
+    extractorVersion: base.extractorVersion,
+    mrz: base.mrz,
+    fields: fields,
     warnings: const [],
   );
 }
@@ -328,9 +373,142 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(api.registerCount, 0);
-    expect(find.text('Please check the highlighted fields.'), findsOneWidget);
+    // Inline confirmation error + highlighted field, NOT a generic snackbar.
+    expect(
+      find.text(
+        'Please confirm that the information above matches your National Card.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Please check the highlighted fields.'), findsNothing);
+  });
+
+  testWidgets('empty required field is highlighted inline and blocks submit', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()..extractionResult = _successResult();
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+
+    await tester.ensureVisible(
+      find.widgetWithText(TextFormField, 'Family number'),
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Family number'),
+      '',
+    );
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pumpAndSettle();
+
+    expect(api.registerCount, 0);
+    // The family field is visually highlighted via errorText.
+    final familyAppField = tester.widget<AppTextField>(
+      find.ancestor(
+        of: find.widgetWithText(TextFormField, 'Family number'),
+        matching: find.byType(AppTextField),
+      ),
+    );
+    expect(familyAppField.errorText, 'This field is required.');
+    expect(find.text('This field is required.'), findsOneWidget);
+    expect(find.text('Please check the highlighted fields.'), findsNothing);
+  });
+
+  testWidgets('real-shaped synthetic card (Arabic names, alphanumeric family, '
+      'G-prefix body) submits exactly once', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _resultWith(
+        name: 'علي',
+        fatherName: 'محمد',
+        grandfatherName: 'حسين',
+        sex: 'MALE',
+        dateOfBirth: '1990-01-15',
+        bloodGroup: 'O+',
+        nationalCardNumber: '123456789012',
+        familyNumber: '9021A1B90870045612',
+        uniqueCardBodyNumber: 'G12345678',
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester, email: 'real@example.com');
+    await _setPathsAndRead(tester);
+
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(api.registerCount, 1);
+    final id = api.lastIdentity!;
+    expect(id.name, 'علي');
+    expect(id.fatherName, 'محمد');
+    expect(id.grandfatherName, 'حسين');
+    expect(id.nationalCardNumber, '123456789012');
+    expect(id.familyNumber, '9021A1B90870045612');
+    expect(id.uniqueCardBodyNumber, 'G12345678');
+    expect(id.sex, Sex.male);
+    expect(id.bloodGroup, BloodGroup.oPos);
+    // Low-confidence / legacy fields never add required errors.
+    expect(find.text('This field is required.'), findsNothing);
+    expect(find.text('Please check the highlighted fields.'), findsNothing);
+  });
+
+  testWidgets('hidden legacy fields (document number) are not required', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _resultWith(
+        name: 'Ali',
+        fatherName: 'Ahmed',
+        grandfatherName: 'Hassan',
+        sex: 'MALE',
+        dateOfBirth: '1990-01-15',
+        bloodGroup: 'O+',
+        nationalCardNumber: '123456789012',
+        familyNumber: 'TESTFAMILY123456',
+        uniqueCardBodyNumber: 'H12345678',
+        removeDocumentNumber: true,
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester, email: 'legacy@example.com');
+    await _setPathsAndRead(tester);
+
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(api.registerCount, 1);
+    expect(api.lastIdentity!.nationalCardNumber, '123456789012');
+    expect(find.text('This field is required.'), findsNothing);
   });
 
   testWidgets('submit sends confirmed values and goes to login', (
