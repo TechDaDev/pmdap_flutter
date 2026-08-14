@@ -113,6 +113,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInFailed => 'Could not sign in.';
 
   @override
+  String get signInPrompt => 'Already have an account? Sign in';
+
+  @override
   String get invalidCredentials => 'Incorrect email or password.';
 
   @override

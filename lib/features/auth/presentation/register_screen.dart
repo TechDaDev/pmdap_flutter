@@ -404,6 +404,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  /// Wizard back navigation: Step 1 exits to Login, Step 2 returns to Step 1,
+  /// Step 3 returns to Step 2. Never traps the registration route in the
+  /// navigation stack.
+  void _handleBack() {
+    final step = ref.read(registrationControllerProvider).step;
+    switch (step) {
+      case RegistrationStep.account:
+        _controller.reset();
+        context.go(Routes.login);
+      case RegistrationStep.scan:
+        _controller.backToAccount();
+      case RegistrationStep.review:
+        _controller.backToScan();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(registrationControllerProvider);
@@ -411,18 +427,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       // Leaving the review step lets the next visit re-sync from scratch.
       _reviewInitialized = false;
     }
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.registerTitle)),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: switch (state.step) {
-              RegistrationStep.account => _accountStep(state),
-              RegistrationStep.scan => _scanStep(state),
-              RegistrationStep.review => _reviewStep(state),
-            },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.registerTitle),
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: l10n.back,
+            onPressed: _handleBack,
+          ),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: switch (state.step) {
+                RegistrationStep.account => _accountStep(state),
+                RegistrationStep.scan => _scanStep(state),
+                RegistrationStep.review => _reviewStep(state),
+              },
+            ),
           ),
         ),
       ),
@@ -503,6 +534,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             label: l10n.continueAction,
             onPressed: _submitAccount,
             icon: Icons.arrow_forward,
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: TextButton(
+              onPressed: () {
+                _controller.reset();
+                context.go(Routes.login);
+              },
+              child: Text(l10n.signInPrompt),
+            ),
           ),
         ],
       ),

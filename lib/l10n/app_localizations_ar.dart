@@ -109,6 +109,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signInFailed => 'تعذر تسجيل الدخول.';
 
   @override
+  String get signInPrompt => 'هل لديك حساب؟ سجّل الدخول';
+
+  @override
   String get invalidCredentials =>
       'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
 

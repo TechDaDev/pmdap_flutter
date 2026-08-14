@@ -329,27 +329,68 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _confirmLogout(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
+    final messenger = ScaffoldMessenger.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    var busy = false;
+    // Result: 'ok' = logged out, 'fail' = logout errored, false = cancelled.
+    final result = await showDialog<Object>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.logout),
-        content: Text(l10n.logoutConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.logout),
-          ),
-        ],
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          icon: Icon(Icons.logout, color: scheme.error),
+          title: Text(l10n.logout, textAlign: TextAlign.center),
+          content: Text(l10n.logoutConfirm, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+          actions: [
+            TextButton(
+              onPressed: busy
+                  ? null
+                  : () => Navigator.pop(dialogContext, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+              ),
+              onPressed: busy
+                  ? null
+                  : () async {
+                      setDialogState(() => busy = true);
+                      final ok = await _runLogout();
+                      if (dialogContext.mounted) {
+                        Navigator.pop(dialogContext, ok ? 'ok' : 'fail');
+                      }
+                    },
+              child: busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(l10n.logout),
+            ),
+          ],
+        ),
       ),
     );
-    if (confirmed == true) {
+    if (result == 'ok') {
+      if (context.mounted) context.go(Routes.login);
+    } else if (result == 'fail' && context.mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    }
+  }
+
+  /// Best-effort backend logout then local session clear. Returns true on
+  /// success; keeps the user signed in on failure.
+  Future<bool> _runLogout() async {
+    try {
       await ref.read(sessionControllerProvider.notifier).logout();
-      if (!context.mounted) return;
-      context.go(Routes.login);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

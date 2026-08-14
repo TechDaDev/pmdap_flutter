@@ -273,6 +273,51 @@ void main() {
     expect(find.text('National/Card number'), findsNothing);
   });
 
+  testWidgets('step 1 appbar back goes to login', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('login-screen'), findsOneWidget);
+  });
+
+  testWidgets('system back on step 1 goes to login', (tester) async {
+    await _pump(tester);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('login-screen'), findsOneWidget);
+  });
+
+  testWidgets('step 1 login link goes to login', (tester) async {
+    await _pump(tester);
+    await tester.ensureVisible(find.textContaining('Already have an account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Already have an account'));
+    await tester.pumpAndSettle();
+    expect(find.text('login-screen'), findsOneWidget);
+  });
+
+  testWidgets('step 2 appbar back returns to step 1', (tester) async {
+    await _pump(tester);
+    await _fillAccount(tester);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+  });
+
+  testWidgets('step 3 appbar back returns to step 2', (tester) async {
+    final api = _FakeRegistrationApi()..extractionResult = _successResult();
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    expect(find.text('Review your information'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('Verify your identity'), findsOneWidget);
+  });
+
   testWidgets('mismatched passwords stay on the account step', (tester) async {
     await _pump(tester);
     await _fillAccount(tester, password: 'secret123', confirm: 'different1');

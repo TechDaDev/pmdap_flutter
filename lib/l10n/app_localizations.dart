@@ -290,6 +290,12 @@ abstract class AppLocalizations {
   /// **'Could not sign in.'**
   String get signInFailed;
 
+  /// No description provided for @signInPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get signInPrompt;
+
   /// No description provided for @invalidCredentials.
   ///
   /// In en, this message translates to:

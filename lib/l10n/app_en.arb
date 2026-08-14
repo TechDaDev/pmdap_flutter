@@ -32,6 +32,7 @@
   "phone": "Phone",
   "signIn": "Sign in",
   "signInFailed": "Could not sign in.",
+  "signInPrompt": "Already have an account? Sign in",
   "invalidCredentials": "Incorrect email or password.",
   "accountUnavailable": "This account is not available. Contact support if this is unexpected.",
   "noAccountYet": "No account yet?",
