@@ -1124,6 +1124,12 @@ abstract class AppLocalizations {
   /// **'Your National Card was not accepted.'**
   String get identityRejectedNote;
 
+  /// No description provided for @stillReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Still reading — this can take a little longer...'**
+  String get stillReading;
+
   /// No description provided for @unsupportedImageFormat.
   ///
   /// In en, this message translates to:

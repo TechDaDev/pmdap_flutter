@@ -176,6 +176,7 @@
   "identityPendingReview": "Your National Card is being reviewed.",
   "identityVerifiedNote": "Your identity has been verified.",
   "identityRejectedNote": "Your National Card was not accepted.",
+  "stillReading": "Still reading — this can take a little longer...",
   "unsupportedImageFormat": "This image format is not supported. Use JPEG or PNG.",
   "legalGuardianEvidenceRequired": "Official evidence is required for a legal guardian.",
   "verifiedFieldsLocked": "Verified identity fields cannot be edited directly.",

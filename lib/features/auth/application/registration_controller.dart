@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
@@ -173,6 +174,11 @@ class RegistrationFlowState {
 class RegistrationController extends Notifier<RegistrationFlowState> {
   Timer? _pollTimer;
   int _pollCount = 0;
+  DateTime? _pollStartedAt;
+
+  /// Hard cap for a single extraction poll window. Real worker OCR on the
+  /// Iraqi V2 pipeline can take ~4.5 minutes, so 8 minutes is a safe ceiling.
+  static final Duration _maxPollWindow = const Duration(minutes: 8);
 
   @override
   RegistrationFlowState build() => const RegistrationFlowState();
@@ -251,6 +257,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     if (front == null || back == null) return;
     _pollTimer?.cancel();
     _pollCount = 0;
+    _pollStartedAt = DateTime.now();
     state = state.copyWith(
       reading: true,
       errorMessage: null,
@@ -269,13 +276,22 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
           }
         },
       );
+      if (kDebugMode) {
+        debugPrint(
+          'registration_extract job=${job.jobId} status=${job.jobToken.isNotEmpty ? 'OK' : 'MISSING_TOKEN'}',
+        );
+      }
       state = state.copyWith(
         jobId: job.jobId,
         jobToken: job.jobToken,
         uploadProgress: 100,
       );
       _schedulePoll();
-    } on Exception {
+    } catch (e) {
+      // Catch ANY error (Exception or Error) so a POST failure can never
+      // leave the UI stuck on "Reading document...".
+      if (kDebugMode)
+        debugPrint('registration_extract FAILED ${e.runtimeType}');
       state = state.copyWith(
         reading: false,
         errorMessage: state.errorMessage ?? 'extraction_failed',
@@ -285,47 +301,103 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
 
   void _schedulePoll() {
     _pollTimer?.cancel();
-    // Bound polling (backend TTL is 30 minutes; 10 minutes of polls is
-    // plenty and avoids an endless background timer).
+    // Hard deadline: real OCR can legitimately take ~4.5 minutes on the
+    // worker, so allow up to 8 minutes before giving up with a recoverable
+    // error. A deadline is safer than an unbounded silent loop.
+    final started = _pollStartedAt;
+    if (started != null &&
+        DateTime.now().difference(started) > _maxPollWindow) {
+      _stopPolling('extraction_failed');
+      return;
+    }
+    // Backstop count (should never be reached before the deadline).
     if (_pollCount >= 400) {
-      state = state.copyWith(
-        reading: false,
-        extractionStatus: ExtractionJobStatus.failed,
-        errorMessage: 'extraction_failed',
-      );
+      _stopPolling('extraction_failed');
       return;
     }
     _pollCount += 1;
     _pollTimer = Timer(const Duration(milliseconds: 1500), _pollOnce);
   }
 
+  void _stopPolling(String message) {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    state = state.copyWith(
+      reading: false,
+      extractionStatus: ExtractionJobStatus.failed,
+      errorMessage: message,
+    );
+  }
+
   Future<void> _pollOnce() async {
     final jobId = state.jobId;
     final token = state.jobToken;
-    if (jobId == null || token == null) return;
+    // A missing/empty job identity means the poll can never succeed. Stop
+    // with a recoverable error instead of silently letting the loop die
+    // (which previously left the UI stuck on "Reading document..." forever).
+    if (jobId == null || jobId.isEmpty || token == null || token.isEmpty) {
+      _stopPolling('session_invalid');
+      return;
+    }
     try {
       final status = await _api.pollExtraction(jobId: jobId, jobToken: token);
+      if (kDebugMode) {
+        debugPrint(
+          'registration_poll job=$jobId attempt=$_pollCount status=${status.status.name}',
+        );
+      }
       switch (status.status) {
         case ExtractionJobStatus.pending:
         case ExtractionJobStatus.processing:
           _schedulePoll();
         case ExtractionJobStatus.success:
+          if (kDebugMode) debugPrint('registration_poll job=$jobId SUCCESS');
           _onExtractionSuccess(status.result);
         case ExtractionJobStatus.failed:
-          state = state.copyWith(
-            reading: false,
-            extractionStatus: ExtractionJobStatus.failed,
-            errorMessage: 'extraction_failed',
-          );
+          _stopPolling('extraction_failed');
         case ExtractionJobStatus.unknown:
           _schedulePoll();
       }
-    } on Exception {
-      // Transient poll failure — keep retrying unless we have a result.
-      if (state.extractionStatus != ExtractionJobStatus.success) {
+    } on ApiException catch (e) {
+      // Terminal server errors must STOP the loop, never retry silently
+      // forever (the old behaviour left the UI stuck on "Reading...").
+      // Transient network/throttle errors keep retrying.
+      final terminal =
+          e.code == 'registration_job_not_found' ||
+          e.code == 'registration_job_expired' ||
+          e.code == 'registration_job_conflict' ||
+          e.isUnauthorized ||
+          e.isForbidden ||
+          e.isNotFound ||
+          (e.statusCode != null && e.statusCode! >= 500) ||
+          e.code == 'invalid_response';
+      if (kDebugMode) {
+        debugPrint(
+          'registration_poll job=$jobId attempt=$_pollCount error=${e.code} status=${e.statusCode} terminal=$terminal',
+        );
+      }
+      if (terminal) {
+        _stopPolling(_pollErrorKey(e));
+      } else {
         _schedulePoll();
       }
+    } on Exception {
+      // Transient transport/parse failure — keep retrying until deadline.
+      _schedulePoll();
     }
+  }
+
+  String _pollErrorKey(ApiException e) {
+    if (e.isUnauthorized ||
+        e.isForbidden ||
+        e.isNotFound ||
+        e.code == 'registration_job_not_found' ||
+        e.code == 'registration_job_conflict') {
+      return 'session_invalid';
+    }
+    if (e.code == 'registration_job_expired') return 'session_expired';
+    if (e.statusCode != null && e.statusCode! >= 500) return 'server_error';
+    return 'extraction_failed';
   }
 
   void _onExtractionSuccess(IdentityExtractionResult? result) {

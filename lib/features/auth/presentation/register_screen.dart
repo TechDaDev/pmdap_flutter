@@ -151,6 +151,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         lower.endsWith('.png');
   }
 
+  /// Maps the poll-loop terminal error key to a localized scan-step message.
+  String _scanErrorMessage(String key) {
+    switch (key) {
+      case 'session_invalid':
+        return l10n.errorRegistrationSessionInvalid;
+      case 'session_expired':
+        return l10n.errorRegistrationExpired;
+      case 'server_error':
+        return l10n.serverError;
+      case 'extraction_failed':
+        return l10n.documentReadingFailed;
+      default:
+        return l10n.errorGeneric;
+    }
+  }
+
   Future<void> _scanSide({required bool front}) async {
     if (_capturing) return;
     setState(() => _capturing = true);
@@ -562,6 +578,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall,
             ),
+            if (state.uploadProgress == 100) ...[
+              const SizedBox(height: 4),
+              Text(
+                l10n.stillReading,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ] else ...[
             PrimaryButton(
               label: l10n.readDocument,
@@ -574,9 +600,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           if (state.errorMessage != null) ...[
             const SizedBox(height: 12),
             Text(
-              state.errorMessage == 'extraction_failed'
-                  ? l10n.documentReadingFailed
-                  : l10n.errorGeneric,
+              _scanErrorMessage(state.errorMessage!),
               style: TextStyle(color: theme.colorScheme.error),
             ),
             const SizedBox(height: 8),

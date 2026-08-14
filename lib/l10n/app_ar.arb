@@ -176,6 +176,7 @@
   "identityPendingReview": "بطاقتك الوطنية قيد المراجعة.",
   "identityVerifiedNote": "تم التحقق من هويتك.",
   "identityRejectedNote": "لم يتم قبول بطاقتك الوطنية.",
+  "stillReading": "لا تزال القراءة جارية — قد يستغرق هذا وقتًا أطول قليلاً...",
   "unsupportedImageFormat": "صيغة الصورة غير مدعومة. استخدم JPEG أو PNG.",
   "legalGuardianEvidenceRequired": "الدليل الرسمي مطلوب للوصي القانوني.",
   "verifiedFieldsLocked": "لا يمكن تعديل حقول الهوية الموثقة مباشرة.",

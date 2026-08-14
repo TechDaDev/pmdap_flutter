@@ -541,6 +541,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get identityRejectedNote => 'Your National Card was not accepted.';
 
   @override
+  String get stillReading => 'Still reading — this can take a little longer...';
+
+  @override
   String get unsupportedImageFormat =>
       'This image format is not supported. Use JPEG or PNG.';
 

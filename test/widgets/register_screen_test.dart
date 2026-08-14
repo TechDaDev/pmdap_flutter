@@ -31,6 +31,11 @@ class _FakeRegistrationApi extends RegistrationApi {
   String? lastGovernorate;
   bool failRegister = false;
   ApiException? submitError;
+  ApiException? pollError;
+
+  /// Optional per-poll status sequence. When set, poll N returns
+  /// [pollSequence][N-1] (clamped to the last entry).
+  List<ExtractionJobStatus>? pollSequence;
 
   @override
   Future<RegistrationExtractionJob> startExtraction({
@@ -50,13 +55,18 @@ class _FakeRegistrationApi extends RegistrationApi {
     required String jobId,
     required String jobToken,
   }) async {
+    if (pollError != null) throw pollError!;
     pollCount++;
+    final sequence = pollSequence;
+    final status = sequence != null && sequence.isNotEmpty
+        ? sequence[pollCount - 1 < sequence.length
+              ? pollCount - 1
+              : sequence.length - 1]
+        : jobStatus;
     return RegistrationExtractionStatus(
       jobId: jobId,
-      status: jobStatus,
-      result: jobStatus == ExtractionJobStatus.success
-          ? extractionResult
-          : null,
+      status: status,
+      result: status == ExtractionJobStatus.success ? extractionResult : null,
     );
   }
 
@@ -737,6 +747,124 @@ void main() {
       find.widgetWithText(FilledButton, 'Read document'),
     );
     expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('poll 404 stops loop with session-invalid message', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..pollError = const ApiException(
+        code: 'registration_job_not_found',
+        message: 'Registration session is no longer valid.',
+        statusCode: 404,
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+
+    // Loop stops: no stuck "Reading document...", a recoverable error shows.
+    expect(find.textContaining('Reading document'), findsNothing);
+    expect(
+      find.text(
+        'Your registration session is no longer valid. Please scan your card again.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Retry'), findsOneWidget);
+  });
+
+  testWidgets('poll 500 stops loop with server-error message', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..pollError = const ApiException(
+        code: 'server_error',
+        message: 'Server error.',
+        statusCode: 500,
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump();
+
+    expect(find.textContaining('Reading document'), findsNothing);
+    expect(find.text('Server error. Please try again later.'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+  });
+
+  testWidgets(
+    'pending -> processing -> success reaches review, single upload',
+    (tester) async {
+      final api = _FakeRegistrationApi()
+        ..extractionResult = _successResult()
+        ..pollSequence = [
+          ExtractionJobStatus.pending,
+          ExtractionJobStatus.processing,
+          ExtractionJobStatus.success,
+        ];
+      await _pump(
+        tester,
+        overrides: [registrationApiProvider.overrideWithValue(api)],
+      );
+      await _fillAccount(tester);
+      await _setPathsAndRead(tester);
+      expect(api.extractCount, 1);
+
+      // poll 1 (pending, fired inside _setPathsAndRead) then poll 2
+      // (processing) — still reading, no second upload.
+      await tester.pump(const Duration(milliseconds: 1600));
+      expect(find.textContaining('Reading document'), findsOneWidget);
+      expect(api.extractCount, 1);
+
+      // poll 3 (success) -> review.
+      await tester.pump(const Duration(milliseconds: 1600));
+      await tester.pump();
+      expect(find.text('Review your information'), findsOneWidget);
+      expect(api.extractCount, 1);
+    },
+  );
+
+  testWidgets('widget rebuilds during reading do not re-upload', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..pollSequence = [
+        ExtractionJobStatus.processing,
+        ExtractionJobStatus.processing,
+        ExtractionJobStatus.success,
+      ];
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+    expect(api.extractCount, 1);
+
+    // Many frames + a few poll ticks — rebuilds must not start a second POST.
+    await tester.pump(const Duration(milliseconds: 1600));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump(const Duration(milliseconds: 1600));
+    expect(api.extractCount, 1);
+
+    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pump();
+    expect(find.text('Review your information'), findsOneWidget);
+    expect(api.extractCount, 1);
   });
 
   testWidgets('email-exists error surfaces specific message', (tester) async {

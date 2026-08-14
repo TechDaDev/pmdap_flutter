@@ -536,6 +536,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get identityRejectedNote => 'لم يتم قبول بطاقتك الوطنية.';
 
   @override
+  String get stillReading =>
+      'لا تزال القراءة جارية — قد يستغرق هذا وقتًا أطول قليلاً...';
+
+  @override
   String get unsupportedImageFormat =>
       'صيغة الصورة غير مدعومة. استخدم JPEG أو PNG.';
 
