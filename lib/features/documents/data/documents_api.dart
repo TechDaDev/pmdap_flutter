@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
@@ -77,6 +79,7 @@ class DocumentsApi {
   Future<MedicalDocument> upload(DocumentUploadInput input) async {
     final sw = Stopwatch()..start();
     try {
+      final contentType = medicalUploadContentType(input.filePath);
       final form = FormData.fromMap({
         'document_type': input.documentType.api,
         if (input.title != null && input.title!.isNotEmpty)
@@ -98,6 +101,10 @@ class DocumentsApi {
         'file': await MultipartFile.fromFile(
           input.filePath,
           filename: input.filename,
+          // Explicit content type from the real file bytes. Dio would
+          // otherwise send application/octet-stream, which the backend
+          // rejects (must be image/jpeg, image/png or application/pdf).
+          contentType: contentType,
         ),
       });
       if (kDebugMode) {
@@ -242,4 +249,44 @@ class DocumentsApi {
       throw _mapper.map(e);
     }
   }
+}
+
+/// Detect the medical-document MIME type from file magic bytes so the
+/// multipart part carries an explicit, content-accurate content type.
+///
+/// Returns null for anything that is not JPEG/PNG/PDF; the backend then
+/// rejects with a clear "must be PDF, JPEG, or PNG" error (correct behaviour
+/// for an unsupported file).
+MediaType? medicalUploadContentType(String path) {
+  try {
+    final raf = File(path).openSync();
+    try {
+      final head = raf.readSync(8);
+      if (head.length >= 4 &&
+          head[0] == 0x25 &&
+          head[1] == 0x50 &&
+          head[2] == 0x44 &&
+          head[3] == 0x46) {
+        return MediaType('application', 'pdf');
+      }
+      if (head.length >= 3 &&
+          head[0] == 0xff &&
+          head[1] == 0xd8 &&
+          head[2] == 0xff) {
+        return MediaType('image', 'jpeg');
+      }
+      if (head.length >= 4 &&
+          head[0] == 0x89 &&
+          head[1] == 0x50 &&
+          head[2] == 0x4e &&
+          head[3] == 0x47) {
+        return MediaType('image', 'png');
+      }
+    } finally {
+      raf.closeSync();
+    }
+  } catch (_) {
+    return null;
+  }
+  return null;
 }
