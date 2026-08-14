@@ -1052,6 +1052,78 @@ abstract class AppLocalizations {
   /// **'Please confirm that the information above matches your National Card.'**
   String get confirmRequired;
 
+  /// No description provided for @verifyIdentityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity'**
+  String get verifyIdentityTitle;
+
+  /// No description provided for @verifyIdentityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your Iraqi National Card to verify your information.'**
+  String get verifyIdentityDescription;
+
+  /// No description provided for @identityAlreadyRead.
+  ///
+  /// In en, this message translates to:
+  /// **'National Card already read'**
+  String get identityAlreadyRead;
+
+  /// No description provided for @continueToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to review'**
+  String get continueToReview;
+
+  /// No description provided for @editAccountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account details'**
+  String get editAccountDetails;
+
+  /// No description provided for @identityNotSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not submitted'**
+  String get identityNotSubmitted;
+
+  /// No description provided for @needsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get needsAttention;
+
+  /// No description provided for @resubmitIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Resubmit identity'**
+  String get resubmitIdentity;
+
+  /// No description provided for @addIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Add identity'**
+  String get addIdentity;
+
+  /// No description provided for @identityPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your National Card is being reviewed.'**
+  String get identityPendingReview;
+
+  /// No description provided for @identityVerifiedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your identity has been verified.'**
+  String get identityVerifiedNote;
+
+  /// No description provided for @identityRejectedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your National Card was not accepted.'**
+  String get identityRejectedNote;
+
   /// No description provided for @unsupportedImageFormat.
   ///
   /// In en, this message translates to:

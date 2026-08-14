@@ -504,6 +504,43 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please confirm that the information above matches your National Card.';
 
   @override
+  String get verifyIdentityTitle => 'Verify your identity';
+
+  @override
+  String get verifyIdentityDescription =>
+      'Use your Iraqi National Card to verify your information.';
+
+  @override
+  String get identityAlreadyRead => 'National Card already read';
+
+  @override
+  String get continueToReview => 'Continue to review';
+
+  @override
+  String get editAccountDetails => 'Edit account details';
+
+  @override
+  String get identityNotSubmitted => 'Not submitted';
+
+  @override
+  String get needsAttention => 'Needs attention';
+
+  @override
+  String get resubmitIdentity => 'Resubmit identity';
+
+  @override
+  String get addIdentity => 'Add identity';
+
+  @override
+  String get identityPendingReview => 'Your National Card is being reviewed.';
+
+  @override
+  String get identityVerifiedNote => 'Your identity has been verified.';
+
+  @override
+  String get identityRejectedNote => 'Your National Card was not accepted.';
+
+  @override
   String get unsupportedImageFormat =>
       'This image format is not supported. Use JPEG or PNG.';
 

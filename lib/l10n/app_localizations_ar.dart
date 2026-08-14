@@ -499,6 +499,43 @@ class AppLocalizationsAr extends AppLocalizations {
       'يرجى تأكيد أن المعلومات أعلاه مطابقة لبطاقتك الوطنية.';
 
   @override
+  String get verifyIdentityTitle => 'تحقق من هويتك';
+
+  @override
+  String get verifyIdentityDescription =>
+      'استخدم بطاقتك الوطنية العراقية للتحقق من معلوماتك.';
+
+  @override
+  String get identityAlreadyRead => 'تمت قراءة البطاقة الوطنية';
+
+  @override
+  String get continueToReview => 'متابعة إلى المراجعة';
+
+  @override
+  String get editAccountDetails => 'تعديل بيانات الحساب';
+
+  @override
+  String get identityNotSubmitted => 'لم يتم تقديمها';
+
+  @override
+  String get needsAttention => 'يحتاج إلى انتباه';
+
+  @override
+  String get resubmitIdentity => 'إعادة تقديم الهوية';
+
+  @override
+  String get addIdentity => 'إضافة هوية';
+
+  @override
+  String get identityPendingReview => 'بطاقتك الوطنية قيد المراجعة.';
+
+  @override
+  String get identityVerifiedNote => 'تم التحقق من هويتك.';
+
+  @override
+  String get identityRejectedNote => 'لم يتم قبول بطاقتك الوطنية.';
+
+  @override
   String get unsupportedImageFormat =>
       'صيغة الصورة غير مدعومة. استخدم JPEG أو PNG.';
 

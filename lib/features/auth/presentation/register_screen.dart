@@ -89,6 +89,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscureConfirm = true;
   bool _capturing = false;
   bool _reviewInitialized = false;
+  final _passwordFocus = FocusNode();
 
   /// Stable per-field targets for scroll-to-first-error + inline messages.
   final Map<_ReviewFieldKey, GlobalKey> _reviewFieldKeys = {
@@ -108,6 +109,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _cardNumberController.dispose();
     _familyNumberController.dispose();
     _bodyNumberController.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -337,9 +339,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       context.go(Routes.login);
     } else {
       final err = ref.read(registrationControllerProvider).submitError;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(_submitErrorMessage(err))));
+      // Backend password errors are already shown inline on Step 1 (with the
+      // field focused); a snackbar would just duplicate the message.
+      final isPasswordError = err?.details.containsKey('password') ?? false;
+      if (!isPasswordError) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(_submitErrorMessage(err))));
+      }
     }
   }
 
@@ -407,23 +414,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // STEP 1 — Account + National Card capture
+  // STEP 1 — Account details only
   // ---------------------------------------------------------------------
   Widget _accountStep(RegistrationFlowState state) {
     final theme = Theme.of(context);
+    // Returning from a rejected final registration (backend password error):
+    // put focus on Password so the fix is one edit away.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (state.passwordError != null && mounted) {
+        _passwordFocus.requestFocus();
+      }
+    });
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l10n.accountStepTitle, style: theme.textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(
-            l10n.scanFirstExplanation,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
           const SizedBox(height: 16),
           AppTextField(
             label: l10n.email,
@@ -443,13 +450,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           AppTextField(
             label: l10n.password,
             controller: _passwordController,
+            focusNode: _passwordFocus,
             obscureText: _obscure,
+            errorText: state.passwordError,
             suffixIcon: IconButton(
               icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
               onPressed: () => setState(() => _obscure = !_obscure),
             ),
             validator: (v) =>
                 (v == null || v.length < 8) ? l10n.validationFailed : null,
+            onChanged: (_) => _controller.clearPasswordError(),
           ),
           const SizedBox(height: 12),
           AppTextField(
@@ -473,8 +483,57 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             onChanged: (v) => setState(() => _governorate = v ?? ''),
           ),
           const SizedBox(height: 20),
-          Text(l10n.nationalCard, style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
+          PrimaryButton(
+            label: l10n.continueAction,
+            onPressed: _submitAccount,
+            icon: Icons.arrow_forward,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // STEP 2 — Verify identity (National Card image controls live here ONLY)
+  // ---------------------------------------------------------------------
+  Widget _scanStep(RegistrationFlowState state) {
+    final theme = Theme.of(context);
+    final alreadyRead =
+        state.jobId != null &&
+        state.extractionResult != null &&
+        state.extractionStatus == ExtractionJobStatus.success;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.verifyIdentityTitle, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          l10n.verifyIdentityDescription,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 20),
+        if (alreadyRead) ...[
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.identityAlreadyRead,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          PrimaryButton(
+            label: l10n.continueToReview,
+            onPressed: _controller.goToReview,
+            icon: Icons.arrow_forward,
+          ),
+        ] else ...[
           _SideCapture(
             label: l10n.scanFront,
             path: state.frontPath,
@@ -489,79 +548,43 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             onPick: _capturing ? null : () => _pickImage(front: false),
           ),
           const SizedBox(height: 20),
-          PrimaryButton(
-            label: l10n.continueAction,
-            onPressed: _submitAccount,
-            icon: Icons.arrow_forward,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------
-  // STEP 2 — Read the card (single upload + poll)
-  // ---------------------------------------------------------------------
-  Widget _scanStep(RegistrationFlowState state) {
-    final theme = Theme.of(context);
-    final canRead = state.frontPath != null && state.backPath != null;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l10n.scanStepTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 8),
-        Text(
-          l10n.scanFirstExplanation,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 20),
-        _SideCapture(
-          label: l10n.scanFront,
-          path: state.frontPath,
-          onScan: _capturing ? null : () => _scanSide(front: true),
-          onPick: _capturing ? null : () => _pickImage(front: true),
-        ),
-        const SizedBox(height: 12),
-        _SideCapture(
-          label: l10n.scanBack,
-          path: state.backPath,
-          onScan: _capturing ? null : () => _scanSide(front: false),
-          onPick: _capturing ? null : () => _pickImage(front: false),
-        ),
-        const SizedBox(height: 20),
-        if (state.reading) ...[
-          LinearProgressIndicator(
-            value: state.uploadProgress != null && state.uploadProgress! < 100
-                ? state.uploadProgress! / 100
-                : null,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            state.uploadProgress != null && state.uploadProgress! < 100
-                ? l10n.uploadingCardProgress(state.uploadProgress!)
-                : l10n.readingDocument,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall,
-          ),
-        ] else ...[
-          PrimaryButton(
-            label: l10n.readDocument,
-            onPressed: canRead ? _controller.startExtraction : null,
-            icon: Icons.document_scanner_outlined,
-          ),
-        ],
-        if (state.errorMessage != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            state.errorMessage == 'extraction_failed'
-                ? l10n.documentReadingFailed
-                : l10n.errorGeneric,
-            style: TextStyle(color: theme.colorScheme.error),
-          ),
-          const SizedBox(height: 8),
-          SecondaryButton(label: l10n.retry, onPressed: _controller.retryScan),
+          if (state.reading) ...[
+            LinearProgressIndicator(
+              value: state.uploadProgress != null && state.uploadProgress! < 100
+                  ? state.uploadProgress! / 100
+                  : null,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.uploadProgress != null && state.uploadProgress! < 100
+                  ? l10n.uploadingCardProgress(state.uploadProgress!)
+                  : l10n.readingDocument,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall,
+            ),
+          ] else ...[
+            PrimaryButton(
+              label: l10n.readDocument,
+              onPressed: state.frontPath != null && state.backPath != null
+                  ? _controller.startExtraction
+                  : null,
+              icon: Icons.document_scanner_outlined,
+            ),
+          ],
+          if (state.errorMessage != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              state.errorMessage == 'extraction_failed'
+                  ? l10n.documentReadingFailed
+                  : l10n.errorGeneric,
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            const SizedBox(height: 8),
+            SecondaryButton(
+              label: l10n.retry,
+              onPressed: _controller.retryScan,
+            ),
+          ],
         ],
         const SizedBox(height: 8),
         TextButton(
@@ -773,6 +796,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           onPressed: state.submitting ? null : _submitReview,
           loading: state.submitting,
           icon: Icons.person_add_alt_1_outlined,
+        ),
+        const SizedBox(height: 8),
+        SecondaryButton(
+          label: l10n.editAccountDetails,
+          onPressed: state.submitting ? null : _controller.backToAccount,
+        ),
+        const SizedBox(height: 4),
+        TextButton(
+          onPressed: state.submitting ? null : _controller.backToScan,
+          child: Text(l10n.back),
         ),
       ],
     );

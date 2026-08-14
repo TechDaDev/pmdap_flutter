@@ -102,6 +102,7 @@ class RegistrationFlowState {
     this.submitError,
     this.review = const RegistrationReviewValues(),
     this.submitting = false,
+    this.passwordError,
   });
 
   final RegistrationStep step;
@@ -121,6 +122,10 @@ class RegistrationFlowState {
   final RegistrationReviewValues review;
   final bool submitting;
 
+  /// Backend password-field message shown inline on Step 1 after a rejected
+  /// final registration. Never the raw password value.
+  final String? passwordError;
+
   RegistrationFlowState copyWith({
     RegistrationStep? step,
     RegistrationDraft? draft,
@@ -136,6 +141,8 @@ class RegistrationFlowState {
     ApiException? submitError,
     RegistrationReviewValues? review,
     bool? submitting,
+    String? passwordError,
+    bool clearPasswordError = false,
   }) {
     return RegistrationFlowState(
       step: step ?? this.step,
@@ -152,6 +159,9 @@ class RegistrationFlowState {
       submitError: submitError ?? this.submitError,
       review: review ?? this.review,
       submitting: submitting ?? this.submitting,
+      passwordError: clearPasswordError
+          ? null
+          : passwordError ?? this.passwordError,
     );
   }
 }
@@ -175,8 +185,15 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     required String password,
     required String governorate,
   }) {
+    // If a successful extraction job already exists (e.g. returning from a
+    // rejected final registration), Continue jumps straight to Step 3. No new
+    // extraction job, no re-upload.
+    final identityReady =
+        state.jobId != null &&
+        state.extractionResult != null &&
+        state.extractionStatus == ExtractionJobStatus.success;
     state = state.copyWith(
-      step: RegistrationStep.scan,
+      step: identityReady ? RegistrationStep.review : RegistrationStep.scan,
       draft: RegistrationDraft(
         email: email,
         phone: phone,
@@ -184,7 +201,30 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
         governorate: governorate,
       ),
       errorMessage: null,
+      clearPasswordError: true,
     );
+  }
+
+  /// Step 3 -> Step 2 (back). Keeps the extraction job/result + reviewed
+  /// values so nothing needs rescanning.
+  void backToScan() {
+    _pollTimer?.cancel();
+    state = state.copyWith(
+      step: RegistrationStep.scan,
+      errorMessage: null,
+      reading: false,
+    );
+  }
+
+  /// Step 2 (already-read) -> Step 3.
+  void goToReview() {
+    state = state.copyWith(step: RegistrationStep.review, errorMessage: null);
+  }
+
+  void clearPasswordError() {
+    if (state.passwordError != null) {
+      state = state.copyWith(clearPasswordError: true);
+    }
   }
 
   void setScannedPaths({String? front, String? back}) {
@@ -367,7 +407,19 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       state = const RegistrationFlowState(step: RegistrationStep.account);
       return true;
     } on ApiException catch (e) {
-      state = state.copyWith(submitting: false, submitError: e);
+      // A backend password rejection must send the user back to Step 1 with
+      // the password focused + the exact server message inline. Everything
+      // else stays on the review step with the retained identity state.
+      if (e.details.containsKey('password')) {
+        state = state.copyWith(
+          submitting: false,
+          submitError: e,
+          step: RegistrationStep.account,
+          passwordError: _passwordFieldMessage(e),
+        );
+      } else {
+        state = state.copyWith(submitting: false, submitError: e);
+      }
       return false;
     } on Exception {
       state = state.copyWith(
@@ -379,6 +431,14 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       );
       return false;
     }
+  }
+
+  /// Backend password detail (List<String> or String) without the field name.
+  String? _passwordFieldMessage(ApiException e) {
+    final value = e.details['password'];
+    if (value is List && value.isNotEmpty) return value.first.toString();
+    if (value is String && value.isNotEmpty) return value;
+    return null;
   }
 
   /// Expired/consumed job → return to scan step with local images preserved

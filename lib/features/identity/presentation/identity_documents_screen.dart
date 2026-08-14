@@ -4,11 +4,13 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../core/models/enums.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
 import '../application/identity_providers.dart';
+import '../../patient/application/patient_providers.dart';
 
 class IdentityDocumentsScreen extends ConsumerWidget {
   const IdentityDocumentsScreen({super.key});
@@ -17,14 +19,29 @@ class IdentityDocumentsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(identityDocumentsProvider);
+    final identityStatus = ref
+        .watch(patientProfileProvider)
+        .valueOrNull
+        ?.identityStatus;
+
+    // A CURRENT PENDING/VERIFIED National Card must NOT allow a new submission.
+    // REJECTED/UNVERIFIED may (Resubmit / Add identity).
+    final lockAdd =
+        identityStatus == IdentityStatus.pendingVerification ||
+        identityStatus == IdentityStatus.verified;
+    final fabLabel = identityStatus == IdentityStatus.rejected
+        ? l10n.resubmitIdentity
+        : l10n.addIdentityDocument;
 
     return PmdapScaffold(
       title: l10n.identityTitle,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(Routes.identityNew),
-        icon: const Icon(Icons.badge_outlined),
-        label: Text(l10n.addIdentityDocument),
-      ),
+      floatingActionButton: lockAdd
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => context.push(Routes.identityNew),
+              icon: const Icon(Icons.badge_outlined),
+              label: Text(fabLabel),
+            ),
       body: AsyncStateView(
         value: async,
         onRetry: () => ref.invalidate(identityDocumentsProvider),

@@ -23,6 +23,7 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.maxLines = 1,
+    this.focusNode,
   });
 
   final String label;
@@ -43,11 +44,13 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final int maxLines;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       initialValue: controller == null ? initialValue : null,
       obscureText: obscureText,
       keyboardType: keyboardType,

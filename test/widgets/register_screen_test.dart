@@ -239,7 +239,7 @@ Future<void> _setPathsAndRead(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('first screen exposes only account + card capture fields', (
+  testWidgets('step 1 shows account fields only, no card upload', (
     tester,
   ) async {
     await _pump(tester);
@@ -252,9 +252,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Governorate'), findsOneWidget);
-    expect(find.textContaining('Scan front'), findsOneWidget);
-    expect(find.textContaining('Scan back'), findsOneWidget);
-    // NO manual profile inputs on the first screen.
+    // NO National Card upload controls on Step 1.
+    expect(find.textContaining('Scan front'), findsNothing);
+    expect(find.textContaining('Scan back'), findsNothing);
+    expect(find.text('National Card'), findsNothing);
+    // NO manual profile inputs on Step 1.
     expect(find.text('Full name'), findsNothing);
     expect(find.text('Date of birth'), findsNothing);
     expect(find.text('Family number'), findsNothing);
@@ -268,17 +270,166 @@ void main() {
     expect(find.text('Create account'), findsWidgets);
   });
 
-  testWidgets('valid account + governorate advances to the scan step', (
+  testWidgets('valid account + governorate advances to step 2 with uploads', (
     tester,
   ) async {
     await _pump(tester);
     await _fillAccount(tester);
-    expect(find.text('Verify your information'), findsOneWidget);
+    // Step 2 — Verify your identity.
+    expect(find.text('Verify your identity'), findsOneWidget);
+    expect(find.textContaining('Scan front'), findsOneWidget);
+    expect(find.textContaining('Scan back'), findsOneWidget);
     // No images yet → Read document disabled.
     final button = tester.widget<FilledButton>(
       find.widgetWithText(FilledButton, 'Read document'),
     );
     expect(button.onPressed, isNull);
+  });
+
+  testWidgets('backend password error returns to step 1, focuses password, '
+      'shows inline error, no second extraction', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..extractionResult = _successResult()
+      ..submitError = const ApiException(
+        code: 'validation_error',
+        message: 'Validation failed.',
+        details: {
+          'password': ['This password is too common.'],
+        },
+      );
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+
+    await tester.ensureVisible(find.byType(CheckboxListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CheckboxListTile));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pumpAndSettle();
+
+    // Back on Step 1 with the password error inline + password focused.
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+    expect(find.text('This password is too common.'), findsOneWidget);
+    final passwordField = tester.widget<AppTextField>(
+      find.ancestor(
+        of: find.widgetWithText(TextFormField, 'Password'),
+        matching: find.byType(AppTextField),
+      ),
+    );
+    expect(passwordField.errorText, 'This password is too common.');
+    expect(passwordField.focusNode, isNotNull);
+    expect(passwordField.focusNode!.hasFocus, isTrue);
+    // No re-upload / new extraction job happened.
+    expect(api.extractCount, 1);
+
+    // Fix the password (backend would now accept) and Continue.
+    api.submitError = null;
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Password'),
+      'NotCommon123!',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Confirm password'),
+      'NotCommon123!',
+    );
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Straight to review (no Step 2 upload), still one extraction total.
+    expect(find.text('Review your information'), findsOneWidget);
+    expect(api.extractCount, 1);
+    // Confirmation was retained from the first (failed) attempt — do NOT
+    // toggle it again.
+    expect(
+      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      isTrue,
+    );
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(api.registerCount, 1);
+    expect(api.lastPassword, 'NotCommon123!');
+  });
+
+  testWidgets('step 3 back returns to step 2 already-read, no re-upload', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()..extractionResult = _successResult();
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester);
+    await _setPathsAndRead(tester);
+
+    expect(find.text('Review your information'), findsOneWidget);
+    await tester.ensureVisible(find.text('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+
+    // Step 2 shows already-read state (no upload controls).
+    expect(find.text('Verify your identity'), findsOneWidget);
+    expect(find.text('National Card already read'), findsOneWidget);
+    expect(find.textContaining('Scan front'), findsNothing);
+    expect(api.extractCount, 1);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue to review'));
+    await tester.pumpAndSettle();
+    expect(find.text('Review your information'), findsOneWidget);
+    expect(api.extractCount, 1);
+  });
+
+  testWidgets('edit account details from step 3 returns to step 1 with '
+      'values preserved', (tester) async {
+    final api = _FakeRegistrationApi()..extractionResult = _successResult();
+    await _pump(
+      tester,
+      overrides: [registrationApiProvider.overrideWithValue(api)],
+    );
+    await _fillAccount(tester, email: 'edit@example.com');
+    await _setPathsAndRead(tester);
+
+    expect(find.text('Review your information'), findsOneWidget);
+    await tester.ensureVisible(
+      find.widgetWithText(OutlinedButton, 'Edit account details'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, 'Edit account details'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+    expect(
+      tester
+          .widget<TextFormField>(find.widgetWithText(TextFormField, 'Email'))
+          .controller!
+          .text,
+      'edit@example.com',
+    );
+    // Identity state retained: Continue jumps straight back to review.
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Review your information'), findsOneWidget);
+    expect(api.extractCount, 1);
   });
 
   testWidgets('extraction happy path reaches review with all fields', (
@@ -581,7 +732,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Retry'), findsOneWidget);
-    expect(find.text('Verify your information'), findsOneWidget);
+    expect(find.text('Verify your identity'), findsOneWidget);
     final button = tester.widget<FilledButton>(
       find.widgetWithText(FilledButton, 'Read document'),
     );

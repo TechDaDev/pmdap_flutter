@@ -4,12 +4,13 @@ import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../core/models/enums.dart';
 import '../../../core/models/patient.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/patient_avatar.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../../core/widgets/status_badge.dart';
 import '../../archive/application/archive_providers.dart';
 import '../../archive/data/archive_api.dart';
 import '../../documents/application/documents_providers.dart';
@@ -267,7 +268,33 @@ class _IdentityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labels = StatusLabels(l10n);
+    final status = profile.identityStatus;
+    final (badge, note, actionLabel, enabled) = switch (status) {
+      IdentityStatus.verified => (
+        StatusBadge.success(label: l10n.identityVerified),
+        l10n.identityVerifiedNote,
+        l10n.manageIdentity,
+        true,
+      ),
+      IdentityStatus.pendingVerification => (
+        StatusBadge.warning(label: l10n.identityPending),
+        l10n.identityPendingReview,
+        l10n.manageIdentity,
+        false,
+      ),
+      IdentityStatus.rejected => (
+        StatusBadge.error(label: l10n.needsAttention),
+        l10n.identityRejectedNote,
+        l10n.resubmitIdentity,
+        true,
+      ),
+      IdentityStatus.unverified || IdentityStatus.unknown => (
+        StatusBadge.neutral(label: l10n.identityNotSubmitted),
+        null,
+        l10n.addIdentity,
+        true,
+      ),
+    };
 
     return Card(
       child: Padding(
@@ -303,12 +330,15 @@ class _IdentityCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      // Scale the badge instead of overflowing the card width.
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: AlignmentDirectional.centerStart,
-                        child: labels.identity(profile.identityStatus),
+                        child: badge,
                       ),
+                      if (note != null) ...[
+                        const SizedBox(height: 6),
+                        Text(note),
+                      ],
                     ],
                   ),
                 ),
@@ -318,15 +348,12 @@ class _IdentityCard extends StatelessWidget {
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: TextButton(
-                onPressed: () => context.push(Routes.identity),
+                onPressed: enabled ? () => context.push(Routes.identity) : null,
                 style: TextButton.styleFrom(
                   minimumSize: const Size(0, 40),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
-                child: Text(
-                  l10n.manageIdentity,
-                  style: const TextStyle(fontSize: 13),
-                ),
+                child: Text(actionLabel, style: const TextStyle(fontSize: 13)),
               ),
             ),
           ],
