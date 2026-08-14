@@ -24,6 +24,11 @@ class ApiPaths {
   static String identityDocumentImage(String uuid, String side) =>
       '/identity-documents/$uuid/images/$side/';
 
+  // Scan-first registration (public, capability-bound anonymous endpoints).
+  static const registrationIdentityExtract = '/auth/register/identity/extract/';
+  static String registrationIdentityExtractStatus(String jobId) =>
+      '/auth/register/identity/extract/$jobId/';
+
   static const minors = '/minors/';
   static String minorDetail(String uuid) => '/minors/$uuid/';
   static String minorArchive(String uuid) => '/minors/$uuid/archive/';

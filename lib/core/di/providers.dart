@@ -10,6 +10,7 @@ import '../storage/refresh_token_storage.dart';
 import '../../features/archive/data/archive_api.dart';
 import '../../features/archive/data/minor_archive_api.dart';
 import '../../features/auth/data/auth_api.dart';
+import '../../features/auth/data/registration_api.dart';
 import '../../features/claims/data/claims_api.dart';
 import '../../features/documents/data/documents_api.dart';
 import '../../features/facilities/data/facilities_api.dart';
@@ -86,6 +87,24 @@ final dioProvider = Provider<Dio>((ref) {
 
 final authApiProvider = Provider<AuthApi>(
   (ref) => AuthApi(ref.watch(dioProvider)),
+);
+
+/// Plain public Dio for anonymous endpoints (registration extraction) — NO
+/// auth/refresh/logging interceptors, so no JWT is ever attached.
+final publicDioProvider = Provider<Dio>((ref) {
+  return Dio(
+    BaseOptions(
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: AppConfig.connectTimeout,
+      receiveTimeout: AppConfig.receiveTimeout,
+      sendTimeout: AppConfig.sendTimeout,
+      headers: const {'Accept': 'application/json'},
+    ),
+  );
+});
+
+final registrationApiProvider = Provider<RegistrationApi>(
+  (ref) => RegistrationApi(ref.watch(publicDioProvider)),
 );
 
 final patientApiProvider = Provider<PatientApi>(

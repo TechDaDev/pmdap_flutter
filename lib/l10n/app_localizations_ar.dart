@@ -110,6 +110,97 @@ class AppLocalizationsAr extends AppLocalizations {
   String get registerSubtitle => 'سجّل لبدء أرشيفك الطبي';
 
   @override
+  String get accountStepTitle => 'إنشاء حساب';
+
+  @override
+  String get scanStepTitle => 'تحقق من معلوماتك';
+
+  @override
+  String get reviewStepTitle => 'راجع معلوماتك';
+
+  @override
+  String get continueAction => 'متابعة';
+
+  @override
+  String get scanFirstExplanation =>
+      'يقرأ PMDAP بطاقة الهوية العراقية لملء ملفك. القيم مجرد اقتراحات — راجعها وصحّحها قبل إنشاء حسابك.';
+
+  @override
+  String get nationalCard => 'بطاقة الهوية العراقية';
+
+  @override
+  String get governorate => 'المحافظة';
+
+  @override
+  String get accountInformation => 'معلومات الحساب';
+
+  @override
+  String get confirmCardMatches =>
+      'أؤكد أن المعلومات أعلاه مطابقة لبطاقة هويتي.';
+
+  @override
+  String uploadingCardProgress(int percent) {
+    return 'جاري رفع البطاقة… $percent%';
+  }
+
+  @override
+  String get governorateAlAnbar => 'الأنبار';
+
+  @override
+  String get governorateAlQadisiyyah => 'القادسية';
+
+  @override
+  String get governorateBabil => 'بابل';
+
+  @override
+  String get governorateBaghdad => 'بغداد';
+
+  @override
+  String get governorateBasra => 'البصرة';
+
+  @override
+  String get governorateDhiQar => 'ذي قار';
+
+  @override
+  String get governorateDiyala => 'ديالى';
+
+  @override
+  String get governorateDuhok => 'دهوك';
+
+  @override
+  String get governorateErbil => 'أربيل';
+
+  @override
+  String get governorateHalabja => 'حلبجة';
+
+  @override
+  String get governorateKarbala => 'كربلاء';
+
+  @override
+  String get governorateKirkuk => 'كركوك';
+
+  @override
+  String get governorateMaysan => 'ميسان';
+
+  @override
+  String get governorateMuthanna => 'المثنى';
+
+  @override
+  String get governorateNajaf => 'النجف';
+
+  @override
+  String get governorateNineveh => 'نينوى';
+
+  @override
+  String get governorateSaladin => 'صلاح الدين';
+
+  @override
+  String get governorateSulaymaniyah => 'السليمانية';
+
+  @override
+  String get governorateWasit => 'واسط';
+
+  @override
   String get fullName => 'الاسم الكامل';
 
   @override
@@ -404,6 +495,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get confirmPasswordMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get scan => 'مسح';
 
   @override
   String get passwordMismatch => 'كلمتا المرور غير متطابقتين.';

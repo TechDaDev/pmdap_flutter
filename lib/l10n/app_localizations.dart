@@ -296,6 +296,180 @@ abstract class AppLocalizations {
   /// **'Register to start your medical archive'**
   String get registerSubtitle;
 
+  /// No description provided for @accountStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get accountStepTitle;
+
+  /// No description provided for @scanStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your information'**
+  String get scanStepTitle;
+
+  /// No description provided for @reviewStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your information'**
+  String get reviewStepTitle;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// No description provided for @scanFirstExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'PMDAP reads your Iraqi National Card to fill your profile. The values are suggestions — review and correct them before creating your account.'**
+  String get scanFirstExplanation;
+
+  /// No description provided for @nationalCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Iraqi National Card'**
+  String get nationalCard;
+
+  /// No description provided for @governorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorate'**
+  String get governorate;
+
+  /// No description provided for @accountInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Account information'**
+  String get accountInformation;
+
+  /// No description provided for @confirmCardMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that the information above matches my National Card.'**
+  String get confirmCardMatches;
+
+  /// No description provided for @uploadingCardProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading card… {percent}%'**
+  String uploadingCardProgress(int percent);
+
+  /// No description provided for @governorateAlAnbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Al Anbar'**
+  String get governorateAlAnbar;
+
+  /// No description provided for @governorateAlQadisiyyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Al-Qadisiyyah'**
+  String get governorateAlQadisiyyah;
+
+  /// No description provided for @governorateBabil.
+  ///
+  /// In en, this message translates to:
+  /// **'Babil'**
+  String get governorateBabil;
+
+  /// No description provided for @governorateBaghdad.
+  ///
+  /// In en, this message translates to:
+  /// **'Baghdad'**
+  String get governorateBaghdad;
+
+  /// No description provided for @governorateBasra.
+  ///
+  /// In en, this message translates to:
+  /// **'Basra'**
+  String get governorateBasra;
+
+  /// No description provided for @governorateDhiQar.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhi Qar'**
+  String get governorateDhiQar;
+
+  /// No description provided for @governorateDiyala.
+  ///
+  /// In en, this message translates to:
+  /// **'Diyala'**
+  String get governorateDiyala;
+
+  /// No description provided for @governorateDuhok.
+  ///
+  /// In en, this message translates to:
+  /// **'Duhok'**
+  String get governorateDuhok;
+
+  /// No description provided for @governorateErbil.
+  ///
+  /// In en, this message translates to:
+  /// **'Erbil'**
+  String get governorateErbil;
+
+  /// No description provided for @governorateHalabja.
+  ///
+  /// In en, this message translates to:
+  /// **'Halabja'**
+  String get governorateHalabja;
+
+  /// No description provided for @governorateKarbala.
+  ///
+  /// In en, this message translates to:
+  /// **'Karbala'**
+  String get governorateKarbala;
+
+  /// No description provided for @governorateKirkuk.
+  ///
+  /// In en, this message translates to:
+  /// **'Kirkuk'**
+  String get governorateKirkuk;
+
+  /// No description provided for @governorateMaysan.
+  ///
+  /// In en, this message translates to:
+  /// **'Maysan'**
+  String get governorateMaysan;
+
+  /// No description provided for @governorateMuthanna.
+  ///
+  /// In en, this message translates to:
+  /// **'Muthanna'**
+  String get governorateMuthanna;
+
+  /// No description provided for @governorateNajaf.
+  ///
+  /// In en, this message translates to:
+  /// **'Najaf'**
+  String get governorateNajaf;
+
+  /// No description provided for @governorateNineveh.
+  ///
+  /// In en, this message translates to:
+  /// **'Nineveh'**
+  String get governorateNineveh;
+
+  /// No description provided for @governorateSaladin.
+  ///
+  /// In en, this message translates to:
+  /// **'Saladin'**
+  String get governorateSaladin;
+
+  /// No description provided for @governorateSulaymaniyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Sulaymaniyah'**
+  String get governorateSulaymaniyah;
+
+  /// No description provided for @governorateWasit.
+  ///
+  /// In en, this message translates to:
+  /// **'Wasit'**
+  String get governorateWasit;
+
   /// No description provided for @fullName.
   ///
   /// In en, this message translates to:
@@ -877,6 +1051,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm password'**
   String get confirmPassword;
+
+  /// No description provided for @confirmPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get confirmPasswordMismatch;
+
+  /// No description provided for @scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scan;
 
   /// No description provided for @passwordMismatch.
   ///

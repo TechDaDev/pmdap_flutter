@@ -112,6 +112,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerSubtitle => 'Register to start your medical archive';
 
   @override
+  String get accountStepTitle => 'Create account';
+
+  @override
+  String get scanStepTitle => 'Verify your information';
+
+  @override
+  String get reviewStepTitle => 'Review your information';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get scanFirstExplanation =>
+      'PMDAP reads your Iraqi National Card to fill your profile. The values are suggestions — review and correct them before creating your account.';
+
+  @override
+  String get nationalCard => 'Iraqi National Card';
+
+  @override
+  String get governorate => 'Governorate';
+
+  @override
+  String get accountInformation => 'Account information';
+
+  @override
+  String get confirmCardMatches =>
+      'I confirm that the information above matches my National Card.';
+
+  @override
+  String uploadingCardProgress(int percent) {
+    return 'Uploading card… $percent%';
+  }
+
+  @override
+  String get governorateAlAnbar => 'Al Anbar';
+
+  @override
+  String get governorateAlQadisiyyah => 'Al-Qadisiyyah';
+
+  @override
+  String get governorateBabil => 'Babil';
+
+  @override
+  String get governorateBaghdad => 'Baghdad';
+
+  @override
+  String get governorateBasra => 'Basra';
+
+  @override
+  String get governorateDhiQar => 'Dhi Qar';
+
+  @override
+  String get governorateDiyala => 'Diyala';
+
+  @override
+  String get governorateDuhok => 'Duhok';
+
+  @override
+  String get governorateErbil => 'Erbil';
+
+  @override
+  String get governorateHalabja => 'Halabja';
+
+  @override
+  String get governorateKarbala => 'Karbala';
+
+  @override
+  String get governorateKirkuk => 'Kirkuk';
+
+  @override
+  String get governorateMaysan => 'Maysan';
+
+  @override
+  String get governorateMuthanna => 'Muthanna';
+
+  @override
+  String get governorateNajaf => 'Najaf';
+
+  @override
+  String get governorateNineveh => 'Nineveh';
+
+  @override
+  String get governorateSaladin => 'Saladin';
+
+  @override
+  String get governorateSulaymaniyah => 'Sulaymaniyah';
+
+  @override
+  String get governorateWasit => 'Wasit';
+
+  @override
   String get fullName => 'Full name';
 
   @override
@@ -409,6 +500,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmPassword => 'Confirm password';
+
+  @override
+  String get confirmPasswordMismatch => 'Passwords do not match.';
+
+  @override
+  String get scan => 'Scan';
 
   @override
   String get passwordMismatch => 'Passwords do not match.';
