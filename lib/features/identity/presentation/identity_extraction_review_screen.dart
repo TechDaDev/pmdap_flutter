@@ -57,6 +57,7 @@ class _ReviewField {
     required this.controller,
     this.bucket = _ConfidenceBucket.needsReview,
     this.hasValue = false,
+    this.required = true,
   });
 
   final String key;
@@ -64,6 +65,10 @@ class _ReviewField {
   final TextEditingController controller;
   final _ConfidenceBucket bucket;
   final bool hasValue;
+
+  /// Advisory display fields (e.g. the unique card body number) are shown in
+  /// their own box but are never required and never submitted.
+  final bool required;
 }
 
 class _IdentityExtractionReviewScreenState
@@ -101,6 +106,10 @@ class _IdentityExtractionReviewScreenState
         TextEditingController(text: (f(key)?.value ?? '').trim());
 
     if (_isNationalCard) {
+      // V2 backend emits `national_card_number`; keep `national_number` as a
+      // fallback for any older backend still in the wild.
+      ExtractedIdentityField? national() =>
+          fields['national_card_number'] ?? fields['national_number'];
       return [
         _ReviewField(
           key: 'document_number',
@@ -112,9 +121,11 @@ class _IdentityExtractionReviewScreenState
         _ReviewField(
           key: 'national_number',
           label: AppLocalizations.of(context).nationalNumber,
-          controller: c('national_number'),
-          bucket: _bucketOf(f('national_number')),
-          hasValue: f('national_number')?.value?.trim().isNotEmpty ?? false,
+          controller: TextEditingController(
+            text: (national()?.value ?? '').trim(),
+          ),
+          bucket: _bucketOf(national()),
+          hasValue: national()?.value?.trim().isNotEmpty ?? false,
         ),
         _ReviewField(
           key: 'family_number',
@@ -122,6 +133,17 @@ class _IdentityExtractionReviewScreenState
           controller: c('family_number'),
           bucket: _bucketOf(f('family_number')),
           hasValue: f('family_number')?.value?.trim().isNotEmpty ?? false,
+        ),
+        // The short H... card body number is a DISTINCT identifier, never a
+        // family number. Shown in its own advisory box.
+        _ReviewField(
+          key: 'unique_card_body_number',
+          label: AppLocalizations.of(context).uniqueCardBodyNumber,
+          controller: c('unique_card_body_number'),
+          bucket: _bucketOf(f('unique_card_body_number')),
+          hasValue:
+              f('unique_card_body_number')?.value?.trim().isNotEmpty ?? false,
+          required: false,
         ),
         _ReviewField(
           key: 'issuing_country',
@@ -175,6 +197,7 @@ class _IdentityExtractionReviewScreenState
   }
 
   String? _requiredError(_ReviewField field) {
+    if (!field.required) return null;
     final v = field.controller.text.trim();
     if (v.isEmpty) return l10n.validationFailed;
     if (field.key == 'issuing_country') {

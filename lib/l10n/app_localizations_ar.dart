@@ -242,6 +242,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get issuingCountry => 'دولة الإصدار';
 
   @override
+  String get uniqueCardBodyNumber => 'رقم جسم البطاقة';
+
+  @override
   String get issueDate => 'تاريخ الإصدار';
 
   @override

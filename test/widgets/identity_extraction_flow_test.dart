@@ -114,7 +114,9 @@ class _FakeIdentityApi extends IdentityApi {
 
 IdentityExtractionResult _ncResult({
   String? national = '012345678901234',
+  String? nationalCard,
   String? family = '1234',
+  String? body,
   double nationalConf = 0.95,
   bool mrzVerified = true,
 }) {
@@ -128,6 +130,13 @@ IdentityExtractionResult _ncResult({
     source: source,
   );
 
+  // V2 backend emits `national_card_number`; older backends used
+  // `national_number`. Prefer the V2 key when provided.
+  final nationalKey = nationalCard != null
+      ? 'national_card_number'
+      : 'national_number';
+  final nationalValue = nationalCard ?? national;
+
   return IdentityExtractionResult(
     documentType: IdentityDocumentType.unifiedNationalCard,
     extractorVersion: 'identity-v1',
@@ -138,14 +147,20 @@ IdentityExtractionResult _ncResult({
     ),
     fields: {
       'document_number': f('A12345678', 0.96, IdentityExtractionSource.ocr),
-      if (national != null)
-        'national_number': f(
-          national,
+      if (nationalValue != null)
+        nationalKey: f(
+          nationalValue,
           nationalConf,
-          IdentityExtractionSource.ocr,
+          IdentityExtractionSource.frontPrinted,
         ),
       if (family != null)
-        'family_number': f(family, 0.8, IdentityExtractionSource.ocr),
+        'family_number': f(family, 0.8, IdentityExtractionSource.backPrinted),
+      if (body != null)
+        'unique_card_body_number': f(
+          body,
+          0.95,
+          IdentityExtractionSource.frontPrinted,
+        ),
       'issuing_country': f('IQ', 1.0, IdentityExtractionSource.documentType),
     },
     warnings: const [],
@@ -352,6 +367,45 @@ void main() {
 
       expect(find.text(en.confidenceNeedsReview), findsWidgets);
       expect(find.textContaining(en.couldNotReadThisField), findsWidgets);
+    });
+
+    testWidgets('V2 keys land in own boxes: national_card_number + body', (
+      tester,
+    ) async {
+      // Four DISTINCT invented identifiers: document, national (V2 key),
+      // family, and the H... card body number. Each must land in its own box
+      // and the body number must never be displayed as (or submitted as) the
+      // family number.
+      fakeApi.extractionResult = _ncResult(
+        nationalCard: '999999999999',
+        family: 'TESTFAMILY123456',
+        body: 'H12345678',
+      );
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+
+      // Each value appears in exactly one text box.
+      expect(find.widgetWithText(TextField, 'A12345678'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '999999999999'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextField, 'TESTFAMILY123456'),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(TextField, 'H12345678'), findsOneWidget);
+
+      await tapPrimary(tester, en.submitForVerification);
+      expect(fakeApi.submitted, hasLength(1));
+      final s = fakeApi.submitted.single;
+      expect(s.documentNumber, 'A12345678');
+      expect(s.nationalNumber, '999999999999');
+      expect(s.familyNumber, 'TESTFAMILY123456');
+      // Body number must never leak into family/national/document slots.
+      expect(s.familyNumber, isNot('H12345678'));
+      expect(s.nationalNumber, isNot('H12345678'));
+      expect(s.documentNumber, isNot('H12345678'));
     });
 
     testWidgets('replacement uses replace endpoint', (tester) async {

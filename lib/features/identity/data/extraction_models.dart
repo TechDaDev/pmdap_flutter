@@ -12,6 +12,9 @@ enum IdentityExtractionSource {
   ocr,
   documentType,
   derived,
+  frontPrinted,
+  backPrinted,
+  roi,
   unknown;
 
   static IdentityExtractionSource fromApi(String? value) {
@@ -20,6 +23,9 @@ enum IdentityExtractionSource {
       'OCR' => IdentityExtractionSource.ocr,
       'DOCUMENT_TYPE' => IdentityExtractionSource.documentType,
       'DERIVED' => IdentityExtractionSource.derived,
+      'FRONT_PRINTED' => IdentityExtractionSource.frontPrinted,
+      'BACK_PRINTED' => IdentityExtractionSource.backPrinted,
+      'ROI' => IdentityExtractionSource.roi,
       _ => IdentityExtractionSource.unknown,
     };
   }
