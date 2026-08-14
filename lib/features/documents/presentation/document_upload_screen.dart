@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
@@ -223,8 +224,17 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         extra: widget.minorUuid,
       );
     } on ApiException catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          'medical_upload error code=${e.code} status=${e.statusCode} '
+          'msg=${e.message}',
+        );
+      }
       setState(() => _errorMessage = e.message);
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('medical_upload unexpected ${e.runtimeType}');
+      }
       setState(() => _errorMessage = l10n.uploadFailed);
     } finally {
       if (mounted) setState(() => _submitting = false);

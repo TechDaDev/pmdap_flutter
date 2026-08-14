@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
@@ -74,6 +75,7 @@ class DocumentsApi {
   }
 
   Future<MedicalDocument> upload(DocumentUploadInput input) async {
+    final sw = Stopwatch()..start();
     try {
       final form = FormData.fromMap({
         'document_type': input.documentType.api,
@@ -98,9 +100,46 @@ class DocumentsApi {
           filename: input.filename,
         ),
       });
-      final resp = await _dio.post<dynamic>(ApiPaths.documents, data: form);
+      if (kDebugMode) {
+        // Safe trace: mime + byte size + type + progress. NEVER the path,
+        // bytes, medical content, JWT or patient id.
+        final f = form.files.firstWhere(
+          (e) => e.key == 'file',
+          orElse: () => form.files.first,
+        );
+        debugPrint(
+          'medical_upload start mime=${f.value.contentType} '
+          'bytes=${f.value.length} type=${input.documentType.api}',
+        );
+      }
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.documents,
+        data: form,
+        onSendProgress: kDebugMode
+            ? (sent, total) {
+                if (total > 0) {
+                  debugPrint(
+                    'medical_upload progress=${(sent * 100 / total).round()}',
+                  );
+                }
+              }
+            : null,
+      );
+      if (kDebugMode) {
+        debugPrint(
+          'medical_upload ok status=${resp.statusCode} '
+          'elapsed_ms=${sw.elapsedMilliseconds}',
+        );
+      }
       return decodeData<MedicalDocument>(resp.data, MedicalDocument.fromJson);
     } on DioException catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          'medical_upload error dio=${e.type.name} '
+          'status=${e.response?.statusCode} '
+          'elapsed_ms=${sw.elapsedMilliseconds}',
+        );
+      }
       throw _mapper.map(e);
     }
   }
