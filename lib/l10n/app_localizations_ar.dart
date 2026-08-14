@@ -134,6 +134,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bloodGroup => 'فصيلة الدم';
 
   @override
+  String get name => 'الاسم';
+
+  @override
+  String get fathersName => 'اسم الأب';
+
+  @override
+  String get grandfathersName => 'اسم الجد';
+
+  @override
+  String get personalInformation => 'المعلومات الشخصية';
+
+  @override
+  String get cardInformation => 'معلومات البطاقة';
+
+  @override
   String get registrationSuccess => 'تم إنشاء الحساب. سجّل الدخول.';
 
   @override
@@ -234,6 +249,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nationalNumber => 'الرقم الوطني';
+
+  @override
+  String get nationalCardNumber => 'الرقم الوطني / رقم البطاقة';
 
   @override
   String get familyNumber => 'رقم العائلة';

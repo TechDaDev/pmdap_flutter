@@ -136,6 +136,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bloodGroup => 'Blood group';
 
   @override
+  String get name => 'Name';
+
+  @override
+  String get fathersName => 'Father\'s name';
+
+  @override
+  String get grandfathersName => 'Grandfather\'s name';
+
+  @override
+  String get personalInformation => 'Personal information';
+
+  @override
+  String get cardInformation => 'Card information';
+
+  @override
   String get registrationSuccess => 'Account created. Please sign in.';
 
   @override
@@ -236,6 +251,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nationalNumber => 'National number';
+
+  @override
+  String get nationalCardNumber => 'National/Card number';
 
   @override
   String get familyNumber => 'Family number';

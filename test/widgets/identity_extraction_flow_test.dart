@@ -113,8 +113,13 @@ class _FakeIdentityApi extends IdentityApi {
 }
 
 IdentityExtractionResult _ncResult({
-  String? national = '012345678901234',
-  String? nationalCard,
+  String name = 'Ali',
+  String father = 'Ahmed',
+  String grandfather = 'Hassan',
+  String sex = 'MALE',
+  String bloodGroup = 'O+',
+  String? dob = '1990-01-15',
+  String? nationalCard = '999999999999',
   String? family = '1234',
   String? body,
   double nationalConf = 0.95,
@@ -123,19 +128,14 @@ IdentityExtractionResult _ncResult({
   ExtractedIdentityField f(
     String? value,
     double confidence,
-    IdentityExtractionSource source,
-  ) => ExtractedIdentityField(
+    IdentityExtractionSource source, {
+    String? crossCheck,
+  }) => ExtractedIdentityField(
     value: value,
     confidence: confidence,
     source: source,
+    crossCheck: crossCheck,
   );
-
-  // V2 backend emits `national_card_number`; older backends used
-  // `national_number`. Prefer the V2 key when provided.
-  final nationalKey = nationalCard != null
-      ? 'national_card_number'
-      : 'national_number';
-  final nationalValue = nationalCard ?? national;
 
   return IdentityExtractionResult(
     documentType: IdentityDocumentType.unifiedNationalCard,
@@ -146,13 +146,40 @@ IdentityExtractionResult _ncResult({
       checksPassed: mrzVerified,
     ),
     fields: {
-      'document_number': f('A12345678', 0.96, IdentityExtractionSource.ocr),
-      if (nationalValue != null)
-        nationalKey: f(
-          nationalValue,
+      'name': f(name, 0.96, IdentityExtractionSource.frontPrinted),
+      'father_name': f(father, 0.94, IdentityExtractionSource.frontPrinted),
+      'grandfather_name': f(
+        grandfather,
+        0.92,
+        IdentityExtractionSource.frontPrinted,
+      ),
+      'sex': f(
+        sex,
+        0.96,
+        IdentityExtractionSource.frontPrinted,
+        crossCheck: 'MRZ_AGREE',
+      ),
+      'blood_group': f(bloodGroup, 0.82, IdentityExtractionSource.roi),
+      'date_of_birth': f(
+        dob,
+        0.94,
+        IdentityExtractionSource.backPrinted,
+        crossCheck: 'MRZ_AGREE',
+      ),
+      if (nationalCard != null) ...{
+        // Backend V2 emits the visible card number under both keys (the
+        // submission contract persists it as document_number today).
+        'document_number': f(
+          nationalCard,
           nationalConf,
           IdentityExtractionSource.frontPrinted,
         ),
+        'national_card_number': f(
+          nationalCard,
+          nationalConf,
+          IdentityExtractionSource.frontPrinted,
+        ),
+      },
       if (family != null)
         'family_number': f(family, 0.8, IdentityExtractionSource.backPrinted),
       if (body != null)
@@ -318,10 +345,7 @@ void main() {
     testWidgets('read -> review shows buckets, edit, submit corrected', (
       tester,
     ) async {
-      fakeApi.extractionResult = _ncResult(
-        national: '012345678901234',
-        nationalConf: 0.75,
-      );
+      fakeApi.extractionResult = _ncResult(nationalConf: 0.75);
       await tester.pumpWidget(host(const IdentitySubmitScreen()));
       await tester.pumpAndSettle();
       await scanFront(tester);
@@ -334,8 +358,8 @@ void main() {
       expect(find.text(en.confidenceDetected), findsWidgets);
       expect(find.text(en.confidencePleaseCheck), findsWidgets);
 
-      // Overwrite document number with a corrected value.
-      final numberField = find.widgetWithText(TextField, 'A12345678');
+      // Overwrite the National/Card number with a corrected value.
+      final numberField = find.widgetWithText(TextField, '999999999999');
       await tester.enterText(numberField, 'Z99999999');
       await tester.pump();
 
@@ -345,7 +369,9 @@ void main() {
       final s = fakeApi.submitted.single;
       expect(s.documentType, IdentityDocumentType.unifiedNationalCard);
       expect(s.documentNumber, 'Z99999999');
-      expect(s.nationalNumber, '012345678901234');
+      // Legacy 15-digit MRZ national number is hidden and NOT submitted for
+      // the V2 Iraqi-card contract.
+      expect(s.nationalNumber, '');
       expect(s.familyNumber, '1234');
       expect(s.issuingCountry, 'IQ');
       // OCR-review submit uses the extraction job (single upload), never
@@ -358,7 +384,7 @@ void main() {
     testWidgets('missing field shows needs review + could-not-read label', (
       tester,
     ) async {
-      fakeApi.extractionResult = _ncResult(national: null, family: null);
+      fakeApi.extractionResult = _ncResult(nationalCard: null, family: null);
       await tester.pumpWidget(host(const IdentitySubmitScreen()));
       await tester.pumpAndSettle();
       await scanFront(tester);
@@ -369,17 +395,118 @@ void main() {
       expect(find.textContaining(en.couldNotReadThisField), findsWidgets);
     });
 
-    testWidgets('V2 keys land in own boxes: national_card_number + body', (
+    testWidgets(
+      'all nine V2 fields land in own boxes; identifiers stay distinct',
+      (tester) async {
+        // Nine DISTINCT invented values: name/father/grandfather, sex, blood,
+        // dob, card number, family, and the H... card body number. Each must
+        // land in its own box; the body number must never be displayed as (or
+        // submitted as) the family or card number.
+        fakeApi.extractionResult = _ncResult(
+          nationalCard: '999999999999',
+          family: 'TESTFAMILY123456',
+          body: 'H12345678',
+        );
+        await tester.pumpWidget(host(const IdentitySubmitScreen()));
+        await tester.pumpAndSettle();
+        await scanFront(tester);
+        await scanBack(tester);
+        await tapPrimary(tester, en.readDocument);
+
+        expect(find.text(en.personalInformation), findsOneWidget);
+        expect(find.text(en.cardInformation), findsOneWidget);
+
+        // Personal info fields.
+        expect(find.widgetWithText(TextField, 'Ali'), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'Ahmed'), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'Hassan'), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'Male'), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'O+'), findsOneWidget);
+
+        // Card info fields: each value in exactly one box.
+        expect(find.widgetWithText(TextField, '999999999999'), findsOneWidget);
+        expect(
+          find.widgetWithText(TextField, 'TESTFAMILY123456'),
+          findsOneWidget,
+        );
+        expect(find.widgetWithText(TextField, 'H12345678'), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'IQ'), findsOneWidget);
+
+        // Legacy "National number" row is GONE for the Iraqi card.
+        expect(find.textContaining(en.nationalNumber), findsNothing);
+        // The card number is NOT labeled "Document number".
+        expect(find.textContaining(en.documentNumber), findsNothing);
+        // It IS labeled "National/Card number" (header row + field label).
+        expect(find.textContaining(en.nationalCardNumber), findsWidgets);
+
+        await tapPrimary(tester, en.submitForVerification);
+        expect(fakeApi.submitted, hasLength(1));
+        final s = fakeApi.submitted.single;
+        expect(s.documentNumber, '999999999999');
+        expect(s.nationalNumber, '');
+        expect(s.familyNumber, 'TESTFAMILY123456');
+        // Body number must never leak into family/card/document slots.
+        expect(s.familyNumber, isNot('H12345678'));
+        expect(s.documentNumber, isNot('H12345678'));
+      },
+    );
+
+    testWidgets('DOB is rendered human-readable for the Iraqi card', (
       tester,
     ) async {
-      // Four DISTINCT invented identifiers: document, national (V2 key),
-      // family, and the H... card body number. Each must land in its own box
-      // and the body number must never be displayed as (or submitted as) the
-      // family number.
-      fakeApi.extractionResult = _ncResult(
-        nationalCard: '999999999999',
-        family: 'TESTFAMILY123456',
-        body: 'H12345678',
+      fakeApi.extractionResult = _ncResult();
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+
+      // en locale → DateFormat.yMMMd(1990-01-15).
+      expect(find.text('Jan 15, 1990'), findsOneWidget);
+      expect(find.text('1990-01-15'), findsNothing);
+    });
+
+    testWidgets('MRZ_AGREE cross-check strengthens low-confidence sex', (
+      tester,
+    ) async {
+      fakeApi.extractionResult = IdentityExtractionResult(
+        documentType: IdentityDocumentType.unifiedNationalCard,
+        extractorVersion: 'identity-v1',
+        mrz: const MrzValidationResult(
+          detected: true,
+          valid: true,
+          checksPassed: true,
+        ),
+        fields: {
+          // Low OCR confidence but MRZ agrees → must present as Detected.
+          'sex': const ExtractedIdentityField(
+            value: 'MALE',
+            confidence: 0.45,
+            source: IdentityExtractionSource.frontPrinted,
+            crossCheck: 'MRZ_AGREE',
+          ),
+          'document_number': const ExtractedIdentityField(
+            value: '999999999999',
+            confidence: 0.95,
+            source: IdentityExtractionSource.frontPrinted,
+          ),
+          'national_card_number': const ExtractedIdentityField(
+            value: '999999999999',
+            confidence: 0.95,
+            source: IdentityExtractionSource.frontPrinted,
+          ),
+          'family_number': const ExtractedIdentityField(
+            value: '1234',
+            confidence: 0.8,
+            source: IdentityExtractionSource.backPrinted,
+          ),
+          'issuing_country': const ExtractedIdentityField(
+            value: 'IQ',
+            confidence: 1.0,
+            source: IdentityExtractionSource.documentType,
+          ),
+        },
+        warnings: const [],
       );
       await tester.pumpWidget(host(const IdentitySubmitScreen()));
       await tester.pumpAndSettle();
@@ -387,25 +514,57 @@ void main() {
       await scanBack(tester);
       await tapPrimary(tester, en.readDocument);
 
-      // Each value appears in exactly one text box.
-      expect(find.widgetWithText(TextField, 'A12345678'), findsOneWidget);
-      expect(find.widgetWithText(TextField, '999999999999'), findsOneWidget);
-      expect(
-        find.widgetWithText(TextField, 'TESTFAMILY123456'),
-        findsOneWidget,
-      );
-      expect(find.widgetWithText(TextField, 'H12345678'), findsOneWidget);
+      expect(find.text(en.confidenceDetected), findsWidgets);
+    });
 
-      await tapPrimary(tester, en.submitForVerification);
-      expect(fakeApi.submitted, hasLength(1));
-      final s = fakeApi.submitted.single;
-      expect(s.documentNumber, 'A12345678');
-      expect(s.nationalNumber, '999999999999');
-      expect(s.familyNumber, 'TESTFAMILY123456');
-      // Body number must never leak into family/national/document slots.
-      expect(s.familyNumber, isNot('H12345678'));
-      expect(s.nationalNumber, isNot('H12345678'));
-      expect(s.documentNumber, isNot('H12345678'));
+    testWidgets('long family number stays intact single-line, no overflow', (
+      tester,
+    ) async {
+      final longFamily = '0123456789012345678901234567890123456789';
+      fakeApi.extractionResult = _ncResult(family: longFamily);
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+
+      expect(find.widgetWithText(TextField, longFamily), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('identifier fields forced LTR, personal names RTL', (
+      tester,
+    ) async {
+      fakeApi.extractionResult = _ncResult(family: 'TESTFAMILY123456');
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
+
+      TextDirection dirOf(Finder field) => tester
+          .widget<Directionality>(
+            find
+                .ancestor(of: field, matching: find.byType(Directionality))
+                .first,
+          )
+          .textDirection;
+
+      expect(
+        dirOf(find.widgetWithText(TextField, 'TESTFAMILY123456')),
+        TextDirection.ltr,
+      );
+      expect(
+        dirOf(find.widgetWithText(TextField, '999999999999')),
+        TextDirection.ltr,
+      );
+      expect(dirOf(find.widgetWithText(TextField, 'O+')), TextDirection.ltr);
+      expect(dirOf(find.widgetWithText(TextField, 'Ali')), TextDirection.rtl);
+      expect(dirOf(find.widgetWithText(TextField, 'Ahmed')), TextDirection.rtl);
+      expect(
+        dirOf(find.widgetWithText(TextField, 'Hassan')),
+        TextDirection.rtl,
+      );
     });
 
     testWidgets('replacement uses replace endpoint', (tester) async {
@@ -627,7 +786,17 @@ void main() {
         expect(find.text(en.dateOfBirth), findsOneWidget);
         expect(find.text(en.sex), findsOneWidget);
         expect(find.text(en.nationality), findsOneWidget);
-        expect(find.text('1990-05-12'), findsOneWidget);
+        // DOB is rendered human-readable, never as the raw ISO value.
+        expect(find.text('May 12, 1990'), findsOneWidget);
+        expect(find.text('1990-05-12'), findsNothing);
+        // Passport keeps NO Iraqi-card fields.
+        expect(find.text(en.familyNumber), findsNothing);
+        expect(find.text(en.uniqueCardBodyNumber), findsNothing);
+        expect(find.text(en.bloodGroup), findsNothing);
+        expect(find.text(en.fathersName), findsNothing);
+        expect(find.text(en.grandfathersName), findsNothing);
+        expect(find.text(en.personalInformation), findsNothing);
+        expect(find.text(en.cardInformation), findsNothing);
 
         await tapPrimary(tester, en.submitForVerification);
 

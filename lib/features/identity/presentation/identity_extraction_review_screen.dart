@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../app/router.dart';
@@ -50,6 +51,8 @@ class IdentityExtractionReviewScreen extends ConsumerStatefulWidget {
 
 enum _ConfidenceBucket { detected, pleaseCheck, needsReview }
 
+enum _ReviewSection { personal, card, none }
+
 class _ReviewField {
   _ReviewField({
     required this.key,
@@ -57,7 +60,9 @@ class _ReviewField {
     required this.controller,
     this.bucket = _ConfidenceBucket.needsReview,
     this.hasValue = false,
-    this.required = true,
+    this.required = false,
+    this.section = _ReviewSection.none,
+    this.direction,
   });
 
   final String key;
@@ -66,9 +71,18 @@ class _ReviewField {
   final _ConfidenceBucket bucket;
   final bool hasValue;
 
-  /// Advisory display fields (e.g. the unique card body number) are shown in
-  /// their own box but are never required and never submitted.
+  /// True when the corrected value goes into the final IdentitySubmission
+  /// payload. Advisory fields are reviewed/editable but never required.
   final bool required;
+
+  /// Review-only section grouping for the Iraqi National Card.
+  final _ReviewSection section;
+
+  /// Force a text direction so Arabic personal names stay RTL and Latin
+  /// identifiers (card/family/body number, blood group) stay LTR. All review
+  /// fields are single-line so long identifiers scroll horizontally instead
+  /// of wrapping mid-character.
+  final TextDirection? direction;
 }
 
 class _IdentityExtractionReviewScreenState
@@ -94,61 +108,125 @@ class _IdentityExtractionReviewScreenState
     if (f == null || f.value == null || f.value!.trim().isEmpty) {
       return _ConfidenceBucket.needsReview;
     }
-    if (f.confidence >= 0.90) return _ConfidenceBucket.detected;
+    // An MRZ cross-check agreement strengthens the presentation even when the
+    // raw OCR confidence is modest.
+    if (f.mrzAgree || f.confidence >= 0.90) {
+      return _ConfidenceBucket.detected;
+    }
     if (f.confidence >= 0.70) return _ConfidenceBucket.pleaseCheck;
     return _ConfidenceBucket.needsReview;
+  }
+
+  /// Human-readable patient-facing sex value (never the raw MALE/FEMALE enum).
+  String _sexDisplay(ExtractedIdentityField? f) {
+    final v = f?.value;
+    if (v == null || v.trim().isEmpty) return '';
+    final s = v.trim().toUpperCase();
+    if (s == 'MALE' || s == 'M') return l10n.male;
+    if (s == 'FEMALE' || s == 'F') return l10n.female;
+    return v.trim();
+  }
+
+  /// Locale-formatted birth date (e.g. "24 Mar 2014"); falls back to the raw
+  /// canonical value so a non-date read never silently disappears and a
+  /// locale whose date symbols are not loaded cannot crash the screen.
+  String _dobDisplay(ExtractedIdentityField? f) {
+    final v = f?.value;
+    if (v == null || v.trim().isEmpty) return '';
+    final d = parseApiDate(v);
+    if (d == null) return v.trim();
+    try {
+      final locale = Localizations.localeOf(context).toLanguageTag();
+      return DateFormat.yMMMd(locale).format(d);
+    } catch (_) {
+      return v.trim();
+    }
   }
 
   List<_ReviewField> _buildFields() {
     final fields = widget.result.fields;
     ExtractedIdentityField? f(String key) => fields[key];
-    TextEditingController c(String key) =>
-        TextEditingController(text: (f(key)?.value ?? '').trim());
+    TextEditingController c(String key, {String? text}) =>
+        TextEditingController(text: text ?? (f(key)?.value ?? '').trim());
+
+    _ReviewField personal(
+      String key,
+      String label, {
+      TextDirection? direction,
+      String? displayValue,
+    }) {
+      final field = f(key);
+      return _ReviewField(
+        key: key,
+        label: label,
+        controller: c(key, text: displayValue),
+        bucket: _bucketOf(field),
+        hasValue: field?.value?.trim().isNotEmpty ?? false,
+        section: _ReviewSection.personal,
+        direction: direction,
+      );
+    }
+
+    _ReviewField card(
+      String key,
+      String label, {
+      required bool required,
+      String? displayValue,
+      _ConfidenceBucket? bucket,
+      bool? hasValue,
+    }) {
+      final field = f(key);
+      return _ReviewField(
+        key: key,
+        label: label,
+        controller: c(key, text: displayValue),
+        bucket: bucket ?? _bucketOf(field),
+        hasValue: hasValue ?? (field?.value?.trim().isNotEmpty ?? false),
+        required: required,
+        section: _ReviewSection.card,
+        direction: TextDirection.ltr,
+      );
+    }
 
     if (_isNationalCard) {
-      // V2 backend emits `national_card_number`; keep `national_number` as a
-      // fallback for any older backend still in the wild.
-      ExtractedIdentityField? national() =>
-          fields['national_card_number'] ?? fields['national_number'];
       return [
-        _ReviewField(
-          key: 'document_number',
-          label: AppLocalizations.of(context).documentNumber,
-          controller: c('document_number'),
-          bucket: _bucketOf(f('document_number')),
-          hasValue: f('document_number')?.value?.trim().isNotEmpty ?? false,
+        // ---- Personal information (advisory: not yet in the submission
+        // contract) ----
+        personal('name', l10n.name, direction: TextDirection.rtl),
+        personal('father_name', l10n.fathersName, direction: TextDirection.rtl),
+        personal(
+          'grandfather_name',
+          l10n.grandfathersName,
+          direction: TextDirection.rtl,
         ),
-        _ReviewField(
-          key: 'national_number',
-          label: AppLocalizations.of(context).nationalNumber,
-          controller: TextEditingController(
-            text: (national()?.value ?? '').trim(),
-          ),
-          bucket: _bucketOf(national()),
-          hasValue: national()?.value?.trim().isNotEmpty ?? false,
+        personal('sex', l10n.sex, displayValue: _sexDisplay(f('sex'))),
+        personal(
+          'date_of_birth',
+          l10n.dateOfBirth,
+          displayValue: _dobDisplay(f('date_of_birth')),
         ),
-        _ReviewField(
-          key: 'family_number',
-          label: AppLocalizations.of(context).familyNumber,
-          controller: c('family_number'),
-          bucket: _bucketOf(f('family_number')),
-          hasValue: f('family_number')?.value?.trim().isNotEmpty ?? false,
+        personal('blood_group', l10n.bloodGroup, direction: TextDirection.ltr),
+        // ---- Card information (submitted after review) ----
+        card(
+          'national_card_number',
+          l10n.nationalCardNumber,
+          required: true,
+          displayValue:
+              f('national_card_number')?.value?.trim().isNotEmpty ?? false
+              ? null
+              : f('document_number')?.value?.trim(),
         ),
-        // The short H... card body number is a DISTINCT identifier, never a
-        // family number. Shown in its own advisory box.
-        _ReviewField(
-          key: 'unique_card_body_number',
-          label: AppLocalizations.of(context).uniqueCardBodyNumber,
-          controller: c('unique_card_body_number'),
-          bucket: _bucketOf(f('unique_card_body_number')),
-          hasValue:
-              f('unique_card_body_number')?.value?.trim().isNotEmpty ?? false,
+        card('family_number', l10n.familyNumber, required: true),
+        card(
+          'unique_card_body_number',
+          l10n.uniqueCardBodyNumber,
           required: false,
         ),
-        _ReviewField(
-          key: 'issuing_country',
-          label: AppLocalizations.of(context).issuingCountry,
-          controller: TextEditingController(text: 'IQ'),
+        card(
+          'issuing_country',
+          l10n.issuingCountry,
+          required: true,
+          displayValue: 'IQ',
           bucket: _ConfidenceBucket.detected,
           hasValue: true,
         ),
@@ -161,6 +239,7 @@ class _IdentityExtractionReviewScreenState
         controller: c('document_number'),
         bucket: _bucketOf(f('document_number')),
         hasValue: f('document_number')?.value?.trim().isNotEmpty ?? false,
+        required: true,
       ),
       _ReviewField(
         key: 'issuing_country',
@@ -170,6 +249,7 @@ class _IdentityExtractionReviewScreenState
         ),
         bucket: _bucketOf(f('issuing_country')),
         hasValue: f('issuing_country')?.value?.trim().isNotEmpty ?? false,
+        required: true,
       ),
       _ReviewField(
         key: 'issue_date',
@@ -177,6 +257,7 @@ class _IdentityExtractionReviewScreenState
         controller: c('issue_date'),
         bucket: _bucketOf(f('issue_date')),
         hasValue: f('issue_date')?.value?.trim().isNotEmpty ?? false,
+        required: true,
       ),
       _ReviewField(
         key: 'expiry_date',
@@ -184,6 +265,7 @@ class _IdentityExtractionReviewScreenState
         controller: c('expiry_date'),
         bucket: _bucketOf(f('expiry_date')),
         hasValue: f('expiry_date')?.value?.trim().isNotEmpty ?? false,
+        required: true,
       ),
     ];
   }
@@ -252,10 +334,17 @@ class _IdentityExtractionReviewScreenState
             frontPath: widget.frontPath,
             backPath: widget.backPath,
           );
+    // Iraqi National Card: the visible card number is carried in
+    // `national_card_number` (backend already aliases it into
+    // `document_number`). The legacy 15-digit MRZ `national_number` is not
+    // part of the V2 contract, so it is never displayed nor submitted.
+    final documentNumber = _isNationalCard
+        ? (byKey['national_card_number'] ?? '').trim()
+        : (byKey['document_number'] ?? '').trim();
     final submission = IdentitySubmission(
       documentType: _type,
-      documentNumber: byKey['document_number'] ?? '',
-      nationalNumber: _isNationalCard ? (byKey['national_number'] ?? '') : '',
+      documentNumber: documentNumber,
+      nationalNumber: '',
       familyNumber: _isNationalCard ? (byKey['family_number'] ?? '') : '',
       issuingCountry: (byKey['issuing_country'] ?? 'IQ').toUpperCase(),
       issueDate: issueDate,
@@ -420,10 +509,7 @@ class _IdentityExtractionReviewScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              for (final f in _fields) ...[
-                _ReviewFieldWidget(field: f, errorText: _requiredError(f)),
-                const SizedBox(height: 14),
-              ],
+              ..._sectionedFieldRows(theme),
               if (_errorMessage != null) ...[
                 Text(_errorMessage!, style: TextStyle(color: scheme.error)),
                 const SizedBox(height: 12),
@@ -452,6 +538,35 @@ class _IdentityExtractionReviewScreenState
         ),
       ),
     );
+  }
+
+  /// Renders review fields with "Personal information" / "Card information"
+  /// section headers for the Iraqi National Card. Passport keeps a flat list.
+  List<Widget> _sectionedFieldRows(ThemeData theme) {
+    final rows = <Widget>[];
+    _ReviewSection? current;
+    for (final f in _fields) {
+      if (f.section != current) {
+        current = f.section;
+        if (current != _ReviewSection.none) {
+          if (rows.isNotEmpty) rows.add(const SizedBox(height: 4));
+          rows.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                current == _ReviewSection.personal
+                    ? l10n.personalInformation
+                    : l10n.cardInformation,
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+          );
+        }
+      }
+      rows.add(_ReviewFieldWidget(field: f, errorText: _requiredError(f)));
+      rows.add(const SizedBox(height: 14));
+    }
+    return rows;
   }
 
   /// Informational, read-only passport rows (never submitted).
@@ -487,8 +602,8 @@ class _IdentityExtractionReviewScreenState
       );
     }
 
-    row(l10n.dateOfBirth, fields['date_of_birth']?.value);
-    row(l10n.sex, fields['sex']?.value);
+    row(l10n.dateOfBirth, _dobDisplay(fields['date_of_birth']));
+    row(l10n.sex, _sexDisplay(fields['sex']));
     row(l10n.nationality, fields['nationality']?.value);
     return rows;
   }
@@ -539,7 +654,7 @@ class _ReviewFieldWidget extends StatelessWidget {
         field.bucket == _ConfidenceBucket.needsReview && !field.hasValue
         ? '${field.label} — ${l10n.couldNotReadThisField}'
         : field.label;
-    return Column(
+    final textField = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -556,9 +671,12 @@ class _ReviewFieldWidget extends StatelessWidget {
           controller: field.controller,
           validator: (_) => errorText,
           onChanged: (_) {},
+          maxLines: 1,
         ),
       ],
     );
+    if (field.direction == null) return textField;
+    return Directionality(textDirection: field.direction!, child: textField);
   }
 }
 

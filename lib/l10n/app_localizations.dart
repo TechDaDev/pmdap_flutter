@@ -344,6 +344,36 @@ abstract class AppLocalizations {
   /// **'Blood group'**
   String get bloodGroup;
 
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @fathersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Father\'s name'**
+  String get fathersName;
+
+  /// No description provided for @grandfathersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Grandfather\'s name'**
+  String get grandfathersName;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information'**
+  String get personalInformation;
+
+  /// No description provided for @cardInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Card information'**
+  String get cardInformation;
+
   /// No description provided for @registrationSuccess.
   ///
   /// In en, this message translates to:
@@ -547,6 +577,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'National number'**
   String get nationalNumber;
+
+  /// No description provided for @nationalCardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'National/Card number'**
+  String get nationalCardNumber;
 
   /// No description provided for @familyNumber.
   ///

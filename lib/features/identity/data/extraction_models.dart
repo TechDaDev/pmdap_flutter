@@ -36,17 +36,25 @@ class ExtractedIdentityField {
     this.value,
     this.confidence = 0,
     this.source = IdentityExtractionSource.unknown,
+    this.crossCheck,
   });
 
   final String? value;
   final double confidence;
   final IdentityExtractionSource source;
 
+  /// Backend cross-check verdict: `MRZ_AGREE`, `MRZ_MISMATCH`, or null.
+  final String? crossCheck;
+
+  /// MRZ cross-check passed — strengthens the confidence presentation.
+  bool get mrzAgree => crossCheck == 'MRZ_AGREE';
+
   factory ExtractedIdentityField.fromJson(Map<String, dynamic> json) {
     return ExtractedIdentityField(
       value: json['value'] as String?,
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
       source: IdentityExtractionSource.fromApi(json['source'] as String?),
+      crossCheck: json['cross_check'] as String?,
     );
   }
 }
@@ -87,6 +95,22 @@ class IdentityExtractionResult {
   final MrzValidationResult mrz;
 
   bool get mrzVerified => mrz.detected && mrz.valid && mrz.checksPassed;
+
+  /// Typed accessors for the Iraqi National Card V2 structured contract.
+  /// Unknown/future fields never crash parsing — they simply return null.
+  ExtractedIdentityField? get name => fields['name'];
+  ExtractedIdentityField? get fatherName => fields['father_name'];
+  ExtractedIdentityField? get grandfatherName => fields['grandfather_name'];
+  ExtractedIdentityField? get sex => fields['sex'];
+  ExtractedIdentityField? get bloodGroup => fields['blood_group'];
+  ExtractedIdentityField? get nationalCardNumber =>
+      fields['national_card_number'];
+  ExtractedIdentityField? get dateOfBirth => fields['date_of_birth'];
+  ExtractedIdentityField? get familyNumber => fields['family_number'];
+  ExtractedIdentityField? get uniqueCardBodyNumber =>
+      fields['unique_card_body_number'];
+  ExtractedIdentityField? get documentNumber => fields['document_number'];
+  ExtractedIdentityField? get issuingCountry => fields['issuing_country'];
 
   factory IdentityExtractionResult.fromJson(Map<String, dynamic> json) {
     final rawType = (json['document_type'] as String?) ?? '';
