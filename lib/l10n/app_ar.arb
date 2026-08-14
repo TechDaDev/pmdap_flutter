@@ -117,7 +117,7 @@
   "nationalCardNumber": "الرقم الوطني / رقم البطاقة",
   "familyNumber": "رقم العائلة",
   "issuingCountry": "دولة الإصدار",
-  "uniqueCardBodyNumber": "رقم جسم البطاقة",
+  "uniqueCardBodyNumber": "الرقم الفريد لجسم البطاقة",
   "issueDate": "تاريخ الإصدار",
   "expiryDate": "تاريخ الانتهاء",
   "documentType": "نوع الوثيقة",

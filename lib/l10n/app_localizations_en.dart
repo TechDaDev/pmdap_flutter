@@ -353,7 +353,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get issuingCountry => 'Issuing country';
 
   @override
-  String get uniqueCardBodyNumber => 'Card body number';
+  String get uniqueCardBodyNumber => 'Unique card body number';
 
   @override
   String get issueDate => 'Issue date';

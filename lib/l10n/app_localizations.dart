@@ -773,7 +773,7 @@ abstract class AppLocalizations {
   /// No description provided for @uniqueCardBodyNumber.
   ///
   /// In en, this message translates to:
-  /// **'Card body number'**
+  /// **'Unique card body number'**
   String get uniqueCardBodyNumber;
 
   /// No description provided for @issueDate.

@@ -117,7 +117,7 @@
   "nationalCardNumber": "National/Card number",
   "familyNumber": "Family number",
   "issuingCountry": "Issuing country",
-  "uniqueCardBodyNumber": "Card body number",
+  "uniqueCardBodyNumber": "Unique card body number",
   "issueDate": "Issue date",
   "expiryDate": "Expiry date",
   "documentType": "Document type",

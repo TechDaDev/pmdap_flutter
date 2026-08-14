@@ -301,7 +301,7 @@ void main() {
     expect(
       tester
           .widget<TextFormField>(
-            find.widgetWithText(TextFormField, 'Card body number'),
+            find.widgetWithText(TextFormField, 'Unique card body number'),
           )
           .controller!
           .text,
