@@ -1364,6 +1364,36 @@ abstract class AppLocalizations {
   /// **'Please select a document type.'**
   String get uploadInvalidDocumentType;
 
+  /// No description provided for @preparingDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing document…'**
+  String get preparingDocument;
+
+  /// No description provided for @uploadingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading… {percent}%'**
+  String uploadingProgress(int percent);
+
+  /// No description provided for @preparingDocumentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t prepare this image. Try selecting it again.'**
+  String get preparingDocumentFailed;
+
+  /// No description provided for @imageTooLargeToPrepare.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too large to prepare. Try scanning the document instead.'**
+  String get imageTooLargeToPrepare;
+
+  /// No description provided for @originalPreparedSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Original {original} · Prepared {prepared}'**
+  String originalPreparedSize(String original, String prepared);
+
   /// No description provided for @title.
   ///
   /// In en, this message translates to:

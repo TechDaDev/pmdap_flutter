@@ -216,6 +216,22 @@
   "uploadImageTooLarge": "هذه الصورة كبيرة جدًا. جرب صورة أصغر أو استخدم الماسح الضوئي.",
   "uploadImageCorrupt": "تعذرت قراءة هذه الصورة. حاول مسحها ضوئيًا أو تحديدها مرة أخرى.",
   "uploadInvalidDocumentType": "يرجى اختيار نوع المستند.",
+  "preparingDocument": "جارٍ تجهيز المستند…",
+  "uploadingProgress": "جارٍ الرفع… {percent}%",
+  "@uploadingProgress": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "preparingDocumentFailed": "تعذّر تجهيز هذه الصورة. حاول تحديدها مرة أخرى.",
+  "imageTooLargeToPrepare": "هذه الصورة كبيرة جدًا ولا يمكن تجهيزها. جرّب مسح المستند ضوئيًا بدلاً من ذلك.",
+  "originalPreparedSize": "الأصلي {original} · المجهّز {prepared}",
+  "@originalPreparedSize": {
+    "placeholders": {
+      "original": {"type": "String"},
+      "prepared": {"type": "String"}
+    }
+  },
   "title": "العنوان",
   "description": "الوصف",
   "facility": "المنشأة",

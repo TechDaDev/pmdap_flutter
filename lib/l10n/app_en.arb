@@ -216,6 +216,22 @@
   "uploadImageTooLarge": "This image is too large. Try a smaller photo or use the scanner.",
   "uploadImageCorrupt": "We couldn't read this image. Try scanning or selecting it again.",
   "uploadInvalidDocumentType": "Please select a document type.",
+  "preparingDocument": "Preparing document…",
+  "uploadingProgress": "Uploading… {percent}%",
+  "@uploadingProgress": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "preparingDocumentFailed": "We couldn't prepare this image. Try selecting it again.",
+  "imageTooLargeToPrepare": "This image is too large to prepare. Try scanning the document instead.",
+  "originalPreparedSize": "Original {original} · Prepared {prepared}",
+  "@originalPreparedSize": {
+    "placeholders": {
+      "original": {"type": "String"},
+      "prepared": {"type": "String"}
+    }
+  },
   "title": "Title",
   "description": "Description",
   "facility": "Facility",

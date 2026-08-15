@@ -663,6 +663,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get uploadInvalidDocumentType => 'يرجى اختيار نوع المستند.';
 
   @override
+  String get preparingDocument => 'جارٍ تجهيز المستند…';
+
+  @override
+  String uploadingProgress(int percent) {
+    return 'جارٍ الرفع… $percent%';
+  }
+
+  @override
+  String get preparingDocumentFailed =>
+      'تعذّر تجهيز هذه الصورة. حاول تحديدها مرة أخرى.';
+
+  @override
+  String get imageTooLargeToPrepare =>
+      'هذه الصورة كبيرة جدًا ولا يمكن تجهيزها. جرّب مسح المستند ضوئيًا بدلاً من ذلك.';
+
+  @override
+  String originalPreparedSize(String original, String prepared) {
+    return 'الأصلي $original · المجهّز $prepared';
+  }
+
+  @override
   String get title => 'العنوان';
 
   @override

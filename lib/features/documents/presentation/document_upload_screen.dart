@@ -20,6 +20,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../facilities/presentation/facilities_screen.dart';
 import '../application/documents_providers.dart';
 import '../data/documents_api.dart';
+import '../data/medical_image_optimizer.dart';
 import '../scanner/document_scanner.dart';
 
 /// Upload a medical document.
@@ -58,11 +59,17 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
 
   bool _scanning = false;
   bool _submitting = false;
+  bool _preparing = false;
+  int? _uploadProgress;
   String? _errorMessage;
 
-  /// Mirrors backend MEDICAL_FILE_MAX_BYTES (25 MB) for cheap client-side
-  /// prevalidation; the server remains authoritative.
-  static const int _maxUploadBytes = 25 * 1024 * 1024;
+  /// Optimized temp derivative for the current source (kept for retry).
+  MedicalUploadAsset? _preparedAsset;
+
+  /// Source path the prepared derivative was made from (retry reuse check).
+  String? _preparedSourcePath;
+
+  bool get _busy => _preparing || _submitting;
 
   bool get _hasSource => _scan != null || _filePath != null;
 
@@ -77,8 +84,19 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     return _fileName ?? 'document';
   }
 
+  /// Best-effort delete of the optimized temp derivative owned by this screen.
+  Future<void> _discardPrepared() async {
+    final asset = _preparedAsset;
+    _preparedAsset = null;
+    _preparedSourcePath = null;
+    if (asset != null) {
+      await ref.read(medicalImageOptimizerProvider).disposeTemporary(asset);
+    }
+  }
+
   @override
   void dispose() {
+    _discardPrepared();
     _titleController.dispose();
     _descriptionController.dispose();
     _facilityNameController.dispose();
@@ -92,9 +110,11 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   Future<void> _startScan() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    await _discardPrepared();
     setState(() {
       _scanning = true;
       _errorMessage = null;
+      _uploadProgress = null;
     });
     try {
       final result = await scanDocument();
@@ -127,20 +147,26 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     );
     if (result == null || result.files.isEmpty) return;
     final f = result.files.first;
+    await _discardPrepared();
+    if (!mounted) return;
     setState(() {
       _filePath = f.path;
       _fileName = f.name;
       _fileSize = f.size;
       _scan = null;
+      _uploadProgress = null;
     });
   }
 
-  void _clearSource() {
+  Future<void> _clearSource() async {
+    await _discardPrepared();
+    if (!mounted) return;
     setState(() {
       _scan = null;
       _filePath = null;
       _fileName = null;
       _fileSize = null;
+      _uploadProgress = null;
     });
   }
 
@@ -186,8 +212,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       return;
     }
     // Client-side prevalidation of simple deterministic rules (server stays
-    // authoritative): extension + known size ceiling. Avoids a wasted 15s
-    // upload for a file that is obviously invalid.
+    // authoritative): extension + PDF size ceiling. An image may exceed the
+    // raw 25MB ceiling here because the optimizer can shrink it below it; the
+    // prepared artifact is validated against the server limits right after.
     final lowerName = _uploadName.toLowerCase();
     final supported =
         lowerName.endsWith('.jpg') ||
@@ -198,22 +225,95 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       setState(() => _errorMessage = l10n.uploadFileTypeUnsupported);
       return;
     }
-    try {
-      final bytes = File(path).lengthSync();
-      if (bytes > _maxUploadBytes) {
-        setState(() => _errorMessage = l10n.uploadFileTooLarge);
+    final isPdf = lowerName.endsWith('.pdf');
+    if (isPdf) {
+      try {
+        if (File(path).lengthSync() > MedicalImageOptimizer.serverMaxBytes) {
+          setState(() => _errorMessage = l10n.uploadFileTooLarge);
+          return;
+        }
+      } catch (_) {
+        // Unreadable file: fall through; the server will reject it safely.
+      }
+    }
+    final optimizer = ref.read(medicalImageOptimizerProvider);
+
+    // Reuse the already-prepared derivative on retry — never recompress twice.
+    final reuse = _preparedAsset != null && _preparedSourcePath == path;
+    MedicalUploadAsset asset;
+    if (!reuse) {
+      setState(() {
+        _preparing = true;
+        _submitting = true;
+        _errorMessage = null;
+        _uploadProgress = null;
+      });
+      try {
+        asset = await optimizer.prepare(path);
+      } on MedicalImageTooLargeException {
+        if (!mounted) return;
+        setState(() {
+          _preparing = false;
+          _submitting = false;
+          _errorMessage = l10n.imageTooLargeToPrepare;
+        });
+        return;
+      } on MedicalImagePrepareException {
+        if (!mounted) return;
+        setState(() {
+          _preparing = false;
+          _submitting = false;
+          _errorMessage = l10n.preparingDocumentFailed;
+        });
+        return;
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _preparing = false;
+          _submitting = false;
+          _errorMessage = l10n.preparingDocumentFailed;
+        });
         return;
       }
-    } catch (_) {
-      // Unreadable file: fall through; the server will reject it safely.
+      if (!mounted) return;
+      // Validate the prepared artifact against server limits (client hint
+      // only — the server stays authoritative).
+      if (asset.uploadBytes > MedicalImageOptimizer.serverMaxBytes) {
+        setState(() {
+          _preparing = false;
+          _submitting = false;
+          _errorMessage = l10n.uploadFileTooLarge;
+        });
+        await optimizer.disposeTemporary(asset);
+        return;
+      }
+      final px = asset.uploadPixels;
+      if (px != null && px > MedicalImageOptimizer.serverMaxPixels) {
+        setState(() {
+          _preparing = false;
+          _submitting = false;
+          _errorMessage = l10n.uploadImageTooLarge;
+        });
+        await optimizer.disposeTemporary(asset);
+        return;
+      }
+      if (!mounted) return;
+      setState(() {
+        _preparing = false;
+        _preparedAsset = asset;
+        _preparedSourcePath = path;
+      });
+    } else {
+      asset = _preparedAsset!;
+      setState(() {
+        _submitting = true;
+        _errorMessage = null;
+        _uploadProgress = null;
+      });
     }
-    setState(() {
-      _submitting = true;
-      _errorMessage = null;
-    });
     final input = DocumentUploadInput(
       documentType: type,
-      filePath: path,
+      filePath: asset.uploadPath,
       filename: _uploadName,
       title: _titleController.text.trim().isEmpty
           ? null
@@ -235,6 +335,13 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           ? null
           : _physicianController.text.trim(),
       documentDate: _documentDate,
+      onUploadProgress: (sent, total) {
+        if (!mounted || total <= 0) return;
+        final p = (sent * 100 / total).round();
+        if (p != _uploadProgress) {
+          setState(() => _uploadProgress = p);
+        }
+      },
     );
     try {
       final doc = widget.minorUuid != null
@@ -245,6 +352,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       ref.invalidate(documentsProvider);
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.uploadSuccess)));
+      // Success: the derivative is no longer needed.
+      await optimizer.disposeTemporary(asset);
+      if (!mounted) return;
       context.pushReplacement(
         Routes.documentDetail(doc.uuid),
         extra: widget.minorUuid,
@@ -256,14 +366,22 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           'msg=${e.message}',
         );
       }
+      if (!mounted) return;
+      // Keep the prepared derivative for retry (no recompression).
       setState(() => _errorMessage = mapUploadError(e, l10n));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('medical_upload unexpected ${e.runtimeType}');
       }
+      if (!mounted) return;
       setState(() => _errorMessage = l10n.uploadFailed);
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+          _uploadProgress = null;
+        });
+      }
     }
   }
 
@@ -325,6 +443,14 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                   sizeBytes: _fileSize,
                   onChooseAnother: _pickFile,
                   onRemove: _clearSource,
+                  l10n: l10n,
+                ),
+              ],
+              if (_preparedAsset != null && _preparedAsset!.optimized) ...[
+                const SizedBox(height: 12),
+                _PreparedInfoCard(
+                  originalBytes: _preparedAsset!.originalBytes,
+                  uploadBytes: _preparedAsset!.uploadBytes,
                   l10n: l10n,
                 ),
               ],
@@ -407,11 +533,17 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
               ],
               const SizedBox(height: 24),
               PrimaryButton(
-                label: l10n.upload,
-                onPressed: _hasSource && _docType != null && !_submitting
+                label: _preparing
+                    ? l10n.preparingDocument
+                    : _submitting
+                    ? (_uploadProgress != null
+                          ? l10n.uploadingProgress(_uploadProgress!)
+                          : l10n.uploading)
+                    : l10n.upload,
+                onPressed: _hasSource && _docType != null && !_busy
                     ? _submit
                     : null,
-                loading: _submitting,
+                loading: _busy,
                 icon: Icons.cloud_upload_outlined,
               ),
             ],
@@ -567,6 +699,44 @@ class _ScanSummary extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows the size actually about to be uploaded after optimization.
+class _PreparedInfoCard extends StatelessWidget {
+  const _PreparedInfoCard({
+    required this.originalBytes,
+    required this.uploadBytes,
+    required this.l10n,
+  });
+
+  final int originalBytes;
+  final int uploadBytes;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.compress, size: 20, color: Colors.green),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                l10n.originalPreparedSize(
+                  fileSizeLabel(originalBytes),
+                  fileSizeLabel(uploadBytes),
+                ),
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+              ),
             ),
           ],
         ),

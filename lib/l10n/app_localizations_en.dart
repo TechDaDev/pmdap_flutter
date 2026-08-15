@@ -670,6 +670,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadInvalidDocumentType => 'Please select a document type.';
 
   @override
+  String get preparingDocument => 'Preparing document…';
+
+  @override
+  String uploadingProgress(int percent) {
+    return 'Uploading… $percent%';
+  }
+
+  @override
+  String get preparingDocumentFailed =>
+      'We couldn\'t prepare this image. Try selecting it again.';
+
+  @override
+  String get imageTooLargeToPrepare =>
+      'This image is too large to prepare. Try scanning the document instead.';
+
+  @override
+  String originalPreparedSize(String original, String prepared) {
+    return 'Original $original · Prepared $prepared';
+  }
+
+  @override
   String get title => 'Title';
 
   @override

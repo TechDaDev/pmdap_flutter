@@ -27,6 +27,7 @@ class DocumentUploadInput {
     this.department,
     this.physicianName,
     this.documentDate,
+    this.onUploadProgress,
   });
 
   final MedicalDocumentType documentType;
@@ -40,6 +41,9 @@ class DocumentUploadInput {
   final String? department;
   final String? physicianName;
   final DateTime? documentDate;
+
+  /// Optional real upload progress (bytes sent / total) for the UI.
+  final void Function(int sent, int total)? onUploadProgress;
 }
 
 class DocumentsApi {
@@ -122,17 +126,16 @@ class DocumentsApi {
       final resp = await _dio.post<dynamic>(
         ApiPaths.documents,
         data: form,
-        onSendProgress: kDebugMode
-            ? (sent, total) {
-                if (total > 0) {
-                  final p = (sent * 100 / total).round();
-                  // Throttle to 10% steps to avoid hundreds of log lines.
-                  if (p % 10 == 0) {
-                    debugPrint('medical_upload progress=$p');
-                  }
-                }
-              }
-            : null,
+        onSendProgress: (sent, total) {
+          input.onUploadProgress?.call(sent, total);
+          if (kDebugMode && total > 0) {
+            final p = (sent * 100 / total).round();
+            // Throttle to 10% steps to avoid hundreds of log lines.
+            if (p % 10 == 0) {
+              debugPrint('medical_upload progress=$p');
+            }
+          }
+        },
       );
       if (kDebugMode) {
         debugPrint(
