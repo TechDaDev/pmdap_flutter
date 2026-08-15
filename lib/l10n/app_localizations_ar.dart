@@ -645,6 +645,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get uploadFailed => 'تعذر رفع المستند.';
 
   @override
+  String get uploadFileTypeUnsupported =>
+      'نوع الملف غير مدعوم. استخدم PDF أو JPG أو PNG.';
+
+  @override
+  String get uploadFileTooLarge => 'هذا الملف كبير جدًا.';
+
+  @override
+  String get uploadImageTooLarge =>
+      'هذه الصورة كبيرة جدًا. جرب صورة أصغر أو استخدم الماسح الضوئي.';
+
+  @override
+  String get uploadImageCorrupt =>
+      'تعذرت قراءة هذه الصورة. حاول مسحها ضوئيًا أو تحديدها مرة أخرى.';
+
+  @override
+  String get uploadInvalidDocumentType => 'يرجى اختيار نوع المستند.';
+
+  @override
   String get title => 'العنوان';
 
   @override

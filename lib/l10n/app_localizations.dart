@@ -1334,6 +1334,36 @@ abstract class AppLocalizations {
   /// **'Could not upload the document.'**
   String get uploadFailed;
 
+  /// No description provided for @uploadFileTypeUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This file type isn\'t supported. Use PDF, JPG, or PNG.'**
+  String get uploadFileTypeUnsupported;
+
+  /// No description provided for @uploadFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large.'**
+  String get uploadFileTooLarge;
+
+  /// No description provided for @uploadImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too large. Try a smaller photo or use the scanner.'**
+  String get uploadImageTooLarge;
+
+  /// No description provided for @uploadImageCorrupt.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this image. Try scanning or selecting it again.'**
+  String get uploadImageCorrupt;
+
+  /// No description provided for @uploadInvalidDocumentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a document type.'**
+  String get uploadInvalidDocumentType;
+
   /// No description provided for @title.
   ///
   /// In en, this message translates to:

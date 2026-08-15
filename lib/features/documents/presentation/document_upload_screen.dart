@@ -60,6 +60,10 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   bool _submitting = false;
   String? _errorMessage;
 
+  /// Mirrors backend MEDICAL_FILE_MAX_BYTES (25 MB) for cheap client-side
+  /// prevalidation; the server remains authoritative.
+  static const int _maxUploadBytes = 25 * 1024 * 1024;
+
   bool get _hasSource => _scan != null || _filePath != null;
 
   String? get _uploadPath =>
@@ -181,6 +185,28 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       setState(() => _errorMessage = l10n.selectDocumentType);
       return;
     }
+    // Client-side prevalidation of simple deterministic rules (server stays
+    // authoritative): extension + known size ceiling. Avoids a wasted 15s
+    // upload for a file that is obviously invalid.
+    final lowerName = _uploadName.toLowerCase();
+    final supported =
+        lowerName.endsWith('.jpg') ||
+        lowerName.endsWith('.jpeg') ||
+        lowerName.endsWith('.png') ||
+        lowerName.endsWith('.pdf');
+    if (!supported) {
+      setState(() => _errorMessage = l10n.uploadFileTypeUnsupported);
+      return;
+    }
+    try {
+      final bytes = File(path).lengthSync();
+      if (bytes > _maxUploadBytes) {
+        setState(() => _errorMessage = l10n.uploadFileTooLarge);
+        return;
+      }
+    } catch (_) {
+      // Unreadable file: fall through; the server will reject it safely.
+    }
     setState(() {
       _submitting = true;
       _errorMessage = null;
@@ -230,7 +256,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           'msg=${e.message}',
         );
       }
-      setState(() => _errorMessage = e.message);
+      setState(() => _errorMessage = mapUploadError(e, l10n));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('medical_upload unexpected ${e.runtimeType}');
@@ -626,4 +652,29 @@ class _FileSummary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Maps a backend validation error to specific patient-facing text.
+String mapUploadError(ApiException e, AppLocalizations l10n) {
+  if (e.code != 'validation_error') return e.message;
+  final fileMsgs = e.details['file'];
+  if (fileMsgs is List && fileMsgs.isNotEmpty) {
+    final m = fileMsgs.first.toString();
+    if (m.contains('must be PDF, JPEG, or PNG')) {
+      return l10n.uploadFileTypeUnsupported;
+    }
+    if (m.contains('size limit')) return l10n.uploadFileTooLarge;
+    if (m.contains('dimensions')) return l10n.uploadImageTooLarge;
+    if (m.contains('malformed') ||
+        m.contains('empty') ||
+        m.contains('trailing') ||
+        m.contains('MIME') ||
+        m.contains('extension')) {
+      return l10n.uploadImageCorrupt;
+    }
+  }
+  if (e.details.containsKey('document_type')) {
+    return l10n.uploadInvalidDocumentType;
+  }
+  return l10n.uploadFailed;
 }

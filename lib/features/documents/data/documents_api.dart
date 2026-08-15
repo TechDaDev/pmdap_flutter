@@ -125,9 +125,11 @@ class DocumentsApi {
         onSendProgress: kDebugMode
             ? (sent, total) {
                 if (total > 0) {
-                  debugPrint(
-                    'medical_upload progress=${(sent * 100 / total).round()}',
-                  );
+                  final p = (sent * 100 / total).round();
+                  // Throttle to 10% steps to avoid hundreds of log lines.
+                  if (p % 10 == 0) {
+                    debugPrint('medical_upload progress=$p');
+                  }
                 }
               }
             : null,

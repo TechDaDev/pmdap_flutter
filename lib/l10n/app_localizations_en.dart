@@ -652,6 +652,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadFailed => 'Could not upload the document.';
 
   @override
+  String get uploadFileTypeUnsupported =>
+      'This file type isn\'t supported. Use PDF, JPG, or PNG.';
+
+  @override
+  String get uploadFileTooLarge => 'This file is too large.';
+
+  @override
+  String get uploadImageTooLarge =>
+      'This image is too large. Try a smaller photo or use the scanner.';
+
+  @override
+  String get uploadImageCorrupt =>
+      'We couldn\'t read this image. Try scanning or selecting it again.';
+
+  @override
+  String get uploadInvalidDocumentType => 'Please select a document type.';
+
+  @override
   String get title => 'Title';
 
   @override
