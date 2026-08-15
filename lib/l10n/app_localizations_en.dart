@@ -673,6 +673,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preparingDocument => 'Preparing document…';
 
   @override
+  String get documentStillProcessing =>
+      'Your document is still being processed. You can leave this screen and check again later.';
+
+  @override
   String uploadingProgress(int percent) {
     return 'Uploading… $percent%';
   }

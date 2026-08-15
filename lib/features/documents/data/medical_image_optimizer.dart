@@ -14,7 +14,8 @@ import 'documents_api.dart' show medicalUploadContentType;
 /// counts and dimensions only — the fields required for a safe upload.
 class MedicalUploadAsset {
   const MedicalUploadAsset({
-    required this.uploadPath,
+    this.uploadPath,
+    this.uploadBytesData,
     required this.originalBytes,
     required this.uploadBytes,
     required this.originalWidth,
@@ -27,8 +28,12 @@ class MedicalUploadAsset {
     required this.prepareElapsedMs,
   });
 
-  /// Path to upload (temp optimized copy, or the untouched original).
-  final String uploadPath;
+  /// Path to upload (mobile: temp optimized copy, or the untouched original).
+  final String? uploadPath;
+
+  /// Bytes to upload (web: dart:io File paths are unavailable). Exactly one of
+  /// [uploadPath] / [uploadBytesData] is set per platform.
+  final Uint8List? uploadBytesData;
   final int originalBytes;
   final int uploadBytes;
   final int originalWidth;
@@ -49,6 +54,9 @@ class MedicalUploadAsset {
   /// Uploadable pixel count after optimization (used for client prevalidation).
   int? get uploadPixels =>
       (uploadWidth > 0 && uploadHeight > 0) ? uploadWidth * uploadHeight : null;
+
+  /// True when this asset carries in-memory bytes (web upload path).
+  bool get hasBytes => uploadBytesData != null;
 }
 
 /// Source image is too large for this device to prepare safely.
@@ -459,8 +467,8 @@ class NativeMedicalImageOptimizer implements MedicalImageOptimizer {
 
   @override
   Future<void> disposeTemporary(MedicalUploadAsset asset) async {
-    if (!asset.temporary) return;
-    await _deleteQuiet(asset.uploadPath);
+    if (!asset.temporary || asset.uploadPath == null) return;
+    await _deleteQuiet(asset.uploadPath!);
   }
 
   Future<File?> _compress({

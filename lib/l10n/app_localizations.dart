@@ -1370,6 +1370,12 @@ abstract class AppLocalizations {
   /// **'Preparing document…'**
   String get preparingDocument;
 
+  /// No description provided for @documentStillProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your document is still being processed. You can leave this screen and check again later.'**
+  String get documentStillProcessing;
+
   /// No description provided for @uploadingProgress.
   ///
   /// In en, this message translates to:

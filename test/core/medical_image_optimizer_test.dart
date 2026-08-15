@@ -273,9 +273,9 @@ void main() {
       expect((outRatio - srcRatio).abs(), lessThan(0.001));
 
       // disposeTemporary deletes the derivative.
-      expect(File(asset.uploadPath).existsSync(), isTrue);
+      expect(File(asset.uploadPath!).existsSync(), isTrue);
       await opt.disposeTemporary(asset);
-      expect(File(asset.uploadPath).existsSync(), isFalse);
+      expect(File(asset.uploadPath!).existsSync(), isFalse);
     });
 
     test(

@@ -17,8 +17,10 @@ import '../../../core/utils/date_utils.dart';
 class DocumentUploadInput {
   const DocumentUploadInput({
     required this.documentType,
-    required this.filePath,
     required this.filename,
+    this.filePath,
+    this.bytes,
+    this.mimeType,
     this.title,
     this.description,
     this.healthcareFacilityId,
@@ -31,7 +33,17 @@ class DocumentUploadInput {
   });
 
   final MedicalDocumentType documentType;
-  final String filePath;
+
+  /// Mobile path (from scanner or file picker cache copy).
+  final String? filePath;
+
+  /// Web bytes (dart:io File paths are unavailable on web). Exactly one of
+  /// [filePath] / [bytes] is set.
+  final Uint8List? bytes;
+
+  /// Declared MIME (magic-byte detected by the caller). Used as the multipart
+  /// content type; the server re-validates from the actual bytes.
+  final String? mimeType;
   final String filename;
   final String? title;
   final String? description;
@@ -83,7 +95,29 @@ class DocumentsApi {
   Future<MedicalDocument> upload(DocumentUploadInput input) async {
     final sw = Stopwatch()..start();
     try {
-      final contentType = medicalUploadContentType(input.filePath);
+      // Explicit content type from magic bytes. Dio would otherwise send
+      // application/octet-stream, which the backend rejects (must be
+      // image/jpeg, image/png or application/pdf).
+      final contentType = input.mimeType != null
+          ? MediaType.parse(input.mimeType!)
+          : medicalUploadContentType(input.filePath ?? '');
+
+      final MultipartFile filePart;
+      if (input.bytes != null) {
+        // Web: no dart:io File path; send the in-memory bytes.
+        filePart = MultipartFile.fromBytes(
+          input.bytes!,
+          filename: input.filename,
+          contentType: contentType,
+        );
+      } else {
+        filePart = await MultipartFile.fromFile(
+          input.filePath!,
+          filename: input.filename,
+          contentType: contentType,
+        );
+      }
+
       final form = FormData.fromMap({
         'document_type': input.documentType.api,
         if (input.title != null && input.title!.isNotEmpty)
@@ -102,14 +136,7 @@ class DocumentsApi {
           'physician_name': input.physicianName,
         if (input.documentDate != null)
           'document_date': formatApiDate(input.documentDate),
-        'file': await MultipartFile.fromFile(
-          input.filePath,
-          filename: input.filename,
-          // Explicit content type from the real file bytes. Dio would
-          // otherwise send application/octet-stream, which the backend
-          // rejects (must be image/jpeg, image/png or application/pdf).
-          contentType: contentType,
-        ),
+        'file': filePart,
       });
       if (kDebugMode) {
         // Safe trace: mime + byte size + type + progress. NEVER the path,
@@ -292,6 +319,32 @@ MediaType? medicalUploadContentType(String path) {
     }
   } catch (_) {
     return null;
+  }
+  return null;
+}
+
+/// Web-safe variant of [medicalUploadContentType]: detects JPEG/PNG/PDF from
+/// in-memory bytes (dart:io File paths are unavailable on web).
+MediaType? medicalUploadContentTypeFromBytes(Uint8List bytes) {
+  if (bytes.length >= 4 &&
+      bytes[0] == 0x25 &&
+      bytes[1] == 0x50 &&
+      bytes[2] == 0x44 &&
+      bytes[3] == 0x46) {
+    return MediaType('application', 'pdf');
+  }
+  if (bytes.length >= 3 &&
+      bytes[0] == 0xff &&
+      bytes[1] == 0xd8 &&
+      bytes[2] == 0xff) {
+    return MediaType('image', 'jpeg');
+  }
+  if (bytes.length >= 4 &&
+      bytes[0] == 0x89 &&
+      bytes[1] == 0x50 &&
+      bytes[2] == 0x4e &&
+      bytes[3] == 0x47) {
+    return MediaType('image', 'png');
   }
   return null;
 }

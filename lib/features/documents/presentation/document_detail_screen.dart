@@ -24,10 +24,19 @@ import '../../documents/application/documents_providers.dart';
 /// authenticated download endpoint, cached in the temp dir for viewing, then
 /// cleaned up.
 class DocumentDetailScreen extends ConsumerStatefulWidget {
-  const DocumentDetailScreen({super.key, required this.uuid, this.minorUuid});
+  const DocumentDetailScreen({
+    super.key,
+    required this.uuid,
+    this.minorUuid,
+    this.clock,
+  });
 
   final String uuid;
   final String? minorUuid;
+
+  /// Injectable clock for the poll deadline (tests use fake time; production
+  /// defaults to [DateTime.now]).
+  final DateTime Function()? clock;
 
   @override
   ConsumerState<DocumentDetailScreen> createState() =>
@@ -39,6 +48,19 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   Future<MedicalDocumentDetail>? _future;
   Timer? _timer;
   AppLifecycleState _lifecycle = AppLifecycleState.resumed;
+
+  /// When the poll window started (deadline anchor).
+  DateTime? _pollStartedAt;
+
+  /// True once the bounded poll window expired while still processing.
+  bool _pollExpired = false;
+
+  /// Last seen processing status — used to trigger list propagation only on
+  /// real transitions (avoids refetch churn every poll).
+  ProcessingStatus? _lastStatus;
+
+  /// OCR can take minutes; poll generously but with a hard, finite deadline.
+  static const Duration _maxPollDuration = Duration(minutes: 5);
 
   bool get _isMinor => widget.minorUuid != null;
 
@@ -53,9 +75,15 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _lifecycle = state;
     if (state == AppLifecycleState.resumed) {
+      // Fresh poll window after returning to foreground; also refresh list
+      // views so home/archive pick up any backend progress.
+      _pollStartedAt = null;
+      _pollExpired = false;
+      invalidateMedicalDocumentLists(ref);
       _schedulePollingIfNeeded();
     } else {
       _timer?.cancel();
+      _timer = null;
     }
   }
 
@@ -63,8 +91,15 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _timer = null;
+    // Note: no ref invalidation here — Riverpod forbids touching `ref` after
+    // dispose. List/derived providers are autoDispose, so returning to home/
+    // archive re-creates them and refetches fresh status anyway. Transitions
+    // and app-resume invalidate while the widget is still alive.
     super.dispose();
   }
+
+  DateTime _now() => (widget.clock ?? DateTime.now)();
 
   Future<MedicalDocumentDetail> _load() {
     if (_isMinor) {
@@ -76,24 +111,68 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   }
 
   void _reload() {
-    setState(() => _future = _load());
+    // CRITICAL: never pass `() => _future = _load()` to setState — the arrow
+    // returns a Future, and Flutter's debug assertion "setState() callback
+    // argument returned a Future" throws on the FIRST poll tick in debug
+    // builds, silently killing the poll chain and leaving the screen stuck on
+    // the stale "OCR processing" status.
+    final future = _load();
+    setState(() {
+      _future = future;
+    });
   }
 
+  void _scheduleNextPoll() {
+    _timer?.cancel();
+    _timer = Timer(const Duration(seconds: 3), () {
+      // Clear BEFORE reload so the rebuild re-registers a handler on the new
+      // future (otherwise the chain dies after one poll).
+      _timer = null;
+      if (mounted) _reload();
+    });
+  }
+
+  /// Continue polling while the backend is still working, WITHOUT the chain
+  /// dying on a transient network error. A failed poll keeps the current
+  /// status on screen and simply retries after 3s until the deadline.
   void _schedulePollingIfNeeded() {
     final current = _future;
-    if (current == null) return;
-    current.then((doc) {
-      if (!mounted) return;
-      if (doc.processingStatus.isActive &&
-          _lifecycle == AppLifecycleState.resumed) {
-        _timer?.cancel();
-        _timer = Timer(const Duration(seconds: 3), () {
-          if (mounted) _reload();
-        });
-      } else {
-        _timer?.cancel();
+    if (current == null || _timer != null) return;
+    current.then<void>(
+      _handlePollResult,
+      onError: (Object _) {
+        if (!mounted) return;
+        if (_lifecycle == AppLifecycleState.resumed && !_deadlineExceeded()) {
+          _scheduleNextPoll();
+        }
+      },
+    );
+  }
+
+  void _handlePollResult(MedicalDocumentDetail doc) {
+    if (!mounted) return;
+    final status = doc.processingStatus;
+    if (_lastStatus != status) {
+      _lastStatus = status;
+      // Status moved (including to a terminal state): refresh every list view.
+      invalidateMedicalDocumentLists(ref);
+    }
+    _pollStartedAt ??= _now();
+    if (status.isActive &&
+        _lifecycle == AppLifecycleState.resumed &&
+        !_deadlineExceeded()) {
+      _scheduleNextPoll();
+    } else {
+      _timer?.cancel();
+      if (_deadlineExceeded() && !_pollExpired) {
+        setState(() => _pollExpired = true);
       }
-    });
+    }
+  }
+
+  bool _deadlineExceeded() {
+    final start = _pollStartedAt;
+    return start != null && _now().difference(start) > _maxPollDuration;
   }
 
   Future<void> _viewFile(MedicalDocumentDetail doc) async {
@@ -239,6 +318,28 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   ),
                 ],
               ),
+              if (_pollExpired) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.hourglass_bottom, size: 18),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.documentStillProcessing,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               Card(
                 child: Column(

@@ -24,6 +24,11 @@ class AppConfig {
     defaultValue: 'debug',
   );
 
+  /// Git short SHA baked in via `--dart-define=PMDAP_BUILD_SHA=...`.
+  /// Debug-only identifier proving which code a build runs. Empty in builds
+  /// created without the define (or in production builds that omit it).
+  static const String buildSha = String.fromEnvironment('PMDAP_BUILD_SHA');
+
   /// API base URL with any trailing slash normalized away so path joins never
   /// produce a double slash (`/api/v1//auth/login/`).
   static String get apiBaseUrl => _normalize(

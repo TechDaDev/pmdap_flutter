@@ -217,6 +217,7 @@
   "uploadImageCorrupt": "We couldn't read this image. Try scanning or selecting it again.",
   "uploadInvalidDocumentType": "Please select a document type.",
   "preparingDocument": "Preparing document…",
+  "documentStillProcessing": "Your document is still being processed. You can leave this screen and check again later.",
   "uploadingProgress": "Uploading… {percent}%",
   "@uploadingProgress": {
     "placeholders": {

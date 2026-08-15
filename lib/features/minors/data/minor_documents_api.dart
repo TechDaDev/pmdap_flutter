@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
@@ -9,7 +10,8 @@ import '../../../core/models/date_candidate.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/utils/date_utils.dart';
-import '../../documents/data/documents_api.dart' show DocumentUploadInput;
+import '../../documents/data/documents_api.dart'
+    show DocumentUploadInput, medicalUploadContentType;
 
 /// Medical document operations scoped to a minor (guardian flow).
 class MinorDocumentsApi {
@@ -52,6 +54,24 @@ class MinorDocumentsApi {
     DocumentUploadInput input,
   ) async {
     try {
+      final contentType = input.mimeType != null
+          ? MediaType.parse(input.mimeType!)
+          : medicalUploadContentType(input.filePath ?? '');
+      final MultipartFile filePart;
+      if (input.bytes != null) {
+        // Web: no dart:io File path; send in-memory bytes.
+        filePart = MultipartFile.fromBytes(
+          input.bytes!,
+          filename: input.filename,
+          contentType: contentType,
+        );
+      } else {
+        filePart = await MultipartFile.fromFile(
+          input.filePath!,
+          filename: input.filename,
+          contentType: contentType,
+        );
+      }
       final form = FormData.fromMap({
         'document_type': input.documentType.api,
         if (input.title != null && input.title!.isNotEmpty)
@@ -70,10 +90,7 @@ class MinorDocumentsApi {
           'physician_name': input.physicianName,
         if (input.documentDate != null)
           'document_date': formatApiDate(input.documentDate),
-        'file': await MultipartFile.fromFile(
-          input.filePath,
-          filename: input.filename,
-        ),
+        'file': filePart,
       });
       final resp = await _dio.post<dynamic>(
         ApiPaths.minorDocuments(minorUuid),

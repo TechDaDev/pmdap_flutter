@@ -57,6 +57,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   String? _fileName;
   int? _fileSize;
 
+  /// Web in-memory picked bytes (dart:io paths unavailable on web).
+  Uint8List? _fileBytes;
+
   bool _scanning = false;
   bool _submitting = false;
   bool _preparing = false;
@@ -71,7 +74,12 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
 
   bool get _busy => _preparing || _submitting;
 
-  bool get _hasSource => _scan != null || _filePath != null;
+  bool get _hasSource =>
+      _scan != null || _filePath != null || _fileBytes != null;
+
+  /// Retry reuse check: the prepared derivative belongs to the current source.
+  bool _reusePrepared(String? path) =>
+      _preparedAsset != null && _preparedSourcePath == path;
 
   String? get _uploadPath =>
       _scan?.pdfPath ??
@@ -144,13 +152,17 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      // Web has no dart:io path; read the bytes directly. Mobile keeps the
+      // cache path so the native optimizer can prepare a smaller derivative.
+      withData: kIsWeb,
     );
     if (result == null || result.files.isEmpty) return;
     final f = result.files.first;
     await _discardPrepared();
     if (!mounted) return;
     setState(() {
-      _filePath = f.path;
+      _filePath = kIsWeb ? null : f.path;
+      _fileBytes = kIsWeb ? f.bytes : null;
       _fileName = f.name;
       _fileSize = f.size;
       _scan = null;
@@ -164,6 +176,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     setState(() {
       _scan = null;
       _filePath = null;
+      _fileBytes = null;
       _fileName = null;
       _fileSize = null;
       _uploadProgress = null;
@@ -203,7 +216,8 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final path = _uploadPath;
     final type = _docType;
-    if (path == null) {
+    final webBytes = kIsWeb ? _fileBytes : null;
+    if (path == null && webBytes == null) {
       setState(() => _errorMessage = l10n.selectDocumentType);
       return;
     }
@@ -227,8 +241,11 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     }
     final isPdf = lowerName.endsWith('.pdf');
     if (isPdf) {
+      final pdfBytes = isPdf
+          ? (webBytes?.length ?? File(path!).lengthSync())
+          : 0;
       try {
-        if (File(path).lengthSync() > MedicalImageOptimizer.serverMaxBytes) {
+        if (pdfBytes > MedicalImageOptimizer.serverMaxBytes) {
           setState(() => _errorMessage = l10n.uploadFileTooLarge);
           return;
         }
@@ -238,10 +255,38 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     }
     final optimizer = ref.read(medicalImageOptimizerProvider);
 
-    // Reuse the already-prepared derivative on retry — never recompress twice.
-    final reuse = _preparedAsset != null && _preparedSourcePath == path;
     MedicalUploadAsset asset;
-    if (!reuse) {
+    if (webBytes != null) {
+      // Web: no native optimizer — upload the picked bytes directly. Server
+      // validation stays authoritative. (Web resize can be added later without
+      // touching the upload business logic.)
+      if (webBytes.length > MedicalImageOptimizer.serverMaxBytes) {
+        if (!mounted) return;
+        setState(() => _errorMessage = l10n.uploadFileTooLarge);
+        return;
+      }
+      final mime =
+          medicalUploadContentTypeFromBytes(webBytes)?.mimeType ??
+          'application/octet-stream';
+      asset = MedicalUploadAsset(
+        uploadBytesData: webBytes,
+        originalBytes: webBytes.length,
+        uploadBytes: webBytes.length,
+        originalWidth: 0,
+        originalHeight: 0,
+        uploadWidth: 0,
+        uploadHeight: 0,
+        mimeType: mime,
+        optimized: false,
+        temporary: false,
+        prepareElapsedMs: 0,
+      );
+      setState(() {
+        _submitting = true;
+        _errorMessage = null;
+        _uploadProgress = null;
+      });
+    } else if (!_reusePrepared(path)) {
       setState(() {
         _preparing = true;
         _submitting = true;
@@ -249,7 +294,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         _uploadProgress = null;
       });
       try {
-        asset = await optimizer.prepare(path);
+        asset = await optimizer.prepare(path!);
       } on MedicalImageTooLargeException {
         if (!mounted) return;
         setState(() {
@@ -314,6 +359,8 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
     final input = DocumentUploadInput(
       documentType: type,
       filePath: asset.uploadPath,
+      bytes: asset.uploadBytesData,
+      mimeType: asset.mimeType,
       filename: _uploadName,
       title: _titleController.text.trim().isEmpty
           ? null
@@ -398,15 +445,19 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _SourceActionCard(
-                icon: Icons.document_scanner_outlined,
-                title: l10n.scanDocument,
-                subtitle: l10n.scanDocumentSubtitle,
-                buttonLabel: l10n.scanDocument,
-                loading: _scanning,
-                onTap: _scanning ? null : _startScan,
-              ),
-              const SizedBox(height: 12),
+              // Camera scanning is mobile-only (ML Kit); web offers
+              // choose-existing-file only.
+              if (!kIsWeb) ...[
+                _SourceActionCard(
+                  icon: Icons.document_scanner_outlined,
+                  title: l10n.scanDocument,
+                  subtitle: l10n.scanDocumentSubtitle,
+                  buttonLabel: l10n.scanDocument,
+                  loading: _scanning,
+                  onTap: _scanning ? null : _startScan,
+                ),
+                const SizedBox(height: 12),
+              ],
               _SourceActionCard(
                 icon: Icons.upload_file_outlined,
                 title: l10n.chooseFile,

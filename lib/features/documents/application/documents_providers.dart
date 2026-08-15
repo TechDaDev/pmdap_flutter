@@ -4,6 +4,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
+import '../../archive/application/archive_providers.dart';
 import '../data/medical_image_optimizer.dart';
 
 /// Native medical image optimizer (client-side performance layer). Server
@@ -11,6 +12,20 @@ import '../data/medical_image_optimizer.dart';
 final medicalImageOptimizerProvider = Provider<MedicalImageOptimizer>(
   (ref) => NativeMedicalImageOptimizer(),
 );
+
+/// Force all medical-document list/derived views to refetch so a terminal OCR
+/// status (AWAITING_CONFIRMATION etc.) is reflected everywhere — home recent
+/// documents, archive, date-confirmation count — without app restart.
+///
+/// Invalidating a family provider refreshes every instance (all archive
+/// scopes, all date-candidate sets). Safe to call repeatedly; providers that
+/// are not currently watched do no network work until next read.
+void invalidateMedicalDocumentLists(WidgetRef ref) {
+  ref.invalidate(documentsProvider);
+  ref.invalidate(archiveProvider);
+  ref.invalidate(archiveSummaryProvider);
+  ref.invalidate(dateCandidatesProvider);
+}
 
 final documentsProvider = FutureProvider.autoDispose<Page<MedicalDocument>>(
   (ref) => ref.watch(documentsApiProvider).list(),

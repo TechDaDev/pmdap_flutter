@@ -217,6 +217,7 @@
   "uploadImageCorrupt": "تعذرت قراءة هذه الصورة. حاول مسحها ضوئيًا أو تحديدها مرة أخرى.",
   "uploadInvalidDocumentType": "يرجى اختيار نوع المستند.",
   "preparingDocument": "جارٍ تجهيز المستند…",
+  "documentStillProcessing": "لا يزال مستندك قيد المعالجة. يمكنك مغادرة هذه الشاشة والتحقق لاحقًا.",
   "uploadingProgress": "جارٍ الرفع… {percent}%",
   "@uploadingProgress": {
     "placeholders": {

@@ -666,6 +666,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get preparingDocument => 'جارٍ تجهيز المستند…';
 
   @override
+  String get documentStillProcessing =>
+      'لا يزال مستندك قيد المعالجة. يمكنك مغادرة هذه الشاشة والتحقق لاحقًا.';
+
+  @override
   String uploadingProgress(int percent) {
     return 'جارٍ الرفع… $percent%';
   }
