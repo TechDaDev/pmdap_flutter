@@ -6,6 +6,7 @@ import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
 import 'package:pmdap_mobile/core/models/minor.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as models;
+import 'package:pmdap_mobile/core/models/pending_date_confirmation.dart';
 import 'package:pmdap_mobile/features/archive/application/archive_providers.dart';
 import 'package:pmdap_mobile/features/documents/application/documents_providers.dart';
 import 'package:pmdap_mobile/features/documents/presentation/medical_document_card.dart';
@@ -20,6 +21,15 @@ import '../helpers/pump.dart';
 
 /// Verifies patient-facing screens map realistic (snake_case) API responses
 /// to localized labels, semantic badges, and LTR digital IDs.
+PendingDateConfirmation _pendingDoc(String uuid) => PendingDateConfirmation(
+  documentUuid: uuid,
+  documentType: MedicalDocumentType.laboratory,
+  processingStatus: ProcessingStatus.awaitingConfirmation,
+  createdAt: DateTime(2026, 3, 15),
+  detectedCandidates: const [],
+  requiresManualDate: true,
+);
+
 void main() {
   /// True when [text] sits under a LTR [Directionality].
   bool ltrAncestor(WidgetTester tester, String text) {
@@ -133,8 +143,12 @@ void main() {
                 results: [sampleDocument()],
               ),
             ),
-            archiveSummaryProvider(const ArchiveScope.adult()).overrideWith(
-              (ref) async => const ArchiveSummary(unconfirmedDateCount: 3),
+            pendingDateConfirmationDocumentsProvider.overrideWith(
+              (ref) async => [
+                _pendingDoc('d1'),
+                _pendingDoc('d2'),
+                _pendingDoc('d3'),
+              ],
             ),
           ],
         ),
@@ -145,7 +159,7 @@ void main() {
       expect(find.textContaining('Hello'), findsOneWidget);
       // Digital ID card kept LTR.
       expect(ltrAncestor(tester, '12345678901234567'), isTrue);
-      // Needs-confirmation shortcut surfaces the API count.
+      // Needs-confirmation shortcut surfaces the single-source queue count.
       expect(find.text('3'), findsOneWidget);
     });
   });

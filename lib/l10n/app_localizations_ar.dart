@@ -922,6 +922,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmDate => 'تأكيد التاريخ';
 
   @override
+  String get confirmDatesTitle => 'تأكيد التواريخ';
+
+  @override
+  String get noDocumentsNeedConfirmation =>
+      'لا توجد مستندات تتطلب تأكيد التاريخ.';
+
+  @override
+  String get noDateDetected => 'لم يتم اكتشاف أي تاريخ.';
+
+  @override
+  String get enterReportDate => 'يرجى إدخال تاريخ التقرير.';
+
+  @override
   String get manualDate => 'إدخال التاريخ يدوياً';
 
   @override

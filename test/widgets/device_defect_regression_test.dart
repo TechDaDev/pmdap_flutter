@@ -27,6 +27,7 @@ void main() {
         const HomeScreen(),
         overrides: [
           patientProfileProvider.overrideWith((ref) async => sampleProfile()),
+          pendingDateConfirmationDocumentsProvider.overrideWith((ref) async => const []),
           documentsProvider.overrideWith(
             (ref) async => models.Page<MedicalDocument>(
               count: 1,

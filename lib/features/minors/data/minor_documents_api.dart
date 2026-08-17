@@ -9,6 +9,7 @@ import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
+import '../../../core/models/pending_date_confirmation.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../documents/data/documents_api.dart'
     show DocumentUploadInput, medicalUploadContentType;
@@ -139,6 +140,28 @@ class MinorDocumentsApi {
         Page<DateCandidate>.fromJson,
         DateCandidate.fromJson,
       );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Document-centric date-confirmation queue for a minor (guardian flow).
+  Future<List<PendingDateConfirmation>> pendingDateConfirmations(
+    String minorUuid,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorPendingDateConfirmations(minorUuid),
+      );
+      final data = decodeData<Map<String, dynamic>>(
+        resp.data,
+        (json) => json,
+      );
+      final results = (data['results'] as List?) ?? const [];
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map(PendingDateConfirmation.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

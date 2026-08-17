@@ -81,7 +81,10 @@ class _DateConfirmationScreenState
               date: candidateId == null ? _manualDate : null,
             );
       }
+      // Refresh everything date-related: detail, confirm queue, Home badge,
+      // archive + summary — no app restart.
       ref.invalidate(documentDetailProvider(widget.documentUuid));
+      invalidateMedicalDocumentLists(ref);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

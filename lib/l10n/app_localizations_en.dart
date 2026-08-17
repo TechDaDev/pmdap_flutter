@@ -929,6 +929,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmDate => 'Confirm date';
 
   @override
+  String get confirmDatesTitle => 'Confirm dates';
+
+  @override
+  String get noDocumentsNeedConfirmation =>
+      'No documents need date confirmation.';
+
+  @override
+  String get noDateDetected => 'No date was detected.';
+
+  @override
+  String get enterReportDate => 'Please enter the report date.';
+
+  @override
   String get manualDate => 'Enter date manually';
 
   @override

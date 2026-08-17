@@ -24,10 +24,15 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(patientProfileProvider);
-    final summaryAsync = ref.watch(
-      archiveSummaryProvider(const ArchiveScope.adult()),
-    );
     final docsAsync = ref.watch(documentsProvider);
+    // Single source for the badge: the same document-centric queue the Confirm
+    // Dates page renders. Never a separate count that can drift.
+    final pendingCount =
+        ref
+            .watch(pendingDateConfirmationDocumentsProvider)
+            .valueOrNull
+            ?.length ??
+        0;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,6 +56,7 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(patientProfileProvider);
           ref.invalidate(archiveSummaryProvider(const ArchiveScope.adult()));
           ref.invalidate(documentsProvider);
+          ref.invalidate(pendingDateConfirmationDocumentsProvider);
         },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
@@ -76,11 +82,7 @@ class HomeScreen extends ConsumerWidget {
               builder: (profile) => _IdentityCard(profile: profile, l10n: l10n),
             ),
             const SizedBox(height: AppSpacing.xxl),
-            _ShortcutGrid(
-              l10n: l10n,
-              unconfirmedCount:
-                  summaryAsync.valueOrNull?.unconfirmedDateCount ?? 0,
-            ),
+            _ShortcutGrid(l10n: l10n, unconfirmedCount: pendingCount),
             const SizedBox(height: AppSpacing.xxl),
             SectionHeader(
               title: l10n.recentDocuments,
@@ -404,11 +406,7 @@ class _ShortcutGrid extends StatelessWidget {
               label: l10n.needsConfirmationShortcut,
               color: AppColors.warning,
               count: unconfirmedCount,
-              onTap: () => context.push(
-                Routes.archive,
-                // Pre-filter to documents needing date confirmation.
-                extra: const ArchiveQuery(dateStatus: 'UNCONFIRMED'),
-              ),
+              onTap: () => context.push(Routes.confirmDates),
             ),
             _Shortcut(
               icon: Icons.family_restroom_rounded,

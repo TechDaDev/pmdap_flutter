@@ -1868,6 +1868,30 @@ abstract class AppLocalizations {
   /// **'Confirm date'**
   String get confirmDate;
 
+  /// No description provided for @confirmDatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm dates'**
+  String get confirmDatesTitle;
+
+  /// No description provided for @noDocumentsNeedConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents need date confirmation.'**
+  String get noDocumentsNeedConfirmation;
+
+  /// No description provided for @noDateDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No date was detected.'**
+  String get noDateDetected;
+
+  /// No description provided for @enterReportDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the report date.'**
+  String get enterReportDate;
+
   /// No description provided for @manualDate.
   ///
   /// In en, this message translates to:

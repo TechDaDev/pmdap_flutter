@@ -12,6 +12,7 @@ import '../../../core/models/date_candidate.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
+import '../../../core/models/pending_date_confirmation.dart';
 import '../../../core/utils/date_utils.dart';
 
 class DocumentUploadInput {
@@ -252,6 +253,22 @@ class DocumentsApi {
         Page<DateCandidate>.fromJson,
         DateCandidate.fromJson,
       );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Document-centric date-confirmation queue (single source for Home badge +
+  /// Confirm Dates page). Documents with zero OCR candidates are included.
+  Future<List<PendingDateConfirmation>> pendingDateConfirmations() async {
+    try {
+      final resp = await _dio.get<dynamic>(ApiPaths.pendingDateConfirmations);
+      final data = decodeData<Map<String, dynamic>>(resp.data, (json) => json);
+      final results = (data['results'] as List?) ?? const [];
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map(PendingDateConfirmation.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

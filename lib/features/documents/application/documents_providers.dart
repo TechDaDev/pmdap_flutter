@@ -4,6 +4,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
+import '../../../core/models/pending_date_confirmation.dart';
 import '../../archive/application/archive_providers.dart';
 import '../data/medical_image_optimizer.dart';
 
@@ -25,11 +26,19 @@ void invalidateMedicalDocumentLists(WidgetRef ref) {
   ref.invalidate(archiveProvider);
   ref.invalidate(archiveSummaryProvider);
   ref.invalidate(dateCandidatesProvider);
+  ref.invalidate(pendingDateConfirmationDocumentsProvider);
 }
 
 final documentsProvider = FutureProvider.autoDispose<Page<MedicalDocument>>(
   (ref) => ref.watch(documentsApiProvider).list(),
 );
+
+/// Document-centric date-confirmation queue. Single source for BOTH the Home
+/// badge count and the Confirm Dates page — one provider, no drift.
+final pendingDateConfirmationDocumentsProvider =
+    FutureProvider.autoDispose<List<PendingDateConfirmation>>(
+      (ref) => ref.watch(documentsApiProvider).pendingDateConfirmations(),
+    );
 
 final documentDetailProvider = FutureProvider.autoDispose
     .family<MedicalDocumentDetail, String>(

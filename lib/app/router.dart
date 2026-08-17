@@ -9,6 +9,7 @@ import '../features/auth/presentation/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/claims/presentation/claims_screen.dart';
 import '../features/claims/presentation/account_activation_screen.dart';
+import '../features/documents/presentation/confirm_dates_screen.dart';
 import '../features/documents/presentation/date_confirmation_screen.dart';
 import '../features/documents/presentation/document_detail_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
@@ -59,6 +60,7 @@ class Routes {
   static String documentDetail(String uuid) => '/documents/$uuid';
   static String documentDate(String uuid) => '/documents/$uuid/date';
 
+  static const confirmDates = '/confirm-dates';
   static const facilities = '/facilities';
   static const claims = '/claims';
   static const accountActivation = '/activate-claimed-account';
@@ -220,6 +222,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
           uuid: state.pathParameters['uuid']!,
           minorUuid: state.extra as String?,
         ),
+      ),
+      GoRoute(
+        path: Routes.confirmDates,
+        builder: (context, state) => const ConfirmDatesScreen(),
       ),
       GoRoute(
         path: '/documents/:uuid/date',
