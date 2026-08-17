@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
+import 'package:pmdap_mobile/core/models/date_candidate.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as pag;
@@ -24,6 +25,19 @@ class _FakeDocumentsApi extends DocumentsApi {
   Future<MedicalDocumentDetail> detail(String uuid) async {
     detailCalls++;
     return _doc;
+  }
+
+  @override
+  Future<pag.Page<DateCandidate>> dateCandidates(
+    String uuid, {
+    int page = 1,
+  }) async {
+    return pag.Page<DateCandidate>(
+      count: 0,
+      next: null,
+      previous: null,
+      results: const [],
+    );
   }
 
   @override

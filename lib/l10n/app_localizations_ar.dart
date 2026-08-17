@@ -847,6 +847,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dateNotDetected => 'لم يتم العثور على تاريخ';
 
   @override
+  String get detectedDateLabel => 'التاريخ المكتشف';
+
+  @override
+  String get dateStatusLabel => 'حالة التاريخ';
+
+  @override
+  String get notDetected => 'غير مكتشف';
+
+  @override
+  String get needsConfirmation => 'بحاجة للتأكيد';
+
+  @override
+  String possibleDatesDetected(int count) {
+    return '$count تواريخ محتملة تم اكتشافها';
+  }
+
+  @override
   String get processingDate => 'تاريخ قيد المعالجة';
 
   @override

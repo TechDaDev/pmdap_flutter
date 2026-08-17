@@ -288,6 +288,18 @@
   "dateConfirmedState": "Confirmed",
   "needsDateConfirmation": "Needs date confirmation",
   "dateNotDetected": "No date detected",
+  "detectedDateLabel": "Detected date",
+  "dateStatusLabel": "Date status",
+  "notDetected": "Not detected",
+  "needsConfirmation": "Needs confirmation",
+  "possibleDatesDetected": "{count} possible dates detected",
+  "@possibleDatesDetected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "processingDate": "Processing date",
   "fileInfo": "File information",
   "fileName": "File name",

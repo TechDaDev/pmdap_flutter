@@ -288,6 +288,18 @@
   "dateConfirmedState": "مؤكد",
   "needsDateConfirmation": "بحاجة لتأكيد التاريخ",
   "dateNotDetected": "لم يتم العثور على تاريخ",
+  "detectedDateLabel": "التاريخ المكتشف",
+  "dateStatusLabel": "حالة التاريخ",
+  "notDetected": "غير مكتشف",
+  "needsConfirmation": "بحاجة للتأكيد",
+  "possibleDatesDetected": "{count} تواريخ محتملة تم اكتشافها",
+  "@possibleDatesDetected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "processingDate": "تاريخ قيد المعالجة",
   "fileInfo": "معلومات الملف",
   "fileName": "اسم الملف",

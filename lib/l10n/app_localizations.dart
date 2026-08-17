@@ -1718,6 +1718,36 @@ abstract class AppLocalizations {
   /// **'No date detected'**
   String get dateNotDetected;
 
+  /// No description provided for @detectedDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected date'**
+  String get detectedDateLabel;
+
+  /// No description provided for @dateStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date status'**
+  String get dateStatusLabel;
+
+  /// No description provided for @notDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not detected'**
+  String get notDetected;
+
+  /// No description provided for @needsConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs confirmation'**
+  String get needsConfirmation;
+
+  /// No description provided for @possibleDatesDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} possible dates detected'**
+  String possibleDatesDetected(int count);
+
   /// No description provided for @processingDate.
   ///
   /// In en, this message translates to:

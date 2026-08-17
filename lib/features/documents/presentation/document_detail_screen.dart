@@ -10,8 +10,10 @@ import 'package:open_filex/open_filex.dart';
 import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/models/date_candidate.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
+import '../../../core/models/pagination.dart' as pag;
 import '../../../core/security/private_media_cache.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
@@ -297,6 +299,30 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
           _schedulePollingIfNeeded();
           final labels = StatusLabels(l10n);
           final mime = doc.file?.mimeType ?? '';
+
+          // A report date is authoritative only once confirmed by the user.
+          // While awaiting confirmation we show the OCR "detected date"
+          // candidate (or "Not detected"), never a fake "Report date".
+          final confirmed = doc.dateVerified && doc.documentDate != null;
+          final awaiting =
+              !confirmed &&
+              (doc.processingStatus.needsDateAction ||
+                  doc.processingStatus == ProcessingStatus.dateDetected ||
+                  doc.processingStatus == ProcessingStatus.dateNotFound);
+          // Same authoritative candidate source as the Confirm Dates queue
+          // (DateCandidate rows, is_current=True). Watching it here means a
+          // provider invalidation after OCR completes also refreshes this
+          // detail view — no stale candidate display.
+          final candidatesAsync = _isMinor
+              ? ref.watch(
+                  minorDateCandidatesProvider(
+                    (
+                      minorUuid: widget.minorUuid!,
+                      documentUuid: widget.uuid,
+                    ),
+                  ),
+                )
+              : ref.watch(dateCandidatesProvider(widget.uuid));
           final isPdf = mime.contains('pdf');
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -351,7 +377,27 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                     ),
                     if (doc.description.isNotEmpty)
                       _Row(l10n.description, doc.description),
-                    _Row(l10n.reportDate, _dateLabel(l10n, doc)),
+                    if (confirmed) ...[
+                      _Row(
+                        l10n.reportDate,
+                        localizedDate(l10n, doc.documentDate),
+                      ),
+                      _Row(l10n.dateVerifiedLabel, l10n.dateConfirmedState),
+                    ] else if (awaiting) ...[
+                      _CandidateDateRow(
+                        candidates: candidatesAsync,
+                        l10n: l10n,
+                      ),
+                      _Row(l10n.dateStatusLabel, l10n.needsConfirmation),
+                    ] else ...[
+                      _Row(l10n.reportDate, _dateLabel(l10n, doc)),
+                      _Row(
+                        l10n.dateVerifiedLabel,
+                        doc.dateVerified
+                            ? l10n.dateConfirmedState
+                            : l10n.needsDateConfirmation,
+                      ),
+                    ],
                     if (doc.healthcareFacility != null ||
                         doc.facilityName.isNotEmpty ||
                         doc.locationText.isNotEmpty)
@@ -367,12 +413,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       _Row(l10n.department, doc.department),
                     if (doc.physicianName.isNotEmpty)
                       _Row(l10n.physician, doc.physicianName),
-                    _Row(
-                      l10n.dateVerifiedLabel,
-                      doc.dateVerified
-                          ? l10n.dateConfirmedState
-                          : l10n.needsDateConfirmation,
-                    ),
                   ],
                 ),
               ),
@@ -442,6 +482,110 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
           );
         },
       ),
+    );
+  }
+}
+
+/// "Detected date" row shown while a document awaits date confirmation.
+///
+/// Renders the top-ranked OCR candidate with a "Suggested" badge, or
+/// "Not detected" when OCR found no date. Multiple candidates surface an
+/// "N possible dates detected" hint (the Confirm Dates screen still shows
+/// every candidate). The candidate is never presented as a confirmed report
+/// date.
+class _CandidateDateRow extends StatelessWidget {
+  const _CandidateDateRow({required this.candidates, required this.l10n});
+
+  final AsyncValue<pag.Page<DateCandidate>> candidates;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final outline = theme.colorScheme.outline;
+    final display = _resolve(theme);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.detectedDateLabel,
+                  style: TextStyle(color: outline),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(display.value, textAlign: TextAlign.end),
+              ),
+            ],
+          ),
+          if (display.badge != null || display.note != null) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (display.badge != null) display.badge!,
+                  if (display.note != null)
+                    Text(display.note!, style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Resolve the detected-date display from the authoritative candidate page
+  /// (loading / error / data). The OCR candidate is shown as "Suggested" —
+  /// never as a confirmed report date.
+  ({String value, Widget? badge, String? note}) _resolve(ThemeData theme) {
+    if (candidates.isLoading) {
+      return (value: l10n.loading, badge: null, note: null);
+    }
+    if (candidates.hasError) {
+      return (value: '—', badge: null, note: null);
+    }
+    final items = candidates.value!
+        .results
+        .where((c) => c.date != null)
+        .toList();
+    if (items.isEmpty) {
+      return (value: l10n.notDetected, badge: null, note: null);
+    }
+    final top = items.firstWhere(
+      (c) => c.isSuggested,
+      orElse: () => items.first,
+    );
+    return (
+      value: localizedDate(l10n, top.date),
+      badge: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.tertiaryContainer,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          l10n.suggestedDate,
+          style: TextStyle(
+            fontSize: 11,
+            color: theme.colorScheme.onTertiaryContainer,
+          ),
+        ),
+      ),
+      note: items.length > 1
+          ? l10n.possibleDatesDetected(items.length)
+          : null,
     );
   }
 }

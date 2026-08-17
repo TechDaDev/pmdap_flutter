@@ -854,6 +854,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateNotDetected => 'No date detected';
 
   @override
+  String get detectedDateLabel => 'Detected date';
+
+  @override
+  String get dateStatusLabel => 'Date status';
+
+  @override
+  String get notDetected => 'Not detected';
+
+  @override
+  String get needsConfirmation => 'Needs confirmation';
+
+  @override
+  String possibleDatesDetected(int count) {
+    return '$count possible dates detected';
+  }
+
+  @override
   String get processingDate => 'Processing date';
 
   @override

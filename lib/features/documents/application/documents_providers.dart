@@ -26,7 +26,9 @@ void invalidateMedicalDocumentLists(WidgetRef ref) {
   ref.invalidate(archiveProvider);
   ref.invalidate(archiveSummaryProvider);
   ref.invalidate(dateCandidatesProvider);
+  ref.invalidate(minorDateCandidatesProvider);
   ref.invalidate(pendingDateConfirmationDocumentsProvider);
+  ref.invalidate(minorPendingDateConfirmationDocumentsProvider);
 }
 
 final documentsProvider = FutureProvider.autoDispose<Page<MedicalDocument>>(
@@ -48,4 +50,25 @@ final documentDetailProvider = FutureProvider.autoDispose
 final dateCandidatesProvider = FutureProvider.autoDispose
     .family<Page<DateCandidate>, String>(
       (ref, uuid) => ref.watch(documentsApiProvider).dateCandidates(uuid),
+    );
+
+/// Minor-scoped date-candidate page (guardian flow). Same authoritative
+/// candidate source as the adult provider — both hit
+/// `document.date_candidates.filter(is_current=True)`.
+final minorDateCandidatesProvider = FutureProvider.autoDispose.family<
+  Page<DateCandidate>,
+  ({String minorUuid, String documentUuid})
+>(
+  (ref, args) => ref
+      .watch(minorDocumentsApiProvider)
+      .dateCandidates(args.minorUuid, args.documentUuid),
+);
+
+/// Minor-scoped date-confirmation queue (guardian flow).
+final minorPendingDateConfirmationDocumentsProvider = FutureProvider.autoDispose
+    .family<List<PendingDateConfirmation>, String>(
+      (ref, minorUuid) =>
+          ref.watch(minorDocumentsApiProvider).pendingDateConfirmations(
+            minorUuid,
+          ),
     );
