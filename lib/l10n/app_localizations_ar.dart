@@ -1452,4 +1452,45 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get identityConflictTitle => 'وثيقة الهوية موجودة بالفعل';
+
+  @override
+  String get extractedResults => 'النتائج المستخرجة';
+
+  @override
+  String resultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نتيجة',
+      one: 'نتيجة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get resultsExtractedFromReport =>
+      'قُرئت هذه القيم من تقريرك المرفوع. يمكنك عرض الوثيقة الأصلية في أي وقت.';
+
+  @override
+  String get result => 'النتيجة';
+
+  @override
+  String get referenceRange => 'النطاق المرجعي';
+
+  @override
+  String get reportFlag => 'علامة التقرير';
+
+  @override
+  String get verifyWithOriginalReport => 'يرجى التحقق من التقرير الأصلي';
+
+  @override
+  String get extractingResults => 'جارٍ استخراج النتائج…';
+
+  @override
+  String get structuredResultsUnavailable =>
+      'النتائج المهيكلة غير متاحة لهذا التقرير. يمكنك عرض الوثيقة الأصلية.';
+
+  @override
+  String get noStructuredResultsDetected =>
+      'لم يتم اكتشاف نتائج مهيكلة. راجع التقرير الأصلي لمراجعته.';
 }

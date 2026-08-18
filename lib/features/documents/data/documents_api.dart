@@ -10,6 +10,7 @@ import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/models/pending_date_confirmation.dart';
@@ -87,6 +88,19 @@ class DocumentsApi {
       return decodeData<MedicalDocumentDetail>(
         resp.data,
         MedicalDocumentDetail.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Read-only structured lab results for an owned document.
+  Future<LabResultsResponse> labResults(String uuid) async {
+    try {
+      final resp = await _dio.get<dynamic>(ApiPaths.documentLabResults(uuid));
+      return decodeData<LabResultsResponse>(
+        resp.data,
+        LabResultsResponse.fromJson,
       );
     } on DioException catch (e) {
       throw _mapper.map(e);

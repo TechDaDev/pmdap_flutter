@@ -2899,6 +2899,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Identity document already exists'**
   String get identityConflictTitle;
+
+  /// No description provided for @extractedResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted results'**
+  String get extractedResults;
+
+  /// No description provided for @resultsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String resultsCount(int count);
+
+  /// No description provided for @resultsExtractedFromReport.
+  ///
+  /// In en, this message translates to:
+  /// **'These values were read from your uploaded report. You can view the original document at any time.'**
+  String get resultsExtractedFromReport;
+
+  /// No description provided for @result.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get result;
+
+  /// No description provided for @referenceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference range'**
+  String get referenceRange;
+
+  /// No description provided for @reportFlag.
+  ///
+  /// In en, this message translates to:
+  /// **'Report flag'**
+  String get reportFlag;
+
+  /// No description provided for @verifyWithOriginalReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Please verify with original report'**
+  String get verifyWithOriginalReport;
+
+  /// No description provided for @extractingResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting results…'**
+  String get extractingResults;
+
+  /// No description provided for @structuredResultsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Structured results aren\'t available for this report. You can still view the original document.'**
+  String get structuredResultsUnavailable;
+
+  /// No description provided for @noStructuredResultsDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No structured results were detected. View the original report to review it.'**
+  String get noStructuredResultsDetected;
 }
 
 class _AppLocalizationsDelegate

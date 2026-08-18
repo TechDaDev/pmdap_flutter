@@ -7,6 +7,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/models/pending_date_confirmation.dart';
@@ -44,6 +45,24 @@ class MinorDocumentsApi {
       return decodeData<MedicalDocumentDetail>(
         resp.data,
         MedicalDocumentDetail.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Read-only structured lab results for a minor's document (guardian flow).
+  Future<LabResultsResponse> labResults(
+    String minorUuid,
+    String docUuid,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorDocumentLabResults(minorUuid, docUuid),
+      );
+      return decodeData<LabResultsResponse>(
+        resp.data,
+        LabResultsResponse.fromJson,
       );
     } on DioException catch (e) {
       throw _mapper.map(e);
@@ -153,10 +172,7 @@ class MinorDocumentsApi {
       final resp = await _dio.get<dynamic>(
         ApiPaths.minorPendingDateConfirmations(minorUuid),
       );
-      final data = decodeData<Map<String, dynamic>>(
-        resp.data,
-        (json) => json,
-      );
+      final data = decodeData<Map<String, dynamic>>(resp.data, (json) => json);
       final results = (data['results'] as List?) ?? const [];
       return results
           .whereType<Map<String, dynamic>>()

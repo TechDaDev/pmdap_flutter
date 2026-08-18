@@ -25,8 +25,7 @@ class ApiPaths {
       '/identity-documents/$uuid/images/$side/';
 
   // Scan-first registration (public, capability-bound anonymous endpoints).
-  static const registrationIdentityExtract =
-      '/auth/register/identity/extract/';
+  static const registrationIdentityExtract = '/auth/register/identity/extract/';
   static String registrationIdentityExtractStatus(String jobId) =>
       '/auth/register/identity/extract/$jobId/';
 
@@ -40,6 +39,8 @@ class ApiPaths {
       '/minors/$minor/documents/$doc/';
   static String minorDocumentFile(String minor, String doc) =>
       '/minors/$minor/documents/$doc/file/';
+  static String minorDocumentLabResults(String minor, String doc) =>
+      '/minors/$minor/documents/$doc/lab-results/';
   static String minorDocumentCandidates(String minor, String doc) =>
       '/minors/$minor/documents/$doc/date-candidates/';
   static String minorDocumentConfirmDate(String minor, String doc) =>
@@ -51,6 +52,8 @@ class ApiPaths {
   static const documents = '/documents/';
   static String documentDetail(String uuid) => '/documents/$uuid/';
   static String documentFile(String uuid) => '/documents/$uuid/file/';
+  static String documentLabResults(String uuid) =>
+      '/documents/$uuid/lab-results/';
   static String documentCandidates(String uuid) =>
       '/documents/$uuid/date-candidates/';
   static String documentConfirmDate(String uuid) =>

@@ -18,6 +18,7 @@ import '../../../core/security/private_media_cache.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
+import 'lab_results_section.dart';
 
 /// Medical document detail.
 ///
@@ -119,9 +120,23 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     // builds, silently killing the poll chain and leaving the screen stuck on
     // the stale "OCR processing" status.
     final future = _load();
+    _invalidateLabResults();
     setState(() {
       _future = future;
     });
+  }
+
+  void _invalidateLabResults() {
+    if (_isMinor) {
+      ref.invalidate(
+        minorLabResultsProvider((
+          minorUuid: widget.minorUuid!,
+          documentUuid: widget.uuid,
+        )),
+      );
+    } else {
+      ref.invalidate(labResultsProvider(widget.uuid));
+    }
   }
 
   void _scheduleNextPoll() {
@@ -158,6 +173,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
       _lastStatus = status;
       // Status moved (including to a terminal state): refresh every list view.
       invalidateMedicalDocumentLists(ref);
+      _invalidateLabResults();
     }
     _pollStartedAt ??= _now();
     if (status.isActive &&
@@ -315,12 +331,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
           // detail view — no stale candidate display.
           final candidatesAsync = _isMinor
               ? ref.watch(
-                  minorDateCandidatesProvider(
-                    (
-                      minorUuid: widget.minorUuid!,
-                      documentUuid: widget.uuid,
-                    ),
-                  ),
+                  minorDateCandidatesProvider((
+                    minorUuid: widget.minorUuid!,
+                    documentUuid: widget.uuid,
+                  )),
                 )
               : ref.watch(dateCandidatesProvider(widget.uuid));
           final isPdf = mime.contains('pdf');
@@ -416,6 +430,14 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   ],
                 ),
               ),
+              // Structured lab results (derived, read-only). Only shown for
+              // laboratory documents; the section hides itself for
+              // NOT_APPLICABLE / non-lab docs.
+              if (doc.documentType == MedicalDocumentType.laboratory)
+                LabResultsSection(
+                  uuid: widget.uuid,
+                  minorUuid: widget.minorUuid,
+                ),
               if (doc.file != null) ...[
                 const SizedBox(height: 12),
                 ExpansionTile(
@@ -520,9 +542,7 @@ class _CandidateDateRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: Text(display.value, textAlign: TextAlign.end),
-              ),
+              Expanded(child: Text(display.value, textAlign: TextAlign.end)),
             ],
           ),
           if (display.badge != null || display.note != null) ...[
@@ -556,8 +576,7 @@ class _CandidateDateRow extends StatelessWidget {
     if (candidates.hasError) {
       return (value: '—', badge: null, note: null);
     }
-    final items = candidates.value!
-        .results
+    final items = candidates.value!.results
         .where((c) => c.date != null)
         .toList();
     if (items.isEmpty) {
@@ -583,9 +602,7 @@ class _CandidateDateRow extends StatelessWidget {
           ),
         ),
       ),
-      note: items.length > 1
-          ? l10n.possibleDatesDetected(items.length)
-          : null,
+      note: items.length > 1 ? l10n.possibleDatesDetected(items.length) : null,
     );
   }
 }

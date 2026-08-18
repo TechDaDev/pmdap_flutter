@@ -496,5 +496,22 @@
   "identityConflictPending": "توجد بالفعل وثيقة هوية من هذا النوع بانتظار التحقق.",
   "identityConflictVerified": "استخدم استبدال الوثيقة لإرسال نسخة جديدة.",
   "viewIdentityDocuments": "عرض وثائق الهوية",
-  "identityConflictTitle": "وثيقة الهوية موجودة بالفعل"
+  "identityConflictTitle": "وثيقة الهوية موجودة بالفعل",
+  "extractedResults": "النتائج المستخرجة",
+  "resultsCount": "{count, plural, =1{نتيجة واحدة} other{{count} نتيجة}}",
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resultsExtractedFromReport": "قُرئت هذه القيم من تقريرك المرفوع. يمكنك عرض الوثيقة الأصلية في أي وقت.",
+  "result": "النتيجة",
+  "referenceRange": "النطاق المرجعي",
+  "reportFlag": "علامة التقرير",
+  "verifyWithOriginalReport": "يرجى التحقق من التقرير الأصلي",
+  "extractingResults": "جارٍ استخراج النتائج…",
+  "structuredResultsUnavailable": "النتائج المهيكلة غير متاحة لهذا التقرير. يمكنك عرض الوثيقة الأصلية.",
+  "noStructuredResultsDetected": "لم يتم اكتشاف نتائج مهيكلة. راجع التقرير الأصلي لمراجعته."
 }

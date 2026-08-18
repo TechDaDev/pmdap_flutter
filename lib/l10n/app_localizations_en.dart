@@ -1464,4 +1464,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get identityConflictTitle => 'Identity document already exists';
+
+  @override
+  String get extractedResults => 'Extracted results';
+
+  @override
+  String resultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get resultsExtractedFromReport =>
+      'These values were read from your uploaded report. You can view the original document at any time.';
+
+  @override
+  String get result => 'Result';
+
+  @override
+  String get referenceRange => 'Reference range';
+
+  @override
+  String get reportFlag => 'Report flag';
+
+  @override
+  String get verifyWithOriginalReport => 'Please verify with original report';
+
+  @override
+  String get extractingResults => 'Extracting results…';
+
+  @override
+  String get structuredResultsUnavailable =>
+      'Structured results aren\'t available for this report. You can still view the original document.';
+
+  @override
+  String get noStructuredResultsDetected =>
+      'No structured results were detected. View the original report to review it.';
 }

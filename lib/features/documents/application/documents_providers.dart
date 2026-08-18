@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/models/pending_date_confirmation.dart';
@@ -29,6 +30,9 @@ void invalidateMedicalDocumentLists(WidgetRef ref) {
   ref.invalidate(minorDateCandidatesProvider);
   ref.invalidate(pendingDateConfirmationDocumentsProvider);
   ref.invalidate(minorPendingDateConfirmationDocumentsProvider);
+  // Structured lab results follow the document-processing lifecycle.
+  ref.invalidate(labResultsProvider);
+  ref.invalidate(minorLabResultsProvider);
 }
 
 final documentsProvider = FutureProvider.autoDispose<Page<MedicalDocument>>(
@@ -47,6 +51,20 @@ final documentDetailProvider = FutureProvider.autoDispose
       (ref, uuid) => ref.watch(documentsApiProvider).detail(uuid),
     );
 
+/// Structured lab results for one owned document (read-only, memory-only).
+final labResultsProvider = FutureProvider.autoDispose
+    .family<LabResultsResponse, String>(
+      (ref, uuid) => ref.watch(documentsApiProvider).labResults(uuid),
+    );
+
+/// Minor-scoped structured lab results (guardian flow).
+final minorLabResultsProvider = FutureProvider.autoDispose
+    .family<LabResultsResponse, ({String minorUuid, String documentUuid})>(
+      (ref, args) => ref
+          .watch(minorDocumentsApiProvider)
+          .labResults(args.minorUuid, args.documentUuid),
+    );
+
 final dateCandidatesProvider = FutureProvider.autoDispose
     .family<Page<DateCandidate>, String>(
       (ref, uuid) => ref.watch(documentsApiProvider).dateCandidates(uuid),
@@ -55,20 +73,17 @@ final dateCandidatesProvider = FutureProvider.autoDispose
 /// Minor-scoped date-candidate page (guardian flow). Same authoritative
 /// candidate source as the adult provider — both hit
 /// `document.date_candidates.filter(is_current=True)`.
-final minorDateCandidatesProvider = FutureProvider.autoDispose.family<
-  Page<DateCandidate>,
-  ({String minorUuid, String documentUuid})
->(
-  (ref, args) => ref
-      .watch(minorDocumentsApiProvider)
-      .dateCandidates(args.minorUuid, args.documentUuid),
-);
+final minorDateCandidatesProvider = FutureProvider.autoDispose
+    .family<Page<DateCandidate>, ({String minorUuid, String documentUuid})>(
+      (ref, args) => ref
+          .watch(minorDocumentsApiProvider)
+          .dateCandidates(args.minorUuid, args.documentUuid),
+    );
 
 /// Minor-scoped date-confirmation queue (guardian flow).
 final minorPendingDateConfirmationDocumentsProvider = FutureProvider.autoDispose
     .family<List<PendingDateConfirmation>, String>(
-      (ref, minorUuid) =>
-          ref.watch(minorDocumentsApiProvider).pendingDateConfirmations(
-            minorUuid,
-          ),
+      (ref, minorUuid) => ref
+          .watch(minorDocumentsApiProvider)
+          .pendingDateConfirmations(minorUuid),
     );

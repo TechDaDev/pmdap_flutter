@@ -496,5 +496,22 @@
   "identityConflictPending": "An identity document of this type is already awaiting verification.",
   "identityConflictVerified": "Use Replace document to submit a new copy.",
   "viewIdentityDocuments": "View identity documents",
-  "identityConflictTitle": "Identity document already exists"
+  "identityConflictTitle": "Identity document already exists",
+  "extractedResults": "Extracted results",
+  "resultsCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resultsExtractedFromReport": "These values were read from your uploaded report. You can view the original document at any time.",
+  "result": "Result",
+  "referenceRange": "Reference range",
+  "reportFlag": "Report flag",
+  "verifyWithOriginalReport": "Please verify with original report",
+  "extractingResults": "Extracting results…",
+  "structuredResultsUnavailable": "Structured results aren't available for this report. You can still view the original document.",
+  "noStructuredResultsDetected": "No structured results were detected. View the original report to review it."
 }
