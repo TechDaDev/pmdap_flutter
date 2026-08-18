@@ -4,7 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 /// Wraps a widget with localization + Riverpod for widget tests.
-Widget pumpApp(Widget child, {List<Override> overrides = const []}) {
+Widget pumpApp(
+  Widget child, {
+  List<Override> overrides = const [],
+  Locale? locale,
+}) {
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp(
@@ -15,6 +19,7 @@ Widget pumpApp(Widget child, {List<Override> overrides = const []}) {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
       home: child,
     ),
   );

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/date_candidate.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/core/models/lab_results.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as pag;
 import 'package:pmdap_mobile/features/documents/data/documents_api.dart';
@@ -37,6 +38,18 @@ class _FakeDocumentsApi extends DocumentsApi {
       next: null,
       previous: null,
       results: candidates,
+    );
+  }
+
+  @override
+  Future<LabResultsResponse> labResults(String uuid) async {
+    return LabResultsResponse(
+      documentUuid: uuid,
+      documentType: 'LABORATORY',
+      extractionStatus: LabExtractionStatus.notApplicable,
+      pipelineVersion: null,
+      resultCount: 0,
+      results: const [],
     );
   }
 }
@@ -81,31 +94,32 @@ Future<void> _pumpFrames(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('AWAITING_CONFIRMATION + one candidate shows Detected date + Suggested badge', (
-    tester,
-  ) async {
-    final api = _FakeDocumentsApi(
-      sampleDocumentDetail(processing: ProcessingStatus.awaitingConfirmation),
-    );
-    api.candidates = [
-      _cand('c1', DateTime(2025, 6, 30), isSuggested: true, score: 0.9),
-    ];
-    await tester.pumpWidget(
-      pumpApp(
-        DocumentDetailScreen(uuid: 'd1'),
-        overrides: [documentsApiProvider.overrideWithValue(api)],
-      ),
-    );
-    await _pumpFrames(tester);
+  testWidgets(
+    'AWAITING_CONFIRMATION + one candidate shows Detected date + Suggested badge',
+    (tester) async {
+      final api = _FakeDocumentsApi(
+        sampleDocumentDetail(processing: ProcessingStatus.awaitingConfirmation),
+      );
+      api.candidates = [
+        _cand('c1', DateTime(2025, 6, 30), isSuggested: true, score: 0.9),
+      ];
+      await tester.pumpWidget(
+        pumpApp(
+          DocumentDetailScreen(uuid: 'd1'),
+          overrides: [documentsApiProvider.overrideWithValue(api)],
+        ),
+      );
+      await _pumpFrames(tester);
 
-    expect(find.text('Detected date'), findsOneWidget);
-    expect(find.text('30 Jun 2025'), findsOneWidget);
-    expect(find.text('Suggested date'), findsOneWidget);
-    expect(find.text('Needs confirmation'), findsOneWidget);
-    // OCR candidate must never be presented as the authoritative report date.
-    expect(find.text('Report date'), findsNothing);
-    expect(find.text('Confirmed'), findsNothing);
-  });
+      expect(find.text('Detected date'), findsOneWidget);
+      expect(find.text('30 Jun 2025'), findsOneWidget);
+      expect(find.text('Suggested date'), findsOneWidget);
+      expect(find.text('Needs confirmation'), findsOneWidget);
+      // OCR candidate must never be presented as the authoritative report date.
+      expect(find.text('Report date'), findsNothing);
+      expect(find.text('Confirmed'), findsNothing);
+    },
+  );
 
   testWidgets('zero candidates renders Not detected + manual entry hint', (
     tester,

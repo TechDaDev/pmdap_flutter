@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/date_candidate.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/core/models/lab_results.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as pag;
 import 'package:pmdap_mobile/features/documents/application/documents_providers.dart';
@@ -36,6 +37,18 @@ class _FakeDocumentsApi extends DocumentsApi {
       count: 0,
       next: null,
       previous: null,
+      results: const [],
+    );
+  }
+
+  @override
+  Future<LabResultsResponse> labResults(String uuid) async {
+    return LabResultsResponse(
+      documentUuid: uuid,
+      documentType: 'LABORATORY',
+      extractionStatus: LabExtractionStatus.notApplicable,
+      pipelineVersion: null,
+      resultCount: 0,
       results: const [],
     );
   }
