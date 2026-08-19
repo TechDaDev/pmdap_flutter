@@ -1493,4 +1493,21 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noStructuredResultsDetected =>
       'لم يتم اكتشاف نتائج مهيكلة. راجع التقرير الأصلي لمراجعته.';
+
+  @override
+  String get documentDetails => 'تفاصيل الوثيقة';
+
+  @override
+  String get extractedReport => 'التقرير المستخرج';
+
+  @override
+  String get documentActions => 'إجراءات الوثيقة';
+
+  @override
+  String get reportUnavailable =>
+      'التقرير المستخرج غير متاح. يمكنك عرض الوثيقة الأصلية.';
+
+  @override
+  String get noExtractedReportDetected =>
+      'لم يتم اكتشاف تقرير مستخرج. راجع التقرير الأصلي لمراجعته.';
 }

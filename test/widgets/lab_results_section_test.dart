@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/date_candidate.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/core/models/extracted_content.dart';
 import 'package:pmdap_mobile/core/models/lab_results.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as pag;
@@ -108,8 +109,9 @@ void main() {
     expect(find.text('1 result'), findsOneWidget);
     expect(find.text('Creatinine'), findsOneWidget);
     expect(find.text('1.25 mg/dL'), findsOneWidget);
-    expect(find.text('0.7 - 1.18'), findsOneWidget);
-    expect(find.text('Report flag: H'), findsOneWidget);
+    expect(find.text('Reference range: 0.7 - 1.18'), findsOneWidget);
+    // neutral flag badge shows the printed value only (no clinical colouring)
+    expect(find.text('H'), findsOneWidget);
   });
 
   testWidgets('completed with many rows keeps report order', (tester) async {
@@ -209,36 +211,46 @@ void main() {
       expect(find.text('92 mg/dL'), findsOneWidget);
     });
 
-    testWidgets('radiology document hides extracted results section', (
-      tester,
-    ) async {
-      final doc = MedicalDocumentDetail(
-        uuid: 'd1',
-        documentType: MedicalDocumentType.radiology,
-        classificationSource: ClassificationSource.systemDefault,
-        title: 'Radiology',
-        description: '',
-        documentDate: DateTime(2024, 3, 15),
-        dateSource: DateSource.ocr,
-        dateVerified: false,
-        facilityName: '',
-        locationText: '',
-        department: '',
-        physicianName: '',
-        processingStatus: ProcessingStatus.awaitingConfirmation,
-        archiveStatus: ArchiveStatus.active,
-        file: StoredFilePublic(
-          originalFilename: 'x.jpg',
-          mimeType: 'image/jpeg',
-          sizeBytes: 10,
-          integrityStatus: IntegrityStatus.valid,
-          malwareScanStatus: MalwareScanStatus.clean,
-        ),
-      );
-      await _pumpDetail(tester, doc);
-      await tester.pumpAndSettle();
-      expect(find.text('Extracted results'), findsNothing);
-    });
+    testWidgets(
+      'radiology document shows narrative extracted report, hides lab',
+      (tester) async {
+        final doc = MedicalDocumentDetail(
+          uuid: 'd1',
+          documentType: MedicalDocumentType.radiology,
+          classificationSource: ClassificationSource.systemDefault,
+          title: 'Radiology',
+          description: '',
+          documentDate: DateTime(2024, 3, 15),
+          dateSource: DateSource.ocr,
+          dateVerified: false,
+          facilityName: '',
+          locationText: '',
+          department: '',
+          physicianName: '',
+          processingStatus: ProcessingStatus.awaitingConfirmation,
+          archiveStatus: ArchiveStatus.active,
+          file: StoredFilePublic(
+            originalFilename: 'x.jpg',
+            mimeType: 'image/jpeg',
+            sizeBytes: 10,
+            integrityStatus: IntegrityStatus.valid,
+            malwareScanStatus: MalwareScanStatus.clean,
+          ),
+        );
+        await _pumpDetail(tester, doc, content: _narrativeContent());
+        await tester.pumpAndSettle();
+        // structured lab section is never shown for radiology
+        expect(find.text('Extracted results'), findsNothing);
+        expect(find.text('Glucose'), findsNothing);
+        // narrative extracted report is shown
+        expect(find.text('Extracted report'), findsOneWidget);
+        expect(find.text('ABDOMINAL US'), findsOneWidget);
+        expect(
+          find.text('Liver is of normal size showing normal texture.'),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }
 
@@ -264,7 +276,26 @@ class _FakeDocumentsApi extends DocumentsApi {
   }
 }
 
-Future<void> _pumpDetail(WidgetTester tester, MedicalDocumentDetail doc) async {
+ExtractedContentResponse _narrativeContent() {
+  return const ExtractedContentResponse(
+    documentUuid: 'd1',
+    documentType: 'RADIOLOGY',
+    contentKind: ExtractedContentKind.narrative,
+    status: 'COMPLETED',
+    sections: [
+      ExtractedContentSection(
+        heading: 'ABDOMINAL US',
+        body: 'Liver is of normal size showing normal texture.',
+      ),
+    ],
+  );
+}
+
+Future<void> _pumpDetail(
+  WidgetTester tester,
+  MedicalDocumentDetail doc, {
+  ExtractedContentResponse? content,
+}) async {
   await tester.pumpWidget(
     pumpApp(
       DocumentDetailScreen(uuid: 'd1'),
@@ -275,6 +306,17 @@ Future<void> _pumpDetail(WidgetTester tester, MedicalDocumentDetail doc) async {
             status: LabExtractionStatus.completed,
             results: [_item(name: 'Glucose', result: '92', unit: 'mg/dL')],
           ),
+        ),
+        extractedContentProvider.overrideWith(
+          (ref, uuid) async =>
+              content ??
+              const ExtractedContentResponse(
+                documentUuid: 'd1',
+                documentType: 'RADIOLOGY',
+                contentKind: ExtractedContentKind.none,
+                status: 'NOT_APPLICABLE',
+                sections: [],
+              ),
         ),
       ],
     ),

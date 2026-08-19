@@ -55,16 +55,31 @@ class LabResultsSection extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionHeader(resultCount: data.resultCount, l10n: l10n),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     l10n.resultsExtractedFromReport,
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 12),
-                  for (final result in data.results) ...[
-                    LabResultCard(result: result, l10n: l10n),
-                    const SizedBox(height: 8),
-                  ],
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        for (
+                          var index = 0;
+                          index < data.results.length;
+                          index++
+                        ) ...[
+                          if (index > 0) const Divider(height: 1),
+                          _LabResultRow(
+                            result: data.results[index],
+                            l10n: l10n,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ),
             );
@@ -190,9 +205,13 @@ class _SectionPadding extends StatelessWidget {
   }
 }
 
-/// One patient-facing result card.
-class LabResultCard extends StatelessWidget {
-  const LabResultCard({super.key, required this.result, required this.l10n});
+/// One compact professional result row (test | value+unit, reference below).
+///
+/// Dense table-like layout (no one-card-per-test) so CBC-style reports with
+/// many rows stay scannable. Numeric values / Latin units are kept LTR inside
+/// RTL UI; the flag is a neutral badge (no clinical colouring).
+class _LabResultRow extends StatelessWidget {
+  const _LabResultRow({required this.result, required this.l10n});
 
   final LabResultItem result;
   final AppLocalizations l10n;
@@ -221,55 +240,86 @@ class LabResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final outline = theme.colorScheme.outline;
     final lowConfidence =
         result.extractionConfidence < lowLabConfidenceThreshold;
     return Semantics(
       container: true,
       label: _semanticsLabel,
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(result.testNameRaw, style: theme.textTheme.titleSmall),
-              const SizedBox(height: 6),
-              _ltr(Text(_valueText, style: theme.textTheme.bodyLarge)),
-              if (result.referenceRangeRaw.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(l10n.referenceRange, style: theme.textTheme.labelSmall),
-                _ltr(
-                  Text(
-                    result.referenceRangeRaw,
-                    style: theme.textTheme.bodyMedium,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    result.testNameRaw,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _ltr(
+                        Text(
+                          _valueText,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                      if (result.flagRaw.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        _FlagBadge(flag: result.flagRaw),
+                      ],
+                      if (lowConfidence) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.verified_user_outlined,
+                              size: 14,
+                              color: outline,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                l10n.verifyWithOriginalReport,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: outline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
-              if (result.flagRaw.isNotEmpty) ...[
-                const SizedBox(height: 4),
+            ),
+            if (result.referenceRangeRaw.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _ltr(
                 Text(
-                  '${l10n.reportFlag}: ${result.flagRaw}',
-                  style: theme.textTheme.bodyMedium,
+                  '${l10n.referenceRange}: ${result.referenceRangeRaw}',
+                  style: theme.textTheme.bodySmall?.copyWith(color: outline),
                 ),
-              ],
-              if (lowConfidence) ...[
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.verified_user_outlined, size: 16),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        l10n.verifyWithOriginalReport,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -278,5 +328,30 @@ class LabResultCard extends StatelessWidget {
   /// Keep numeric values / Latin units from visual reversal inside RTL UI.
   Widget _ltr(Widget child) {
     return Directionality(textDirection: TextDirection.ltr, child: child);
+  }
+}
+
+/// Neutral flag badge (H/L/R/*). No clinical colouring — the printed flag is
+/// reported as-is and the patient always checks the original report.
+class _FlagBadge extends StatelessWidget {
+  const _FlagBadge({required this.flag});
+
+  final String flag;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final outline = theme.colorScheme.outline;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: outline.withValues(alpha: 0.6)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        flag,
+        style: theme.textTheme.labelSmall?.copyWith(color: outline),
+      ),
+    );
   }
 }

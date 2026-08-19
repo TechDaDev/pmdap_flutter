@@ -8,6 +8,7 @@ Widget pumpApp(
   Widget child, {
   List<Override> overrides = const [],
   Locale? locale,
+  ThemeMode themeMode = ThemeMode.light,
 }) {
   return ProviderScope(
     overrides: overrides,
@@ -20,6 +21,16 @@ Widget pumpApp(
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: themeMode,
       home: child,
     ),
   );

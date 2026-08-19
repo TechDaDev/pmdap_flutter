@@ -2959,6 +2959,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No structured results were detected. View the original report to review it.'**
   String get noStructuredResultsDetected;
+
+  /// No description provided for @documentDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Document details'**
+  String get documentDetails;
+
+  /// No description provided for @extractedReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted report'**
+  String get extractedReport;
+
+  /// No description provided for @documentActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Document actions'**
+  String get documentActions;
+
+  /// No description provided for @reportUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The extracted report isn\'t available. You can still view the original document.'**
+  String get reportUnavailable;
+
+  /// No description provided for @noExtractedReportDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No extracted report was detected. View the original report to review it.'**
+  String get noExtractedReportDetected;
 }
 
 class _AppLocalizationsDelegate

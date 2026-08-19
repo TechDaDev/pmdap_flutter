@@ -513,5 +513,10 @@
   "verifyWithOriginalReport": "Please verify with original report",
   "extractingResults": "Extracting results…",
   "structuredResultsUnavailable": "Structured results aren't available for this report. You can still view the original document.",
-  "noStructuredResultsDetected": "No structured results were detected. View the original report to review it."
+  "noStructuredResultsDetected": "No structured results were detected. View the original report to review it.",
+  "documentDetails": "Document details",
+  "extractedReport": "Extracted report",
+  "documentActions": "Document actions",
+  "reportUnavailable": "The extracted report isn't available. You can still view the original document.",
+  "noExtractedReportDetected": "No extracted report was detected. View the original report to review it."
 }

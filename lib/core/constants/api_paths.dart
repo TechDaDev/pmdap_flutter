@@ -41,6 +41,8 @@ class ApiPaths {
       '/minors/$minor/documents/$doc/file/';
   static String minorDocumentLabResults(String minor, String doc) =>
       '/minors/$minor/documents/$doc/lab-results/';
+  static String minorDocumentExtractedContent(String minor, String doc) =>
+      '/minors/$minor/documents/$doc/extracted-content/';
   static String minorDocumentCandidates(String minor, String doc) =>
       '/minors/$minor/documents/$doc/date-candidates/';
   static String minorDocumentConfirmDate(String minor, String doc) =>
@@ -54,6 +56,8 @@ class ApiPaths {
   static String documentFile(String uuid) => '/documents/$uuid/file/';
   static String documentLabResults(String uuid) =>
       '/documents/$uuid/lab-results/';
+  static String documentExtractedContent(String uuid) =>
+      '/documents/$uuid/extracted-content/';
   static String documentCandidates(String uuid) =>
       '/documents/$uuid/date-candidates/';
   static String documentConfirmDate(String uuid) =>

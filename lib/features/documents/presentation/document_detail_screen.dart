@@ -18,6 +18,7 @@ import '../../../core/security/private_media_cache.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
+import 'extracted_report_section.dart';
 import 'lab_results_section.dart';
 
 /// Medical document detail.
@@ -287,7 +288,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.documentType),
+        title: Text(l10n.documentDetails),
         actions: [
           IconButton(
             onPressed: _reload,
@@ -351,11 +352,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                  const Spacer(),
-                  Text(
-                    isPdf ? 'PDF' : (mime.contains('png') ? 'PNG' : 'Image'),
-                    style: theme.textTheme.labelMedium,
-                  ),
+                  // File type is shown inside the metadata card below.
                 ],
               ),
               if (_pollExpired) ...[
@@ -427,6 +424,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       _Row(l10n.department, doc.department),
                     if (doc.physicianName.isNotEmpty)
                       _Row(l10n.physician, doc.physicianName),
+                    _Row(
+                      l10n.fileType,
+                      isPdf ? 'PDF' : (mime.contains('png') ? 'PNG' : 'Image'),
+                    ),
                   ],
                 ),
               ),
@@ -435,6 +436,12 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
               // NOT_APPLICABLE / non-lab docs.
               if (doc.documentType == MedicalDocumentType.laboratory)
                 LabResultsSection(
+                  uuid: widget.uuid,
+                  minorUuid: widget.minorUuid,
+                ),
+              // Narrative extracted report (radiology, imaging, letters).
+              if (doc.documentType != MedicalDocumentType.laboratory)
+                ExtractedReportSection(
                   uuid: widget.uuid,
                   minorUuid: widget.minorUuid,
                 ),
@@ -488,16 +495,37 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   label: Text(l10n.confirmDate),
                 ),
               ],
-              const SizedBox(height: 12),
-              TextButton.icon(
-                onPressed: () => _delete(doc),
-                icon: Icon(
-                  Icons.delete_outline,
-                  color: theme.colorScheme.error,
-                ),
-                label: Text(
-                  l10n.deleteDocument,
-                  style: TextStyle(color: theme.colorScheme.error),
+              const SizedBox(height: 16),
+              SafeArea(
+                top: false,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                        child: Text(
+                          l10n.documentActions,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(
+                          Icons.delete_outline,
+                          color: theme.colorScheme.error,
+                        ),
+                        title: Text(
+                          l10n.deleteDocument,
+                          style: TextStyle(color: theme.colorScheme.error),
+                        ),
+                        onTap: () => _delete(doc),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

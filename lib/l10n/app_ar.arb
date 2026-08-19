@@ -513,5 +513,10 @@
   "verifyWithOriginalReport": "يرجى التحقق من التقرير الأصلي",
   "extractingResults": "جارٍ استخراج النتائج…",
   "structuredResultsUnavailable": "النتائج المهيكلة غير متاحة لهذا التقرير. يمكنك عرض الوثيقة الأصلية.",
-  "noStructuredResultsDetected": "لم يتم اكتشاف نتائج مهيكلة. راجع التقرير الأصلي لمراجعته."
+  "noStructuredResultsDetected": "لم يتم اكتشاف نتائج مهيكلة. راجع التقرير الأصلي لمراجعته.",
+  "documentDetails": "تفاصيل الوثيقة",
+  "extractedReport": "التقرير المستخرج",
+  "documentActions": "إجراءات الوثيقة",
+  "reportUnavailable": "التقرير المستخرج غير متاح. يمكنك عرض الوثيقة الأصلية.",
+  "noExtractedReportDetected": "لم يتم اكتشاف تقرير مستخرج. راجع التقرير الأصلي لمراجعته."
 }

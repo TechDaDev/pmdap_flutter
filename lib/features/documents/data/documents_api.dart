@@ -10,6 +10,7 @@ import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
@@ -101,6 +102,21 @@ class DocumentsApi {
       return decodeData<LabResultsResponse>(
         resp.data,
         LabResultsResponse.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Read-only extracted content (narrative sections) for an owned document.
+  Future<ExtractedContentResponse> extractedContent(String uuid) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.documentExtractedContent(uuid),
+      );
+      return decodeData<ExtractedContentResponse>(
+        resp.data,
+        ExtractedContentResponse.fromJson,
       );
     } on DioException catch (e) {
       throw _mapper.map(e);

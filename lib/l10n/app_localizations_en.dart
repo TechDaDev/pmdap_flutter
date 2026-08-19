@@ -1505,4 +1505,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noStructuredResultsDetected =>
       'No structured results were detected. View the original report to review it.';
+
+  @override
+  String get documentDetails => 'Document details';
+
+  @override
+  String get extractedReport => 'Extracted report';
+
+  @override
+  String get documentActions => 'Document actions';
+
+  @override
+  String get reportUnavailable =>
+      'The extracted report isn\'t available. You can still view the original document.';
+
+  @override
+  String get noExtractedReportDetected =>
+      'No extracted report was detected. View the original report to review it.';
 }

@@ -7,6 +7,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
@@ -63,6 +64,24 @@ class MinorDocumentsApi {
       return decodeData<LabResultsResponse>(
         resp.data,
         LabResultsResponse.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Read-only extracted content for a minor's document (guardian flow).
+  Future<ExtractedContentResponse> extractedContent(
+    String minorUuid,
+    String docUuid,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorDocumentExtractedContent(minorUuid, docUuid),
+      );
+      return decodeData<ExtractedContentResponse>(
+        resp.data,
+        ExtractedContentResponse.fromJson,
       );
     } on DioException catch (e) {
       throw _mapper.map(e);

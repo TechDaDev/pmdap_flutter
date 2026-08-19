@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart';
@@ -33,6 +34,9 @@ void invalidateMedicalDocumentLists(WidgetRef ref) {
   // Structured lab results follow the document-processing lifecycle.
   ref.invalidate(labResultsProvider);
   ref.invalidate(minorLabResultsProvider);
+  // Extracted narrative content follows the same lifecycle.
+  ref.invalidate(extractedContentProvider);
+  ref.invalidate(minorExtractedContentProvider);
 }
 
 final documentsProvider = FutureProvider.autoDispose<Page<MedicalDocument>>(
@@ -63,6 +67,23 @@ final minorLabResultsProvider = FutureProvider.autoDispose
       (ref, args) => ref
           .watch(minorDocumentsApiProvider)
           .labResults(args.minorUuid, args.documentUuid),
+    );
+
+/// Extracted content (narrative sections) for one owned document.
+final extractedContentProvider = FutureProvider.autoDispose
+    .family<ExtractedContentResponse, String>(
+      (ref, uuid) => ref.watch(documentsApiProvider).extractedContent(uuid),
+    );
+
+/// Minor-scoped extracted content (guardian flow).
+final minorExtractedContentProvider = FutureProvider.autoDispose
+    .family<
+      ExtractedContentResponse,
+      ({String minorUuid, String documentUuid})
+    >(
+      (ref, args) => ref
+          .watch(minorDocumentsApiProvider)
+          .extractedContent(args.minorUuid, args.documentUuid),
     );
 
 final dateCandidatesProvider = FutureProvider.autoDispose
