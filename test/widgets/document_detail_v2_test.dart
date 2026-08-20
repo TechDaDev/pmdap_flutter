@@ -348,4 +348,81 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Glucose'), findsOneWidget);
   });
+
+  testWidgets('secondary text uses accessible onSurfaceVariant, not outline', (
+    tester,
+  ) async {
+    await _pumpDetail(
+      tester,
+      _labDetail(),
+      labRows: [
+        _item(
+          name: 'Creatinine',
+          result: '1.25',
+          unit: 'mg/dL',
+          ref: '0.7 - 1.18',
+          flag: 'H',
+        ),
+      ],
+    );
+    await tester.pumpAndSettle();
+    final scheme = Theme.of(tester.element(find.byType(Scaffold))).colorScheme;
+    final outline = scheme.outline;
+
+    // metadata label (Document type) must be secondary token, not outline.
+    final typeLabel = tester.widget<Text>(find.text('Document type'));
+    expect(typeLabel.style?.color, isNot(outline));
+    expect(typeLabel.style?.color, scheme.onSurfaceVariant);
+
+    // reference range must be readable secondary (not disabled/outline).
+    final refText = tester.widget<Text>(
+      find.text('Reference range: 0.7 - 1.18'),
+    );
+    expect(refText.style?.color, isNot(outline));
+    expect(refText.style?.color, scheme.onSurfaceVariant);
+
+    // flag badge uses strong neutral onSurface text (visible, not faded).
+    final flag = tester.widget<Text>(find.text('H'));
+    expect(flag.style?.color, scheme.onSurface);
+    expect(flag.style?.color, isNot(outline));
+  });
+
+  testWidgets('dark mode secondary text is readable dark secondary token', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      pumpApp(
+        DocumentDetailScreen(uuid: 'd1'),
+        themeMode: ThemeMode.dark,
+        overrides: [
+          documentsApiProvider.overrideWithValue(
+            _FakeDocumentsApi(_labDetail()),
+          ),
+          labResultsProvider.overrideWith(
+            (ref, uuid) async => _labResponse([
+              _item(name: 'Creatinine', result: '1.25', ref: '0.7 - 1.18'),
+            ]),
+          ),
+          extractedContentProvider.overrideWith(
+            (ref, uuid) async => const ExtractedContentResponse(
+              documentUuid: 'd1',
+              documentType: 'RADIOLOGY',
+              contentKind: ExtractedContentKind.none,
+              status: 'NOT_APPLICABLE',
+              sections: [],
+            ),
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scheme = Theme.of(tester.element(find.byType(Scaffold))).colorScheme;
+    expect(scheme.brightness, Brightness.dark);
+
+    final refText = tester.widget<Text>(
+      find.text('Reference range: 0.7 - 1.18'),
+    );
+    expect(refText.style?.color, isNot(scheme.outline));
+    expect(refText.style?.color, scheme.onSurfaceVariant);
+  });
 }

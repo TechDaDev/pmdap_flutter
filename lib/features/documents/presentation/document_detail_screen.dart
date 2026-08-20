@@ -552,7 +552,7 @@ class _CandidateDateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final outline = theme.colorScheme.outline;
+    final secondary = theme.colorScheme.onSurfaceVariant;
     final display = _resolve(theme);
 
     return Padding(
@@ -566,7 +566,7 @@ class _CandidateDateRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.detectedDateLabel,
-                  style: TextStyle(color: outline),
+                  style: TextStyle(color: secondary),
                 ),
               ),
               const SizedBox(width: 16),
@@ -651,7 +651,9 @@ class _Row extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(color: Theme.of(context).colorScheme.outline),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(width: 16),

@@ -142,6 +142,7 @@ class AppTheme {
       onTertiary: Colors.white,
       surface: AppColors.surface,
       onSurface: AppColors.textPrimary,
+      onSurfaceVariant: AppColors.textSecondary,
       surfaceContainerLow: AppColors.pageBg,
       surfaceContainerHighest: AppColors.divider,
       error: AppColors.error,

@@ -240,7 +240,7 @@ class _LabResultRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final outline = theme.colorScheme.outline;
+    final secondary = theme.colorScheme.onSurfaceVariant;
     final lowConfidence =
         result.extractionConfidence < lowLabConfidenceThreshold;
     return Semantics(
@@ -291,14 +291,14 @@ class _LabResultRow extends StatelessWidget {
                             Icon(
                               Icons.verified_user_outlined,
                               size: 14,
-                              color: outline,
+                              color: secondary,
                             ),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
                                 l10n.verifyWithOriginalReport,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: outline,
+                                  color: secondary,
                                 ),
                               ),
                             ),
@@ -315,7 +315,10 @@ class _LabResultRow extends StatelessWidget {
               _ltr(
                 Text(
                   '${l10n.referenceRange}: ${result.referenceRangeRaw}',
-                  style: theme.textTheme.bodySmall?.copyWith(color: outline),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: secondary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -341,16 +344,20 @@ class _FlagBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final outline = theme.colorScheme.outline;
+    final scheme = theme.colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        border: Border.all(color: outline.withValues(alpha: 0.6)),
+        color: scheme.surfaceContainerHighest,
+        border: Border.all(color: scheme.outline),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         flag,
-        style: theme.textTheme.labelSmall?.copyWith(color: outline),
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
