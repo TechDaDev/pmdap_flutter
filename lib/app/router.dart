@@ -12,6 +12,7 @@ import '../features/claims/presentation/account_activation_screen.dart';
 import '../features/documents/presentation/confirm_dates_screen.dart';
 import '../features/documents/presentation/date_confirmation_screen.dart';
 import '../features/documents/presentation/document_detail_screen.dart';
+import '../features/documents/presentation/document_viewer_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
 import '../features/documents/presentation/document_upload_screen.dart';
 import '../features/facilities/presentation/facilities_screen.dart';
@@ -59,6 +60,7 @@ class Routes {
   static const documentsNew = '/documents/new';
   static String documentDetail(String uuid) => '/documents/$uuid';
   static String documentDate(String uuid) => '/documents/$uuid/date';
+  static String documentViewer(String uuid) => '/documents/$uuid/view';
 
   static const confirmDates = '/confirm-dates';
   static const facilities = '/facilities';
@@ -219,6 +221,13 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: '/documents/:uuid',
         builder: (context, state) => DocumentDetailScreen(
+          uuid: state.pathParameters['uuid']!,
+          minorUuid: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: '/documents/:uuid/view',
+        builder: (context, state) => DocumentViewerScreen(
           uuid: state.pathParameters['uuid']!,
           minorUuid: state.extra as String?,
         ),

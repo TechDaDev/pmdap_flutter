@@ -761,6 +761,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusIndexed => 'Indexed';
 
   @override
+  String get statusDuplicateDetected => 'Duplicate detected';
+
+  @override
   String get statusFailed => 'Failed';
 
   @override
@@ -1522,4 +1525,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noExtractedReportDetected =>
       'No extracted report was detected. View the original report to review it.';
+
+  @override
+  String get documentViewer => 'Document viewer';
+
+  @override
+  String get documentViewerError => 'We couldn\'t open this document.';
+
+  @override
+  String get alreadyUploaded => 'Already uploaded';
+
+  @override
+  String get alreadyUploadedMessage =>
+      'This document is already in your archive.';
+
+  @override
+  String get viewExisting => 'View existing';
+
+  @override
+  String get duplicateDetectedTitle => 'Possible duplicate';
+
+  @override
+  String get duplicateDetectedMessage =>
+      'This document appears to already exist in your archive.';
+
+  @override
+  String get removeDuplicate => 'Remove this upload';
 }

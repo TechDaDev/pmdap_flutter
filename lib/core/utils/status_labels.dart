@@ -80,6 +80,8 @@ class StatusLabels {
         return l10n.statusDateConfirmed;
       case ProcessingStatus.indexed:
         return l10n.statusIndexed;
+      case ProcessingStatus.duplicateDetected:
+        return l10n.statusDuplicateDetected;
       case ProcessingStatus.failed:
         return l10n.statusFailed;
       case ProcessingStatus.unknown:

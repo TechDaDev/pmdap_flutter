@@ -255,6 +255,7 @@
   "statusAwaitingConfirmation": "بانتظار التأكيد",
   "statusDateConfirmed": "تم تأكيد التاريخ",
   "statusIndexed": "مفهرس",
+  "statusDuplicateDetected": "تم اكتشاف تكرار",
   "statusFailed": "فشل",
   "typeLaboratory": "مخبري",
   "typeRadiology": "أشعة",
@@ -518,5 +519,13 @@
   "extractedReport": "التقرير المستخرج",
   "documentActions": "إجراءات الوثيقة",
   "reportUnavailable": "التقرير المستخرج غير متاح. يمكنك عرض الوثيقة الأصلية.",
-  "noExtractedReportDetected": "لم يتم اكتشاف تقرير مستخرج. راجع التقرير الأصلي لمراجعته."
+  "noExtractedReportDetected": "لم يتم اكتشاف تقرير مستخرج. راجع التقرير الأصلي لمراجعته.",
+  "documentViewer": "عارض الوثيقة",
+  "documentViewerError": "تعذّر فتح هذه الوثيقة.",
+  "alreadyUploaded": "تم الرفع مسبقًا",
+  "alreadyUploadedMessage": "هذه الوثيقة موجودة بالفعل في أرشيفك.",
+  "viewExisting": "عرض الموجودة",
+  "duplicateDetectedTitle": "مكررة محتملة",
+  "duplicateDetectedMessage": "يبدو أن هذه الوثيقة موجودة بالفعل في أرشيفك.",
+  "removeDuplicate": "إزالة هذا الرفع"
 }

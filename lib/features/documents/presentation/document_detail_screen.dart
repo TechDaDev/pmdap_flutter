@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_filex/open_filex.dart';
 
 import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
@@ -14,7 +12,6 @@ import '../../../core/models/date_candidate.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart' as pag;
-import '../../../core/security/private_media_cache.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
@@ -50,6 +47,12 @@ class DocumentDetailScreen extends ConsumerStatefulWidget {
 class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     with WidgetsBindingObserver {
   Future<MedicalDocumentDetail>? _future;
+
+  /// Last successfully loaded detail. Kept so every 3s poll rebuilds with the
+  /// previous data (no full-screen loading flash) while the fresh fetch is in
+  /// flight; scroll position and rendered metadata stay stable.
+  MedicalDocumentDetail? _lastDetail;
+
   Timer? _timer;
   AppLifecycleState _lifecycle = AppLifecycleState.resumed;
 
@@ -121,7 +124,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     // builds, silently killing the poll chain and leaving the screen stuck on
     // the stale "OCR processing" status.
     final future = _load();
-    _invalidateLabResults();
     setState(() {
       _future = future;
     });
@@ -169,6 +171,8 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
 
   void _handlePollResult(MedicalDocumentDetail doc) {
     if (!mounted) return;
+    // Retain the freshest data so a subsequent poll rebuilds on stable content.
+    _lastDetail = doc;
     final status = doc.processingStatus;
     if (_lastStatus != status) {
       _lastStatus = status;
@@ -195,40 +199,12 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   }
 
   Future<void> _viewFile(MedicalDocumentDetail doc) async {
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final api = ref.read(documentsApiProvider);
-    final minorApi = ref.read(minorDocumentsApiProvider);
-    File? cached;
-    try {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.loading)));
-      final bytes = _isMinor
-          ? await minorApi.fetchFile(widget.minorUuid!, widget.uuid)
-          : await api.fetchFile(widget.uuid);
-      final name = doc.file?.originalFilename.isNotEmpty == true
-          ? doc.file!.originalFilename
-          : 'document.${_ext(doc.file?.mimeType ?? 'pdf')}';
-      cached = await PrivateMediaCache.cacheBytes(bytes, name);
-      final result = await OpenFilex.open(cached.path);
-      if (result.type != ResultType.done) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.openFileFailed)));
-      }
-    } on ApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
-    } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.openFileFailed)));
-    } finally {
-      if (cached != null) {
-        // Best-effort cleanup of the private temp copy.
-        unawaited(PrivateMediaCache.cleanup(cached));
-      }
-    }
-  }
-
-  String _ext(String mime) {
-    if (mime.contains('pdf')) return 'pdf';
-    if (mime.contains('png')) return 'png';
-    return 'jpg';
+    // In-app private viewer: fetch through authenticated API inside the viewer
+    // screen (never a public URL, never an external app).
+    await context.push(
+      Routes.documentViewer(widget.uuid),
+      extra: widget.minorUuid,
+    );
   }
 
   /// Localized report-date value with a semantic fallback when the API has
@@ -299,11 +275,13 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
       ),
       body: FutureBuilder<MedicalDocumentDetail>(
         future: _future,
+        initialData: _lastDetail,
         builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+          if (snapshot.connectionState != ConnectionState.done &&
+              !snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
+          if (snapshot.hasError && !snapshot.hasData) {
             return Center(
               child: Text(
                 snapshot.error is ApiException
@@ -355,6 +333,63 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   // File type is shown inside the metadata card below.
                 ],
               ),
+              if (doc.processingStatus ==
+                  ProcessingStatus.duplicateDetected) ...[
+                const SizedBox(height: 12),
+                Card(
+                  margin: EdgeInsets.zero,
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.duplicateDetectedTitle,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.duplicateDetectedMessage,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            if (doc.duplicateOf != null)
+                              OutlinedButton.icon(
+                                onPressed: () => context.push(
+                                  Routes.documentDetail(doc.duplicateOf!),
+                                  extra: widget.minorUuid,
+                                ),
+                                icon: const Icon(Icons.visibility_outlined),
+                                label: Text(l10n.viewExisting),
+                              ),
+                            TextButton.icon(
+                              onPressed: () => _delete(doc),
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: theme.colorScheme.error,
+                              ),
+                              label: Text(
+                                l10n.removeDuplicate,
+                                style: TextStyle(
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               if (_pollExpired) ...[
                 const SizedBox(height: 12),
                 Container(
@@ -487,10 +522,17 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   doc.processingStatus == ProcessingStatus.dateDetected) ...[
                 const SizedBox(height: 12),
                 FilledButton.icon(
-                  onPressed: () => context.push(
-                    Routes.documentDate(widget.uuid),
-                    extra: widget.minorUuid,
-                  ),
+                  onPressed: () async {
+                    // Await the confirmation screen so returning refreshes the
+                    // detail + all list views — no manual refresh needed.
+                    await context.push(
+                      Routes.documentDate(widget.uuid),
+                      extra: widget.minorUuid,
+                    );
+                    if (!mounted) return;
+                    invalidateMedicalDocumentLists(ref);
+                    _reload();
+                  },
                   icon: const Icon(Icons.event_available),
                   label: Text(l10n.confirmDate),
                 ),

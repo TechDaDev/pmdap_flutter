@@ -658,7 +658,9 @@ $StoredFilePublicCopyWith<$Res>? get file {
 /// @nodoc
 mixin _$MedicalDocumentDetail {
 
- String get uuid;@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType get documentType;@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource get classificationSource; String get title; String get description; DateTime? get documentDate;@JsonKey(fromJson: dateSourceFromJson) DateSource get dateSource; bool get dateVerified; DateTime? get dateVerifiedAt; String get facilityName; HealthcareFacility? get healthcareFacility; String get locationText; String get department; String get physicianName;@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus get processingStatus;@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus get archiveStatus; StoredFilePublic? get file; DateTime? get createdAt; DateTime? get updatedAt; bool get textAvailable;
+ String get uuid;@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType get documentType;@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource get classificationSource; String get title; String get description; DateTime? get documentDate;@JsonKey(fromJson: dateSourceFromJson) DateSource get dateSource; bool get dateVerified; DateTime? get dateVerifiedAt; String get facilityName; HealthcareFacility? get healthcareFacility; String get locationText; String get department; String get physicianName;@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus get processingStatus;@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus get archiveStatus; StoredFilePublic? get file; DateTime? get createdAt; DateTime? get updatedAt; bool get textAvailable;/// Existing document uuid when this upload was flagged as a content
+/// duplicate (owner-scoped). Null otherwise.
+ String? get duplicateOf;
 /// Create a copy of MedicalDocumentDetail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -671,16 +673,16 @@ $MedicalDocumentDetailCopyWith<MedicalDocumentDetail> get copyWith => _$MedicalD
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicalDocumentDetail&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.classificationSource, classificationSource) || other.classificationSource == classificationSource)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateVerifiedAt, dateVerifiedAt) || other.dateVerifiedAt == dateVerifiedAt)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.archiveStatus, archiveStatus) || other.archiveStatus == archiveStatus)&&(identical(other.file, file) || other.file == file)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.textAvailable, textAvailable) || other.textAvailable == textAvailable));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicalDocumentDetail&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.classificationSource, classificationSource) || other.classificationSource == classificationSource)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateVerifiedAt, dateVerifiedAt) || other.dateVerifiedAt == dateVerifiedAt)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.archiveStatus, archiveStatus) || other.archiveStatus == archiveStatus)&&(identical(other.file, file) || other.file == file)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.textAvailable, textAvailable) || other.textAvailable == textAvailable)&&(identical(other.duplicateOf, duplicateOf) || other.duplicateOf == duplicateOf));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,uuid,documentType,classificationSource,title,description,documentDate,dateSource,dateVerified,dateVerifiedAt,facilityName,healthcareFacility,locationText,department,physicianName,processingStatus,archiveStatus,file,createdAt,updatedAt,textAvailable]);
+int get hashCode => Object.hashAll([runtimeType,uuid,documentType,classificationSource,title,description,documentDate,dateSource,dateVerified,dateVerifiedAt,facilityName,healthcareFacility,locationText,department,physicianName,processingStatus,archiveStatus,file,createdAt,updatedAt,textAvailable,duplicateOf]);
 
 @override
 String toString() {
-  return 'MedicalDocumentDetail(uuid: $uuid, documentType: $documentType, classificationSource: $classificationSource, title: $title, description: $description, documentDate: $documentDate, dateSource: $dateSource, dateVerified: $dateVerified, dateVerifiedAt: $dateVerifiedAt, facilityName: $facilityName, healthcareFacility: $healthcareFacility, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, archiveStatus: $archiveStatus, file: $file, createdAt: $createdAt, updatedAt: $updatedAt, textAvailable: $textAvailable)';
+  return 'MedicalDocumentDetail(uuid: $uuid, documentType: $documentType, classificationSource: $classificationSource, title: $title, description: $description, documentDate: $documentDate, dateSource: $dateSource, dateVerified: $dateVerified, dateVerifiedAt: $dateVerifiedAt, facilityName: $facilityName, healthcareFacility: $healthcareFacility, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, archiveStatus: $archiveStatus, file: $file, createdAt: $createdAt, updatedAt: $updatedAt, textAvailable: $textAvailable, duplicateOf: $duplicateOf)';
 }
 
 
@@ -691,7 +693,7 @@ abstract mixin class $MedicalDocumentDetailCopyWith<$Res>  {
   factory $MedicalDocumentDetailCopyWith(MedicalDocumentDetail value, $Res Function(MedicalDocumentDetail) _then) = _$MedicalDocumentDetailCopyWithImpl;
 @useResult
 $Res call({
- String uuid,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType,@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource classificationSource, String title, String description, DateTime? documentDate,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, bool dateVerified, DateTime? dateVerifiedAt, String facilityName, HealthcareFacility? healthcareFacility, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus,@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus archiveStatus, StoredFilePublic? file, DateTime? createdAt, DateTime? updatedAt, bool textAvailable
+ String uuid,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType,@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource classificationSource, String title, String description, DateTime? documentDate,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, bool dateVerified, DateTime? dateVerifiedAt, String facilityName, HealthcareFacility? healthcareFacility, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus,@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus archiveStatus, StoredFilePublic? file, DateTime? createdAt, DateTime? updatedAt, bool textAvailable, String? duplicateOf
 });
 
 
@@ -708,7 +710,7 @@ class _$MedicalDocumentDetailCopyWithImpl<$Res>
 
 /// Create a copy of MedicalDocumentDetail
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? documentType = null,Object? classificationSource = null,Object? title = null,Object? description = null,Object? documentDate = freezed,Object? dateSource = null,Object? dateVerified = null,Object? dateVerifiedAt = freezed,Object? facilityName = null,Object? healthcareFacility = freezed,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? archiveStatus = null,Object? file = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? textAvailable = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? documentType = null,Object? classificationSource = null,Object? title = null,Object? description = null,Object? documentDate = freezed,Object? dateSource = null,Object? dateVerified = null,Object? dateVerifiedAt = freezed,Object? facilityName = null,Object? healthcareFacility = freezed,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? archiveStatus = null,Object? file = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? textAvailable = null,Object? duplicateOf = freezed,}) {
   return _then(_self.copyWith(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,documentType: null == documentType ? _self.documentType : documentType // ignore: cast_nullable_to_non_nullable
@@ -730,7 +732,8 @@ as ArchiveStatus,file: freezed == file ? _self.file : file // ignore: cast_nulla
 as StoredFilePublic?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,textAvailable: null == textAvailable ? _self.textAvailable : textAvailable // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,duplicateOf: freezed == duplicateOf ? _self.duplicateOf : duplicateOf // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of MedicalDocumentDetail
@@ -839,10 +842,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable,  String? duplicateOf)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MedicalDocumentDetail() when $default != null:
-return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable);case _:
+return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable,_that.duplicateOf);case _:
   return orElse();
 
 }
@@ -860,10 +863,10 @@ return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable,  String? duplicateOf)  $default,) {final _that = this;
 switch (_that) {
 case _MedicalDocumentDetail():
-return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable);case _:
+return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable,_that.duplicateOf);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -880,10 +883,10 @@ return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType, @JsonKey(fromJson: classificationSourceFromJson)  ClassificationSource classificationSource,  String title,  String description,  DateTime? documentDate, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  bool dateVerified,  DateTime? dateVerifiedAt,  String facilityName,  HealthcareFacility? healthcareFacility,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus, @JsonKey(fromJson: archiveStatusFromJson)  ArchiveStatus archiveStatus,  StoredFilePublic? file,  DateTime? createdAt,  DateTime? updatedAt,  bool textAvailable,  String? duplicateOf)?  $default,) {final _that = this;
 switch (_that) {
 case _MedicalDocumentDetail() when $default != null:
-return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable);case _:
+return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.title,_that.description,_that.documentDate,_that.dateSource,_that.dateVerified,_that.dateVerifiedAt,_that.facilityName,_that.healthcareFacility,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.archiveStatus,_that.file,_that.createdAt,_that.updatedAt,_that.textAvailable,_that.duplicateOf);case _:
   return null;
 
 }
@@ -895,7 +898,7 @@ return $default(_that.uuid,_that.documentType,_that.classificationSource,_that.t
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _MedicalDocumentDetail implements MedicalDocumentDetail {
-  const _MedicalDocumentDetail({required this.uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, @JsonKey(fromJson: classificationSourceFromJson) this.classificationSource = ClassificationSource.unknown, this.title = '', this.description = '', this.documentDate, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.dateVerified = false, this.dateVerifiedAt, this.facilityName = '', this.healthcareFacility, this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, @JsonKey(fromJson: archiveStatusFromJson) this.archiveStatus = ArchiveStatus.unknown, this.file, this.createdAt, this.updatedAt, this.textAvailable = false});
+  const _MedicalDocumentDetail({required this.uuid, @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, @JsonKey(fromJson: classificationSourceFromJson) this.classificationSource = ClassificationSource.unknown, this.title = '', this.description = '', this.documentDate, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.dateVerified = false, this.dateVerifiedAt, this.facilityName = '', this.healthcareFacility, this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, @JsonKey(fromJson: archiveStatusFromJson) this.archiveStatus = ArchiveStatus.unknown, this.file, this.createdAt, this.updatedAt, this.textAvailable = false, this.duplicateOf});
   factory _MedicalDocumentDetail.fromJson(Map<String, dynamic> json) => _$MedicalDocumentDetailFromJson(json);
 
 @override final  String uuid;
@@ -918,6 +921,9 @@ class _MedicalDocumentDetail implements MedicalDocumentDetail {
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 @override@JsonKey() final  bool textAvailable;
+/// Existing document uuid when this upload was flagged as a content
+/// duplicate (owner-scoped). Null otherwise.
+@override final  String? duplicateOf;
 
 /// Create a copy of MedicalDocumentDetail
 /// with the given fields replaced by the non-null parameter values.
@@ -932,16 +938,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MedicalDocumentDetail&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.classificationSource, classificationSource) || other.classificationSource == classificationSource)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateVerifiedAt, dateVerifiedAt) || other.dateVerifiedAt == dateVerifiedAt)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.archiveStatus, archiveStatus) || other.archiveStatus == archiveStatus)&&(identical(other.file, file) || other.file == file)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.textAvailable, textAvailable) || other.textAvailable == textAvailable));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MedicalDocumentDetail&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.classificationSource, classificationSource) || other.classificationSource == classificationSource)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateVerifiedAt, dateVerifiedAt) || other.dateVerifiedAt == dateVerifiedAt)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.archiveStatus, archiveStatus) || other.archiveStatus == archiveStatus)&&(identical(other.file, file) || other.file == file)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.textAvailable, textAvailable) || other.textAvailable == textAvailable)&&(identical(other.duplicateOf, duplicateOf) || other.duplicateOf == duplicateOf));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,uuid,documentType,classificationSource,title,description,documentDate,dateSource,dateVerified,dateVerifiedAt,facilityName,healthcareFacility,locationText,department,physicianName,processingStatus,archiveStatus,file,createdAt,updatedAt,textAvailable]);
+int get hashCode => Object.hashAll([runtimeType,uuid,documentType,classificationSource,title,description,documentDate,dateSource,dateVerified,dateVerifiedAt,facilityName,healthcareFacility,locationText,department,physicianName,processingStatus,archiveStatus,file,createdAt,updatedAt,textAvailable,duplicateOf]);
 
 @override
 String toString() {
-  return 'MedicalDocumentDetail(uuid: $uuid, documentType: $documentType, classificationSource: $classificationSource, title: $title, description: $description, documentDate: $documentDate, dateSource: $dateSource, dateVerified: $dateVerified, dateVerifiedAt: $dateVerifiedAt, facilityName: $facilityName, healthcareFacility: $healthcareFacility, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, archiveStatus: $archiveStatus, file: $file, createdAt: $createdAt, updatedAt: $updatedAt, textAvailable: $textAvailable)';
+  return 'MedicalDocumentDetail(uuid: $uuid, documentType: $documentType, classificationSource: $classificationSource, title: $title, description: $description, documentDate: $documentDate, dateSource: $dateSource, dateVerified: $dateVerified, dateVerifiedAt: $dateVerifiedAt, facilityName: $facilityName, healthcareFacility: $healthcareFacility, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, archiveStatus: $archiveStatus, file: $file, createdAt: $createdAt, updatedAt: $updatedAt, textAvailable: $textAvailable, duplicateOf: $duplicateOf)';
 }
 
 
@@ -952,7 +958,7 @@ abstract mixin class _$MedicalDocumentDetailCopyWith<$Res> implements $MedicalDo
   factory _$MedicalDocumentDetailCopyWith(_MedicalDocumentDetail value, $Res Function(_MedicalDocumentDetail) _then) = __$MedicalDocumentDetailCopyWithImpl;
 @override @useResult
 $Res call({
- String uuid,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType,@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource classificationSource, String title, String description, DateTime? documentDate,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, bool dateVerified, DateTime? dateVerifiedAt, String facilityName, HealthcareFacility? healthcareFacility, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus,@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus archiveStatus, StoredFilePublic? file, DateTime? createdAt, DateTime? updatedAt, bool textAvailable
+ String uuid,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType,@JsonKey(fromJson: classificationSourceFromJson) ClassificationSource classificationSource, String title, String description, DateTime? documentDate,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, bool dateVerified, DateTime? dateVerifiedAt, String facilityName, HealthcareFacility? healthcareFacility, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus,@JsonKey(fromJson: archiveStatusFromJson) ArchiveStatus archiveStatus, StoredFilePublic? file, DateTime? createdAt, DateTime? updatedAt, bool textAvailable, String? duplicateOf
 });
 
 
@@ -969,7 +975,7 @@ class __$MedicalDocumentDetailCopyWithImpl<$Res>
 
 /// Create a copy of MedicalDocumentDetail
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? documentType = null,Object? classificationSource = null,Object? title = null,Object? description = null,Object? documentDate = freezed,Object? dateSource = null,Object? dateVerified = null,Object? dateVerifiedAt = freezed,Object? facilityName = null,Object? healthcareFacility = freezed,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? archiveStatus = null,Object? file = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? textAvailable = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? documentType = null,Object? classificationSource = null,Object? title = null,Object? description = null,Object? documentDate = freezed,Object? dateSource = null,Object? dateVerified = null,Object? dateVerifiedAt = freezed,Object? facilityName = null,Object? healthcareFacility = freezed,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? archiveStatus = null,Object? file = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? textAvailable = null,Object? duplicateOf = freezed,}) {
   return _then(_MedicalDocumentDetail(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,documentType: null == documentType ? _self.documentType : documentType // ignore: cast_nullable_to_non_nullable
@@ -991,7 +997,8 @@ as ArchiveStatus,file: freezed == file ? _self.file : file // ignore: cast_nulla
 as StoredFilePublic?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,textAvailable: null == textAvailable ? _self.textAvailable : textAvailable // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,duplicateOf: freezed == duplicateOf ? _self.duplicateOf : duplicateOf // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

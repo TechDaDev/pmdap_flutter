@@ -105,6 +105,10 @@ abstract class MedicalDocumentDetail with _$MedicalDocumentDetail {
     DateTime? createdAt,
     DateTime? updatedAt,
     @Default(false) bool textAvailable,
+
+    /// Existing document uuid when this upload was flagged as a content
+    /// duplicate (owner-scoped). Null otherwise.
+    String? duplicateOf,
   }) = _MedicalDocumentDetail;
 
   factory MedicalDocumentDetail.fromJson(Map<String, dynamic> json) =>

@@ -165,6 +165,7 @@ const _$ProcessingStatusEnumMap = {
   ProcessingStatus.awaitingConfirmation: 'awaitingConfirmation',
   ProcessingStatus.dateConfirmed: 'dateConfirmed',
   ProcessingStatus.indexed: 'indexed',
+  ProcessingStatus.duplicateDetected: 'duplicateDetected',
   ProcessingStatus.failed: 'failed',
   ProcessingStatus.unknown: 'unknown',
 };
@@ -222,6 +223,7 @@ _MedicalDocumentDetail _$MedicalDocumentDetailFromJson(
       ? null
       : DateTime.parse(json['updated_at'] as String),
   textAvailable: json['text_available'] as bool? ?? false,
+  duplicateOf: json['duplicate_of'] as String?,
 );
 
 Map<String, dynamic> _$MedicalDocumentDetailToJson(
@@ -248,6 +250,7 @@ Map<String, dynamic> _$MedicalDocumentDetailToJson(
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
   'text_available': instance.textAvailable,
+  'duplicate_of': instance.duplicateOf,
 };
 
 _DocumentDateConfirmationResponse _$DocumentDateConfirmationResponseFromJson(

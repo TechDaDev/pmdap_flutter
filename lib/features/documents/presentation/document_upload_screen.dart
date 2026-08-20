@@ -414,6 +414,13 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         );
       }
       if (!mounted) return;
+      if (e.code == 'duplicate_document') {
+        final existingUuid = e.details['existing_document_uuid'] as String?;
+        await optimizer.disposeTemporary(asset);
+        if (!mounted) return;
+        _showDuplicateDialog(l10n, existingUuid);
+        return;
+      }
       // Keep the prepared derivative for retry (no recompression).
       setState(() => _errorMessage = mapUploadError(e, l10n));
     } catch (e) {
@@ -430,6 +437,36 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         });
       }
     }
+  }
+
+  Future<void> _showDuplicateDialog(
+    AppLocalizations l10n,
+    String? existingUuid,
+  ) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.alreadyUploaded),
+        content: Text(l10n.alreadyUploadedMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'cancel'),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: existingUuid == null
+                ? null
+                : () => Navigator.pop(context, existingUuid),
+            child: Text(l10n.viewExisting),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || result == null || result == 'cancel') return;
+    context.pushReplacement(
+      Routes.documentDetail(result),
+      extra: widget.minorUuid,
+    );
   }
 
   @override

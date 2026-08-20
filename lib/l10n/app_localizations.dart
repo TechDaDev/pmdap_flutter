@@ -1532,6 +1532,12 @@ abstract class AppLocalizations {
   /// **'Indexed'**
   String get statusIndexed;
 
+  /// No description provided for @statusDuplicateDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate detected'**
+  String get statusDuplicateDetected;
+
   /// No description provided for @statusFailed.
   ///
   /// In en, this message translates to:
@@ -2989,6 +2995,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No extracted report was detected. View the original report to review it.'**
   String get noExtractedReportDetected;
+
+  /// No description provided for @documentViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Document viewer'**
+  String get documentViewer;
+
+  /// No description provided for @documentViewerError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t open this document.'**
+  String get documentViewerError;
+
+  /// No description provided for @alreadyUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Already uploaded'**
+  String get alreadyUploaded;
+
+  /// No description provided for @alreadyUploadedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This document is already in your archive.'**
+  String get alreadyUploadedMessage;
+
+  /// No description provided for @viewExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing'**
+  String get viewExisting;
+
+  /// No description provided for @duplicateDetectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicate'**
+  String get duplicateDetectedTitle;
+
+  /// No description provided for @duplicateDetectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This document appears to already exist in your archive.'**
+  String get duplicateDetectedMessage;
+
+  /// No description provided for @removeDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this upload'**
+  String get removeDuplicate;
 }
 
 class _AppLocalizationsDelegate

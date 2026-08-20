@@ -754,6 +754,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statusIndexed => 'مفهرس';
 
   @override
+  String get statusDuplicateDetected => 'تم اكتشاف تكرار';
+
+  @override
   String get statusFailed => 'فشل';
 
   @override
@@ -1510,4 +1513,29 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noExtractedReportDetected =>
       'لم يتم اكتشاف تقرير مستخرج. راجع التقرير الأصلي لمراجعته.';
+
+  @override
+  String get documentViewer => 'عارض الوثيقة';
+
+  @override
+  String get documentViewerError => 'تعذّر فتح هذه الوثيقة.';
+
+  @override
+  String get alreadyUploaded => 'تم الرفع مسبقًا';
+
+  @override
+  String get alreadyUploadedMessage => 'هذه الوثيقة موجودة بالفعل في أرشيفك.';
+
+  @override
+  String get viewExisting => 'عرض الموجودة';
+
+  @override
+  String get duplicateDetectedTitle => 'مكررة محتملة';
+
+  @override
+  String get duplicateDetectedMessage =>
+      'يبدو أن هذه الوثيقة موجودة بالفعل في أرشيفك.';
+
+  @override
+  String get removeDuplicate => 'إزالة هذا الرفع';
 }

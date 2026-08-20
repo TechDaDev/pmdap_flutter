@@ -108,6 +108,7 @@ enum ProcessingStatus {
   awaitingConfirmation('AWAITING_CONFIRMATION'),
   dateConfirmed('DATE_CONFIRMED'),
   indexed('INDEXED'),
+  duplicateDetected('DUPLICATE_DETECTED'),
   failed('FAILED'),
   unknown('UNKNOWN');
 
@@ -132,6 +133,7 @@ enum ProcessingStatus {
       case awaitingConfirmation:
       case dateConfirmed:
       case indexed:
+      case duplicateDetected:
       case failed:
       case unknown:
         return false;

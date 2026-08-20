@@ -255,6 +255,7 @@
   "statusAwaitingConfirmation": "Awaiting confirmation",
   "statusDateConfirmed": "Date confirmed",
   "statusIndexed": "Indexed",
+  "statusDuplicateDetected": "Duplicate detected",
   "statusFailed": "Failed",
   "typeLaboratory": "Laboratory",
   "typeRadiology": "Radiology",
@@ -518,5 +519,13 @@
   "extractedReport": "Extracted report",
   "documentActions": "Document actions",
   "reportUnavailable": "The extracted report isn't available. You can still view the original document.",
-  "noExtractedReportDetected": "No extracted report was detected. View the original report to review it."
+  "noExtractedReportDetected": "No extracted report was detected. View the original report to review it.",
+  "documentViewer": "Document viewer",
+  "documentViewerError": "We couldn't open this document.",
+  "alreadyUploaded": "Already uploaded",
+  "alreadyUploadedMessage": "This document is already in your archive.",
+  "viewExisting": "View existing",
+  "duplicateDetectedTitle": "Possible duplicate",
+  "duplicateDetectedMessage": "This document appears to already exist in your archive.",
+  "removeDuplicate": "Remove this upload"
 }
