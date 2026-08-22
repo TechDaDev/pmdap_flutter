@@ -109,6 +109,7 @@ enum ProcessingStatus {
   dateConfirmed('DATE_CONFIRMED'),
   indexed('INDEXED'),
   duplicateDetected('DUPLICATE_DETECTED'),
+  partial('PARTIAL'),
   failed('FAILED'),
   unknown('UNKNOWN');
 
@@ -134,6 +135,7 @@ enum ProcessingStatus {
       case dateConfirmed:
       case indexed:
       case duplicateDetected:
+      case partial:
       case failed:
       case unknown:
         return false;

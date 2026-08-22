@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/document_page.dart';
 import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
@@ -34,6 +35,10 @@ void invalidateMedicalDocumentLists(WidgetRef ref) {
   // Structured lab results follow the document-processing lifecycle.
   ref.invalidate(labResultsProvider);
   ref.invalidate(minorLabResultsProvider);
+  // Page report units + page lab results follow the same lifecycle.
+  ref.invalidate(documentPagesProvider);
+  ref.invalidate(documentPageDetailProvider);
+  ref.invalidate(documentPageLabResultsProvider);
   // Extracted narrative content follows the same lifecycle.
   ref.invalidate(extractedContentProvider);
   ref.invalidate(minorExtractedContentProvider);
@@ -89,6 +94,28 @@ final minorExtractedContentProvider = FutureProvider.autoDispose
 final dateCandidatesProvider = FutureProvider.autoDispose
     .family<Page<DateCandidate>, String>(
       (ref, uuid) => ref.watch(documentsApiProvider).dateCandidates(uuid),
+    );
+
+/// Report-unit summary for one owned document (multi-page PDFs).
+final documentPagesProvider = FutureProvider.autoDispose
+    .family<MedicalDocumentPageSummary, String>(
+      (ref, uuid) => ref.watch(documentsApiProvider).documentPages(uuid),
+    );
+
+/// One report page unit detail (own candidates + lab results).
+final documentPageDetailProvider = FutureProvider.autoDispose
+    .family<MedicalDocumentPageDetail, ({String uuid, int pageNumber})>(
+      (ref, args) => ref
+          .watch(documentsApiProvider)
+          .documentPageDetail(args.uuid, args.pageNumber),
+    );
+
+/// Structured lab results for ONE report page (owner-only).
+final documentPageLabResultsProvider = FutureProvider.autoDispose
+    .family<MedicalDocumentPageLabResults, ({String uuid, int pageNumber})>(
+      (ref, args) => ref
+          .watch(documentsApiProvider)
+          .pageLabResults(args.uuid, args.pageNumber),
     );
 
 /// Minor-scoped date-candidate page (guardian flow). Same authoritative

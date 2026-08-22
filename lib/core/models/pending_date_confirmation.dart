@@ -1,10 +1,11 @@
 import '../models/enums.dart';
 
-/// One document awaiting date confirmation, from the document-centric queue
+/// One report unit awaiting date confirmation, from the report-unit queue
 /// (`/documents/date-confirmations/pending/`).
 ///
-/// The DOCUMENT is the unit: it appears even when OCR found no date
-/// (`detectedCandidates` empty, `requiresManualDate` true).
+/// The REPORT PAGE is the unit: a multi-page PDF contributes up to N entries
+/// (one per page), each with its own candidates. A page appears even when OCR
+/// found no date (`detectedCandidates` empty, `requiresManualDate` true).
 class PendingDateConfirmation {
   const PendingDateConfirmation({
     required this.documentUuid,
@@ -13,6 +14,9 @@ class PendingDateConfirmation {
     required this.createdAt,
     required this.detectedCandidates,
     required this.requiresManualDate,
+    this.pageNumber = 1,
+    this.pageCount = 1,
+    this.reportSubtype = '',
   });
 
   final String documentUuid;
@@ -21,6 +25,17 @@ class PendingDateConfirmation {
   final DateTime createdAt;
   final List<PendingDateCandidate> detectedCandidates;
   final bool requiresManualDate;
+
+  /// Page number of the report unit this entry refers to.
+  final int pageNumber;
+
+  /// Total page count of the source document.
+  final int pageCount;
+
+  /// Detected report subtype (layout metadata only).
+  final String reportSubtype;
+
+  bool get isMultiPage => pageCount > 1;
 
   factory PendingDateConfirmation.fromJson(Map<String, dynamic> json) {
     return PendingDateConfirmation(
@@ -39,6 +54,9 @@ class PendingDateConfirmation {
           .map(PendingDateCandidate.fromJson)
           .toList(),
       requiresManualDate: json['requires_manual_date'] as bool? ?? true,
+      pageNumber: json['page_number'] as int? ?? 1,
+      pageCount: json['page_count'] as int? ?? 1,
+      reportSubtype: json['report_subtype'] as String? ?? '',
     );
   }
 }

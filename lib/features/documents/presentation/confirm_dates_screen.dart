@@ -63,13 +63,20 @@ class ConfirmDatesScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               itemCount: queue.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) => _PendingDocumentCard(
-                doc: queue[index],
-                typeLabel: labels.medicalDocumentTypeLabel(
-                  queue[index].documentType,
-                ),
-                l10n: l10n,
-              ),
+              itemBuilder: (context, index) {
+                final entry = queue[index];
+                return _PendingDocumentCard(
+                  doc: entry,
+                  typeLabel: labels.medicalDocumentTypeLabel(
+                    entry.documentType,
+                  ),
+                  pageTitle: entry.isMultiPage
+                      ? '${l10n.pageLabel} ${entry.pageNumber} · '
+                            '${labels.reportSubtypeLabel(entry.reportSubtype)}'
+                      : null,
+                  l10n: l10n,
+                );
+              },
             );
           },
         ),
@@ -83,15 +90,20 @@ class _PendingDocumentCard extends StatelessWidget {
     required this.doc,
     required this.typeLabel,
     required this.l10n,
+    this.pageTitle,
   });
 
   final PendingDateConfirmation doc;
   final String typeLabel;
   final AppLocalizations l10n;
 
+  /// Multi-page PDF entries show "Page N · subtype" as their title.
+  final String? pageTitle;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final title = pageTitle ?? typeLabel;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -103,7 +115,19 @@ class _PendingDocumentCard extends StatelessWidget {
                 const Icon(Icons.event_busy_outlined),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(typeLabel, style: theme.textTheme.titleMedium),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: theme.textTheme.titleMedium),
+                      if (pageTitle != null)
+                        Text(
+                          typeLabel,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 Text(
                   localizedDate(l10n, doc.createdAt),
@@ -164,7 +188,10 @@ class _PendingDocumentCard extends StatelessWidget {
               alignment: AlignmentDirectional.centerEnd,
               child: FilledButton.tonalIcon(
                 onPressed: () => context.push(
-                  Routes.documentDate(doc.documentUuid),
+                  doc.isMultiPage
+                      ? '${Routes.documentDate(doc.documentUuid)}'
+                            '?page=${doc.pageNumber}'
+                      : Routes.documentDate(doc.documentUuid),
                   extra: null,
                 ),
                 icon: const Icon(Icons.check_circle_outline),

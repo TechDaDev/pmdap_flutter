@@ -1551,4 +1551,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeDuplicate => 'Remove this upload';
+
+  @override
+  String get statusPartial => 'Partially processed';
+
+  @override
+  String get statusExtracting => 'Extracting results…';
+
+  @override
+  String get statusReady => 'Ready';
+
+  @override
+  String get reportSubtypeChemistry => 'Chemistry';
+
+  @override
+  String get reportSubtypeHormones => 'Hormones';
+
+  @override
+  String get reportSubtypeCbc => 'CBC';
+
+  @override
+  String get reportSubtypeRadiology => 'Radiology';
+
+  @override
+  String get reportSubtypeNarrative => 'Report';
+
+  @override
+  String extractedReports(int count) {
+    return 'Extracted reports · $count pages';
+  }
+
+  @override
+  String get pageLabel => 'Page';
+
+  @override
+  String get results => 'results';
+
+  @override
+  String get reference => 'Reference';
+
+  @override
+  String get resultsNotAvailable =>
+      'Results could not be extracted for this page.';
+
+  @override
+  String get noResultsOnPage =>
+      'No structured results were detected on this page.';
+
+  @override
+  String get viewOriginalPdf => 'View original PDF';
 }

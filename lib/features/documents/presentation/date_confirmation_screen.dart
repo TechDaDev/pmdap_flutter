@@ -16,10 +16,15 @@ class DateConfirmationScreen extends ConsumerStatefulWidget {
     super.key,
     required this.documentUuid,
     this.minorUuid,
+    this.pageNumber,
   });
 
   final String documentUuid;
   final String? minorUuid;
+
+  /// When set, confirms the date for ONE report page unit of a multi-page
+  /// PDF (page-scoped candidates + page confirm endpoint).
+  final int? pageNumber;
 
   @override
   ConsumerState<DateConfirmationScreen> createState() =>
@@ -42,6 +47,11 @@ class _DateConfirmationScreenState
   }
 
   Future<dynamic> _load() {
+    if (widget.pageNumber != null) {
+      return ref
+          .read(documentsApiProvider)
+          .documentPageDetail(widget.documentUuid, widget.pageNumber!);
+    }
     if (_isMinor) {
       return ref
           .read(minorDocumentsApiProvider)
@@ -63,7 +73,16 @@ class _DateConfirmationScreenState
       _errorMessage = null;
     });
     try {
-      if (_isMinor) {
+      if (widget.pageNumber != null) {
+        await ref
+            .read(documentsApiProvider)
+            .confirmPageDate(
+              widget.documentUuid,
+              widget.pageNumber!,
+              candidateId: candidateId,
+              date: candidateId == null ? _manualDate : null,
+            );
+      } else if (_isMinor) {
         await ref
             .read(minorDocumentsApiProvider)
             .confirmDate(
@@ -138,8 +157,11 @@ class _DateConfirmationScreenState
             );
           }
           final page = snapshot.data as dynamic;
-          final candidates =
-              (page.results as List<DateCandidate>?) ?? const <DateCandidate>[];
+          final candidates = widget.pageNumber != null
+              ? ((page.detectedCandidates as List<DateCandidate>?) ??
+                    const <DateCandidate>[])
+              : ((page.results as List<DateCandidate>?) ??
+                    const <DateCandidate>[]);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [

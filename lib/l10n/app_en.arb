@@ -527,5 +527,27 @@
   "viewExisting": "View existing",
   "duplicateDetectedTitle": "Possible duplicate",
   "duplicateDetectedMessage": "This document appears to already exist in your archive.",
-  "removeDuplicate": "Remove this upload"
+  "removeDuplicate": "Remove this upload",
+  "statusPartial": "Partially processed",
+  "statusExtracting": "Extracting results…",
+  "statusReady": "Ready",
+  "reportSubtypeChemistry": "Chemistry",
+  "reportSubtypeHormones": "Hormones",
+  "reportSubtypeCbc": "CBC",
+  "reportSubtypeRadiology": "Radiology",
+  "reportSubtypeNarrative": "Report",
+  "extractedReports": "Extracted reports · {count} pages",
+  "@extractedReports": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pageLabel": "Page",
+  "results": "results",
+  "reference": "Reference",
+  "resultsNotAvailable": "Results could not be extracted for this page.",
+  "noResultsOnPage": "No structured results were detected on this page.",
+  "viewOriginalPdf": "View original PDF"
 }

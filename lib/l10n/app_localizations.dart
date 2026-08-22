@@ -3043,6 +3043,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove this upload'**
   String get removeDuplicate;
+
+  /// No description provided for @statusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partially processed'**
+  String get statusPartial;
+
+  /// No description provided for @statusExtracting.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting results…'**
+  String get statusExtracting;
+
+  /// No description provided for @statusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get statusReady;
+
+  /// No description provided for @reportSubtypeChemistry.
+  ///
+  /// In en, this message translates to:
+  /// **'Chemistry'**
+  String get reportSubtypeChemistry;
+
+  /// No description provided for @reportSubtypeHormones.
+  ///
+  /// In en, this message translates to:
+  /// **'Hormones'**
+  String get reportSubtypeHormones;
+
+  /// No description provided for @reportSubtypeCbc.
+  ///
+  /// In en, this message translates to:
+  /// **'CBC'**
+  String get reportSubtypeCbc;
+
+  /// No description provided for @reportSubtypeRadiology.
+  ///
+  /// In en, this message translates to:
+  /// **'Radiology'**
+  String get reportSubtypeRadiology;
+
+  /// No description provided for @reportSubtypeNarrative.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportSubtypeNarrative;
+
+  /// No description provided for @extractedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted reports · {count} pages'**
+  String extractedReports(int count);
+
+  /// No description provided for @pageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get pageLabel;
+
+  /// No description provided for @results.
+  ///
+  /// In en, this message translates to:
+  /// **'results'**
+  String get results;
+
+  /// No description provided for @reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get reference;
+
+  /// No description provided for @resultsNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Results could not be extracted for this page.'**
+  String get resultsNotAvailable;
+
+  /// No description provided for @noResultsOnPage.
+  ///
+  /// In en, this message translates to:
+  /// **'No structured results were detected on this page.'**
+  String get noResultsOnPage;
+
+  /// No description provided for @viewOriginalPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'View original PDF'**
+  String get viewOriginalPdf;
 }
 
 class _AppLocalizationsDelegate

@@ -82,9 +82,64 @@ class StatusLabels {
         return l10n.statusIndexed;
       case ProcessingStatus.duplicateDetected:
         return l10n.statusDuplicateDetected;
+      case ProcessingStatus.partial:
+        return l10n.statusPartial;
       case ProcessingStatus.failed:
         return l10n.statusFailed;
       case ProcessingStatus.unknown:
+        return l10n.unknownStatus;
+    }
+  }
+
+  /// Localized label for a report-page unit status (backend page enum).
+  String pageStatusLabel(String status) {
+    switch (status) {
+      case 'QUEUED':
+        return l10n.statusQueued;
+      case 'OCR_PROCESSING':
+        return l10n.statusOcrProcessing;
+      case 'EXTRACTING':
+        return l10n.statusExtracting;
+      case 'AWAITING_CONFIRMATION':
+        return l10n.statusAwaitingConfirmation;
+      case 'READY':
+        return l10n.statusReady;
+      case 'FAILED':
+        return l10n.statusFailed;
+      default:
+        return l10n.unknownStatus;
+    }
+  }
+
+  /// StatusBadge for a report-page unit status (backend page enum).
+  StatusBadge pageStatusBadge(String status) {
+    final label = pageStatusLabel(status);
+    switch (status) {
+      case 'READY':
+        return StatusBadge.success(label: label);
+      case 'FAILED':
+        return StatusBadge.error(label: label);
+      case 'AWAITING_CONFIRMATION':
+        return StatusBadge.warning(label: label);
+      default:
+        return StatusBadge.info(label: label);
+    }
+  }
+
+  /// Localized report-subtype label (layout metadata only).
+  String reportSubtypeLabel(String subtype) {
+    switch (subtype) {
+      case 'LAB_CHEMISTRY':
+        return l10n.reportSubtypeChemistry;
+      case 'LAB_HORMONES':
+        return l10n.reportSubtypeHormones;
+      case 'LAB_CBC':
+        return l10n.reportSubtypeCbc;
+      case 'RADIOLOGY':
+        return l10n.reportSubtypeRadiology;
+      case 'NARRATIVE':
+        return l10n.reportSubtypeNarrative;
+      default:
         return l10n.unknownStatus;
     }
   }

@@ -1538,4 +1538,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get removeDuplicate => 'إزالة هذا الرفع';
+
+  @override
+  String get statusPartial => 'تمت المعالجة جزئياً';
+
+  @override
+  String get statusExtracting => 'جارٍ استخراج النتائج…';
+
+  @override
+  String get statusReady => 'جاهز';
+
+  @override
+  String get reportSubtypeChemistry => 'كيمياء';
+
+  @override
+  String get reportSubtypeHormones => 'هرمونات';
+
+  @override
+  String get reportSubtypeCbc => 'تعداد الدم';
+
+  @override
+  String get reportSubtypeRadiology => 'أشعة';
+
+  @override
+  String get reportSubtypeNarrative => 'تقرير';
+
+  @override
+  String extractedReports(int count) {
+    return 'التقارير المستخرجة · $count صفحات';
+  }
+
+  @override
+  String get pageLabel => 'صفحة';
+
+  @override
+  String get results => 'نتائج';
+
+  @override
+  String get reference => 'المرجع';
+
+  @override
+  String get resultsNotAvailable => 'تعذّر استخراج النتائج لهذه الصفحة.';
+
+  @override
+  String get noResultsOnPage => 'لم يتم اكتشاف نتائج منظمة في هذه الصفحة.';
+
+  @override
+  String get viewOriginalPdf => 'عرض ملف PDF الأصلي';
 }

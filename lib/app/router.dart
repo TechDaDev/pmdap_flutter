@@ -13,6 +13,7 @@ import '../features/documents/presentation/confirm_dates_screen.dart';
 import '../features/documents/presentation/date_confirmation_screen.dart';
 import '../features/documents/presentation/document_detail_screen.dart';
 import '../features/documents/presentation/document_viewer_screen.dart';
+import '../features/documents/presentation/document_page_results_screen.dart';
 import '../features/documents/presentation/documents_screen.dart';
 import '../features/documents/presentation/document_upload_screen.dart';
 import '../features/facilities/presentation/facilities_screen.dart';
@@ -61,6 +62,8 @@ class Routes {
   static String documentDetail(String uuid) => '/documents/$uuid';
   static String documentDate(String uuid) => '/documents/$uuid/date';
   static String documentViewer(String uuid) => '/documents/$uuid/view';
+  static String documentPageResults(String uuid, int pageNumber) =>
+      '/documents/$uuid/page/$pageNumber';
 
   static const confirmDates = '/confirm-dates';
   static const facilities = '/facilities';
@@ -233,6 +236,13 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
         ),
       ),
       GoRoute(
+        path: '/documents/:uuid/page/:pageNumber',
+        builder: (context, state) => DocumentPageResultsScreen(
+          uuid: state.pathParameters['uuid']!,
+          pageNumber: int.parse(state.pathParameters['pageNumber']!),
+        ),
+      ),
+      GoRoute(
         path: Routes.confirmDates,
         builder: (context, state) => const ConfirmDatesScreen(),
       ),
@@ -241,6 +251,7 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
         builder: (context, state) => DateConfirmationScreen(
           documentUuid: state.pathParameters['uuid']!,
           minorUuid: state.extra as String?,
+          pageNumber: int.tryParse(state.uri.queryParameters['page'] ?? ''),
         ),
       ),
       GoRoute(

@@ -9,12 +9,14 @@ import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/document_page.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart' as pag;
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
+import 'document_page_section.dart';
 import 'extracted_report_section.dart';
 import 'lab_results_section.dart';
 
@@ -316,6 +318,16 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   )),
                 )
               : ref.watch(dateCandidatesProvider(widget.uuid));
+          // Multi-page PDFs: one archived source document with independent
+          // page report units. Single-page docs keep the classic flat view.
+          // Gate the pages fetch on the stored file's page count so
+          // single-page documents never touch the pages endpoint.
+          final filePageCount = doc.file?.pageCount;
+          final multiPage =
+              !_isMinor && filePageCount != null && filePageCount > 1;
+          final pagesAsync = multiPage
+              ? ref.watch(documentPagesProvider(widget.uuid))
+              : null;
           final isPdf = mime.contains('pdf');
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -466,16 +478,25 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   ],
                 ),
               ),
+              // Multi-page PDFs: page report-unit cards (independent status,
+              // date state, results). Single-page docs keep the flat sections.
+              if (multiPage) ...[
+                const SizedBox(height: 16),
+                DocumentPageSection(uuid: widget.uuid),
+              ],
               // Structured lab results (derived, read-only). Only shown for
               // laboratory documents; the section hides itself for
-              // NOT_APPLICABLE / non-lab docs.
-              if (doc.documentType == MedicalDocumentType.laboratory)
+              // NOT_APPLICABLE / non-lab docs. Multi-page PDFs render their
+              // results per page in DocumentPageSection instead.
+              if (!multiPage &&
+                  doc.documentType == MedicalDocumentType.laboratory)
                 LabResultsSection(
                   uuid: widget.uuid,
                   minorUuid: widget.minorUuid,
                 ),
               // Narrative extracted report (radiology, imaging, letters).
-              if (doc.documentType != MedicalDocumentType.laboratory)
+              if (!multiPage &&
+                  doc.documentType != MedicalDocumentType.laboratory)
                 ExtractedReportSection(
                   uuid: widget.uuid,
                   minorUuid: widget.minorUuid,
@@ -518,8 +539,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                   label: Text(l10n.viewFile),
                 ),
               ],
-              if (doc.processingStatus.needsDateAction ||
-                  doc.processingStatus == ProcessingStatus.dateDetected) ...[
+              if (!multiPage &&
+                  (doc.processingStatus.needsDateAction ||
+                      doc.processingStatus ==
+                          ProcessingStatus.dateDetected)) ...[
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: () async {

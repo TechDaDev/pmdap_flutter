@@ -9,6 +9,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/document_page.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
@@ -299,6 +300,80 @@ class DocumentsApi {
           .whereType<Map<String, dynamic>>()
           .map(PendingDateConfirmation.fromJson)
           .toList();
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Report-unit summary for an owned document (`GET .../pages/`).
+  Future<MedicalDocumentPageSummary> documentPages(String uuid) async {
+    try {
+      final resp = await _dio.get<dynamic>(ApiPaths.documentPages(uuid));
+      return decodeData<MedicalDocumentPageSummary>(
+        resp.data,
+        MedicalDocumentPageSummary.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// One report page unit with its own candidates + structured results.
+  Future<MedicalDocumentPageDetail> documentPageDetail(
+    String uuid,
+    int pageNumber,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.documentPageDetail(uuid, pageNumber),
+      );
+      return decodeData<MedicalDocumentPageDetail>(
+        resp.data,
+        MedicalDocumentPageDetail.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Structured lab results for ONE report page (owner-only).
+  Future<MedicalDocumentPageLabResults> pageLabResults(
+    String uuid,
+    int pageNumber,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.documentPageLabResults(uuid, pageNumber),
+      );
+      return decodeData<MedicalDocumentPageLabResults>(
+        resp.data,
+        MedicalDocumentPageLabResults.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Confirm (or manually set) the report date for ONE page unit.
+  Future<MedicalDocumentPageDetail> confirmPageDate(
+    String uuid,
+    int pageNumber, {
+    String? candidateId,
+    DateTime? date,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        if (candidateId != null) 'candidate_id': candidateId,
+        if (date != null) 'date': formatApiDate(date),
+      };
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.documentPageConfirmDate(uuid, pageNumber),
+        data: body,
+      );
+      return decodeData<MedicalDocumentPageDetail>(
+        resp.data,
+        MedicalDocumentPageDetail.fromJson,
+      );
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

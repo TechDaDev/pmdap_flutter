@@ -62,6 +62,13 @@ class ApiPaths {
       '/documents/$uuid/date-candidates/';
   static String documentConfirmDate(String uuid) =>
       '/documents/$uuid/confirm-date/';
+  static String documentPages(String uuid) => '/documents/$uuid/pages/';
+  static String documentPageDetail(String uuid, int pageNumber) =>
+      '/documents/$uuid/pages/$pageNumber/';
+  static String documentPageLabResults(String uuid, int pageNumber) =>
+      '/documents/$uuid/pages/$pageNumber/lab-results/';
+  static String documentPageConfirmDate(String uuid, int pageNumber) =>
+      '/documents/$uuid/pages/$pageNumber/confirm-date/';
   static const pendingDateConfirmations =
       '/documents/date-confirmations/pending/';
 

@@ -527,5 +527,20 @@
   "viewExisting": "عرض الموجودة",
   "duplicateDetectedTitle": "مكررة محتملة",
   "duplicateDetectedMessage": "يبدو أن هذه الوثيقة موجودة بالفعل في أرشيفك.",
-  "removeDuplicate": "إزالة هذا الرفع"
+  "removeDuplicate": "إزالة هذا الرفع",
+  "statusPartial": "تمت المعالجة جزئياً",
+  "statusExtracting": "جارٍ استخراج النتائج…",
+  "statusReady": "جاهز",
+  "reportSubtypeChemistry": "كيمياء",
+  "reportSubtypeHormones": "هرمونات",
+  "reportSubtypeCbc": "تعداد الدم",
+  "reportSubtypeRadiology": "أشعة",
+  "reportSubtypeNarrative": "تقرير",
+  "extractedReports": "التقارير المستخرجة · {count} صفحات",
+  "pageLabel": "صفحة",
+  "results": "نتائج",
+  "reference": "المرجع",
+  "resultsNotAvailable": "تعذّر استخراج النتائج لهذه الصفحة.",
+  "noResultsOnPage": "لم يتم اكتشاف نتائج منظمة في هذه الصفحة.",
+  "viewOriginalPdf": "عرض ملف PDF الأصلي"
 }
