@@ -3133,6 +3133,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View original PDF'**
   String get viewOriginalPdf;
+
+  /// No description provided for @preparingPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing pages…'**
+  String get preparingPages;
 }
 
 class _AppLocalizationsDelegate

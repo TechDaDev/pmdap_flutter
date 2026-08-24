@@ -1585,4 +1585,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewOriginalPdf => 'عرض ملف PDF الأصلي';
+
+  @override
+  String get preparingPages => 'جارٍ تجهيز الصفحات…';
 }

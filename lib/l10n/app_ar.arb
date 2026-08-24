@@ -542,5 +542,6 @@
   "reference": "المرجع",
   "resultsNotAvailable": "تعذّر استخراج النتائج لهذه الصفحة.",
   "noResultsOnPage": "لم يتم اكتشاف نتائج منظمة في هذه الصفحة.",
-  "viewOriginalPdf": "عرض ملف PDF الأصلي"
+  "viewOriginalPdf": "عرض ملف PDF الأصلي",
+  "preparingPages": "جارٍ تجهيز الصفحات…"
 }

@@ -1600,4 +1600,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewOriginalPdf => 'View original PDF';
+
+  @override
+  String get preparingPages => 'Preparing pages…';
 }

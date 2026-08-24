@@ -24,10 +24,15 @@ class DocumentPageSection extends ConsumerWidget {
     final theme = Theme.of(context);
     final pagesAsync = ref.watch(documentPagesProvider(uuid));
     return pagesAsync.when(
-      loading: () => const SizedBox.shrink(),
+      loading: () => const _PreparingCard(),
       error: (Object _, StackTrace __) => const SizedBox.shrink(),
       data: (summary) {
-        if (summary.pageCount <= 1) return const SizedBox.shrink();
+        // Multi-page gate already passed (source file page_count > 1). While
+        // the worker creates page units, the pages endpoint returns 0 rows —
+        // show a calm "Preparing pages…" state, never a generic error.
+        if (summary.pageCount <= 1 || summary.pages.isEmpty) {
+          return const _PreparingCard();
+        }
         final labels = StatusLabels(l10n);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,6 +68,37 @@ class DocumentPageSection extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _PreparingCard extends StatelessWidget {
+  const _PreparingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.preparingPages,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

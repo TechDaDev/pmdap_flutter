@@ -549,5 +549,6 @@
   "reference": "Reference",
   "resultsNotAvailable": "Results could not be extracted for this page.",
   "noResultsOnPage": "No structured results were detected on this page.",
-  "viewOriginalPdf": "View original PDF"
+  "viewOriginalPdf": "View original PDF",
+  "preparingPages": "Preparing pages…"
 }

@@ -233,6 +233,53 @@ void main() {
     expect(find.textContaining('Page 2'), findsOneWidget);
     expect(find.textContaining('Page 3'), findsOneWidget);
   });
+
+  testWidgets('multi-page detail shows Preparing pages while units not ready', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      pumpApp(
+        const DocumentDetailScreen(uuid: 'd1'),
+        overrides: [
+          documentsApiProvider.overrideWithValue(_PreparingFakeApi()),
+        ],
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.textContaining('Preparing pages'), findsOneWidget);
+    expect(find.textContaining('Extracted reports'), findsNothing);
+  });
+}
+
+class _PreparingFakeApi extends DocumentsApi {
+  _PreparingFakeApi() : super(Dio());
+
+  @override
+  Future<MedicalDocumentDetail> detail(String uuid) async =>
+      _detailDoc(pageCount: 3);
+
+  @override
+  Future<MedicalDocumentPageSummary> documentPages(String uuid) async =>
+      const MedicalDocumentPageSummary(
+        documentUuid: 'd1',
+        pageCount: 0,
+        pages: [],
+      );
+
+  @override
+  Future<pag.Page<DateCandidate>> dateCandidates(
+    String uuid, {
+    int page = 1,
+  }) async {
+    return pag.Page<DateCandidate>(
+      count: 0,
+      next: null,
+      previous: null,
+      results: const [],
+    );
+  }
 }
 
 class _SinglePageFakeApi extends DocumentsApi {
