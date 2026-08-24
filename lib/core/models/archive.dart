@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'enum_json.dart';
 import 'enums.dart';
+import 'medical_document.dart';
 
 part 'archive.freezed.dart';
 part 'archive.g.dart';
@@ -44,6 +45,7 @@ abstract class ArchiveDocument with _$ArchiveDocument {
     @Default(ProcessingStatus.unknown)
     ProcessingStatus processingStatus,
     DateTime? createdAt,
+    StoredFilePublic? file,
   }) = _ArchiveDocument;
 
   factory ArchiveDocument.fromJson(Map<String, dynamic> json) =>

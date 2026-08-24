@@ -550,6 +550,9 @@
   "resultsNotAvailable": "Results could not be extracted for this page.",
   "noResultsOnPage": "No structured results were detected on this page.",
   "viewOriginalPdf": "View original PDF",
+  "sourceDocument": "Source document",
+  "pdfTag": "PDF",
+  "imageTag": "Image",
   "preparingPages": "Preparing pages…",
   "pagesNeedConfirmation": "{count, plural, =1{1 page needs confirmation} other{{count} pages need confirmation}}",
   "@pagesNeedConfirmation": {

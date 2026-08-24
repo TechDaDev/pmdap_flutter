@@ -3134,6 +3134,24 @@ abstract class AppLocalizations {
   /// **'View original PDF'**
   String get viewOriginalPdf;
 
+  /// No description provided for @sourceDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Source document'**
+  String get sourceDocument;
+
+  /// No description provided for @pdfTag.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get pdfTag;
+
+  /// No description provided for @imageTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get imageTag;
+
   /// No description provided for @preparingPages.
   ///
   /// In en, this message translates to:

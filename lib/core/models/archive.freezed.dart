@@ -281,7 +281,7 @@ as String,
 /// @nodoc
 mixin _$ArchiveDocument {
 
- String get uuid; String get title;@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType get documentType; DateTime? get documentDate; bool get dateVerified;@JsonKey(fromJson: dateSourceFromJson) DateSource get dateSource; ArchiveFacilitySummary? get healthcareFacility; String get facilityName; String get locationText; String get department; String get physicianName;@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus get processingStatus; DateTime? get createdAt;
+ String get uuid; String get title;@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType get documentType; DateTime? get documentDate; bool get dateVerified;@JsonKey(fromJson: dateSourceFromJson) DateSource get dateSource; ArchiveFacilitySummary? get healthcareFacility; String get facilityName; String get locationText; String get department; String get physicianName;@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus get processingStatus; DateTime? get createdAt; StoredFilePublic? get file;
 /// Create a copy of ArchiveDocument
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -294,16 +294,16 @@ $ArchiveDocumentCopyWith<ArchiveDocument> get copyWith => _$ArchiveDocumentCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ArchiveDocument&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.title, title) || other.title == title)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ArchiveDocument&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.title, title) || other.title == title)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.file, file) || other.file == file));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uuid,title,documentType,documentDate,dateVerified,dateSource,healthcareFacility,facilityName,locationText,department,physicianName,processingStatus,createdAt);
+int get hashCode => Object.hash(runtimeType,uuid,title,documentType,documentDate,dateVerified,dateSource,healthcareFacility,facilityName,locationText,department,physicianName,processingStatus,createdAt,file);
 
 @override
 String toString() {
-  return 'ArchiveDocument(uuid: $uuid, title: $title, documentType: $documentType, documentDate: $documentDate, dateVerified: $dateVerified, dateSource: $dateSource, healthcareFacility: $healthcareFacility, facilityName: $facilityName, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, createdAt: $createdAt)';
+  return 'ArchiveDocument(uuid: $uuid, title: $title, documentType: $documentType, documentDate: $documentDate, dateVerified: $dateVerified, dateSource: $dateSource, healthcareFacility: $healthcareFacility, facilityName: $facilityName, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, createdAt: $createdAt, file: $file)';
 }
 
 
@@ -314,11 +314,11 @@ abstract mixin class $ArchiveDocumentCopyWith<$Res>  {
   factory $ArchiveDocumentCopyWith(ArchiveDocument value, $Res Function(ArchiveDocument) _then) = _$ArchiveDocumentCopyWithImpl;
 @useResult
 $Res call({
- String uuid, String title,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType, DateTime? documentDate, bool dateVerified,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, ArchiveFacilitySummary? healthcareFacility, String facilityName, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus, DateTime? createdAt
+ String uuid, String title,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType, DateTime? documentDate, bool dateVerified,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, ArchiveFacilitySummary? healthcareFacility, String facilityName, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus, DateTime? createdAt, StoredFilePublic? file
 });
 
 
-$ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility;
+$ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility;$StoredFilePublicCopyWith<$Res>? get file;
 
 }
 /// @nodoc
@@ -331,7 +331,7 @@ class _$ArchiveDocumentCopyWithImpl<$Res>
 
 /// Create a copy of ArchiveDocument
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? title = null,Object? documentType = null,Object? documentDate = freezed,Object? dateVerified = null,Object? dateSource = null,Object? healthcareFacility = freezed,Object? facilityName = null,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uuid = null,Object? title = null,Object? documentType = null,Object? documentDate = freezed,Object? dateVerified = null,Object? dateSource = null,Object? healthcareFacility = freezed,Object? facilityName = null,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? createdAt = freezed,Object? file = freezed,}) {
   return _then(_self.copyWith(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -346,7 +346,8 @@ as String,department: null == department ? _self.department : department // igno
 as String,physicianName: null == physicianName ? _self.physicianName : physicianName // ignore: cast_nullable_to_non_nullable
 as String,processingStatus: null == processingStatus ? _self.processingStatus : processingStatus // ignore: cast_nullable_to_non_nullable
 as ProcessingStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as StoredFilePublic?,
   ));
 }
 /// Create a copy of ArchiveDocument
@@ -360,6 +361,18 @@ $ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility {
 
   return $ArchiveFacilitySummaryCopyWith<$Res>(_self.healthcareFacility!, (value) {
     return _then(_self.copyWith(healthcareFacility: value));
+  });
+}/// Create a copy of ArchiveDocument
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StoredFilePublicCopyWith<$Res>? get file {
+    if (_self.file == null) {
+    return null;
+  }
+
+  return $StoredFilePublicCopyWith<$Res>(_self.file!, (value) {
+    return _then(_self.copyWith(file: value));
   });
 }
 }
@@ -443,10 +456,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt,  StoredFilePublic? file)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ArchiveDocument() when $default != null:
-return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt);case _:
+return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt,_that.file);case _:
   return orElse();
 
 }
@@ -464,10 +477,10 @@ return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt,  StoredFilePublic? file)  $default,) {final _that = this;
 switch (_that) {
 case _ArchiveDocument():
-return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt);case _:
+return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt,_that.file);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -484,10 +497,10 @@ return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uuid,  String title, @JsonKey(fromJson: medicalDocumentTypeFromJson)  MedicalDocumentType documentType,  DateTime? documentDate,  bool dateVerified, @JsonKey(fromJson: dateSourceFromJson)  DateSource dateSource,  ArchiveFacilitySummary? healthcareFacility,  String facilityName,  String locationText,  String department,  String physicianName, @JsonKey(fromJson: processingStatusFromJson)  ProcessingStatus processingStatus,  DateTime? createdAt,  StoredFilePublic? file)?  $default,) {final _that = this;
 switch (_that) {
 case _ArchiveDocument() when $default != null:
-return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt);case _:
+return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_that.dateVerified,_that.dateSource,_that.healthcareFacility,_that.facilityName,_that.locationText,_that.department,_that.physicianName,_that.processingStatus,_that.createdAt,_that.file);case _:
   return null;
 
 }
@@ -499,7 +512,7 @@ return $default(_that.uuid,_that.title,_that.documentType,_that.documentDate,_th
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _ArchiveDocument implements ArchiveDocument {
-  const _ArchiveDocument({required this.uuid, this.title = '', @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, this.documentDate, this.dateVerified = false, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.healthcareFacility, this.facilityName = '', this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, this.createdAt});
+  const _ArchiveDocument({required this.uuid, this.title = '', @JsonKey(fromJson: medicalDocumentTypeFromJson) this.documentType = MedicalDocumentType.unknown, this.documentDate, this.dateVerified = false, @JsonKey(fromJson: dateSourceFromJson) this.dateSource = DateSource.unknown, this.healthcareFacility, this.facilityName = '', this.locationText = '', this.department = '', this.physicianName = '', @JsonKey(fromJson: processingStatusFromJson) this.processingStatus = ProcessingStatus.unknown, this.createdAt, this.file});
   factory _ArchiveDocument.fromJson(Map<String, dynamic> json) => _$ArchiveDocumentFromJson(json);
 
 @override final  String uuid;
@@ -515,6 +528,7 @@ class _ArchiveDocument implements ArchiveDocument {
 @override@JsonKey() final  String physicianName;
 @override@JsonKey(fromJson: processingStatusFromJson) final  ProcessingStatus processingStatus;
 @override final  DateTime? createdAt;
+@override final  StoredFilePublic? file;
 
 /// Create a copy of ArchiveDocument
 /// with the given fields replaced by the non-null parameter values.
@@ -529,16 +543,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ArchiveDocument&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.title, title) || other.title == title)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ArchiveDocument&&(identical(other.uuid, uuid) || other.uuid == uuid)&&(identical(other.title, title) || other.title == title)&&(identical(other.documentType, documentType) || other.documentType == documentType)&&(identical(other.documentDate, documentDate) || other.documentDate == documentDate)&&(identical(other.dateVerified, dateVerified) || other.dateVerified == dateVerified)&&(identical(other.dateSource, dateSource) || other.dateSource == dateSource)&&(identical(other.healthcareFacility, healthcareFacility) || other.healthcareFacility == healthcareFacility)&&(identical(other.facilityName, facilityName) || other.facilityName == facilityName)&&(identical(other.locationText, locationText) || other.locationText == locationText)&&(identical(other.department, department) || other.department == department)&&(identical(other.physicianName, physicianName) || other.physicianName == physicianName)&&(identical(other.processingStatus, processingStatus) || other.processingStatus == processingStatus)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.file, file) || other.file == file));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,uuid,title,documentType,documentDate,dateVerified,dateSource,healthcareFacility,facilityName,locationText,department,physicianName,processingStatus,createdAt);
+int get hashCode => Object.hash(runtimeType,uuid,title,documentType,documentDate,dateVerified,dateSource,healthcareFacility,facilityName,locationText,department,physicianName,processingStatus,createdAt,file);
 
 @override
 String toString() {
-  return 'ArchiveDocument(uuid: $uuid, title: $title, documentType: $documentType, documentDate: $documentDate, dateVerified: $dateVerified, dateSource: $dateSource, healthcareFacility: $healthcareFacility, facilityName: $facilityName, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, createdAt: $createdAt)';
+  return 'ArchiveDocument(uuid: $uuid, title: $title, documentType: $documentType, documentDate: $documentDate, dateVerified: $dateVerified, dateSource: $dateSource, healthcareFacility: $healthcareFacility, facilityName: $facilityName, locationText: $locationText, department: $department, physicianName: $physicianName, processingStatus: $processingStatus, createdAt: $createdAt, file: $file)';
 }
 
 
@@ -549,11 +563,11 @@ abstract mixin class _$ArchiveDocumentCopyWith<$Res> implements $ArchiveDocument
   factory _$ArchiveDocumentCopyWith(_ArchiveDocument value, $Res Function(_ArchiveDocument) _then) = __$ArchiveDocumentCopyWithImpl;
 @override @useResult
 $Res call({
- String uuid, String title,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType, DateTime? documentDate, bool dateVerified,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, ArchiveFacilitySummary? healthcareFacility, String facilityName, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus, DateTime? createdAt
+ String uuid, String title,@JsonKey(fromJson: medicalDocumentTypeFromJson) MedicalDocumentType documentType, DateTime? documentDate, bool dateVerified,@JsonKey(fromJson: dateSourceFromJson) DateSource dateSource, ArchiveFacilitySummary? healthcareFacility, String facilityName, String locationText, String department, String physicianName,@JsonKey(fromJson: processingStatusFromJson) ProcessingStatus processingStatus, DateTime? createdAt, StoredFilePublic? file
 });
 
 
-@override $ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility;
+@override $ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility;@override $StoredFilePublicCopyWith<$Res>? get file;
 
 }
 /// @nodoc
@@ -566,7 +580,7 @@ class __$ArchiveDocumentCopyWithImpl<$Res>
 
 /// Create a copy of ArchiveDocument
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? title = null,Object? documentType = null,Object? documentDate = freezed,Object? dateVerified = null,Object? dateSource = null,Object? healthcareFacility = freezed,Object? facilityName = null,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uuid = null,Object? title = null,Object? documentType = null,Object? documentDate = freezed,Object? dateVerified = null,Object? dateSource = null,Object? healthcareFacility = freezed,Object? facilityName = null,Object? locationText = null,Object? department = null,Object? physicianName = null,Object? processingStatus = null,Object? createdAt = freezed,Object? file = freezed,}) {
   return _then(_ArchiveDocument(
 uuid: null == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -581,7 +595,8 @@ as String,department: null == department ? _self.department : department // igno
 as String,physicianName: null == physicianName ? _self.physicianName : physicianName // ignore: cast_nullable_to_non_nullable
 as String,processingStatus: null == processingStatus ? _self.processingStatus : processingStatus // ignore: cast_nullable_to_non_nullable
 as ProcessingStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as StoredFilePublic?,
   ));
 }
 
@@ -596,6 +611,18 @@ $ArchiveFacilitySummaryCopyWith<$Res>? get healthcareFacility {
 
   return $ArchiveFacilitySummaryCopyWith<$Res>(_self.healthcareFacility!, (value) {
     return _then(_self.copyWith(healthcareFacility: value));
+  });
+}/// Create a copy of ArchiveDocument
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StoredFilePublicCopyWith<$Res>? get file {
+    if (_self.file == null) {
+    return null;
+  }
+
+  return $StoredFilePublicCopyWith<$Res>(_self.file!, (value) {
+    return _then(_self.copyWith(file: value));
   });
 }
 }

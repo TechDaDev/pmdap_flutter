@@ -30,6 +30,7 @@ class DocumentCard extends StatelessWidget {
       if (facility.isNotEmpty) facility,
       if (document.department.isNotEmpty) document.department,
     ].join(' · ');
+    final sourceTag = _sourceTag(l10n, theme);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -106,6 +107,10 @@ class DocumentCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (sourceTag != null) ...[
+                    const SizedBox(width: 8),
+                    sourceTag,
+                  ],
                   const SizedBox(width: 8),
                   Flexible(
                     child: FittedBox(
@@ -121,6 +126,30 @@ class DocumentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Compact, neutral source-format pill. Label comes from the ACTUAL stored
+  /// file media type (application/pdf -> PDF, image/* -> Image), never from
+  /// document_type or page_count. Unknown -> hidden, no clinical meaning.
+  Widget? _sourceTag(AppLocalizations l10n, ThemeData theme) {
+    final mime = document.file?.mimeType ?? '';
+    final Widget child;
+    if (mime == 'application/pdf') {
+      child = _SourceTag(
+        label: l10n.pdfTag,
+        icon: Icons.picture_as_pdf_outlined,
+        theme: theme,
+      );
+    } else if (mime.startsWith('image/')) {
+      child = _SourceTag(
+        label: l10n.imageTag,
+        icon: Icons.image_outlined,
+        theme: theme,
+      );
+    } else {
+      return null;
+    }
+    return child;
   }
 
   /// Blank title falls back to the localized document type first; only when
@@ -153,4 +182,45 @@ class _Meta extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Compact neutral source-format pill (PDF / Image). Not status-colored and
+/// carries no clinical meaning; readable in both light and dark themes.
+class _SourceTag extends StatelessWidget {
+  const _SourceTag({
+    required this.label,
+    required this.icon,
+    required this.theme,
+  });
+
+  final String label;
+  final IconData icon;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

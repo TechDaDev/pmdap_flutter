@@ -1587,6 +1587,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get viewOriginalPdf => 'عرض ملف PDF الأصلي';
 
   @override
+  String get sourceDocument => 'المستند المصدر';
+
+  @override
+  String get pdfTag => 'PDF';
+
+  @override
+  String get imageTag => 'صورة';
+
+  @override
   String get preparingPages => 'جارٍ تجهيز الصفحات…';
 
   @override

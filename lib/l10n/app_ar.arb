@@ -543,6 +543,9 @@
   "resultsNotAvailable": "تعذّر استخراج النتائج لهذه الصفحة.",
   "noResultsOnPage": "لم يتم اكتشاف نتائج منظمة في هذه الصفحة.",
   "viewOriginalPdf": "عرض ملف PDF الأصلي",
+  "sourceDocument": "المستند المصدر",
+  "pdfTag": "PDF",
+  "imageTag": "صورة",
   "preparingPages": "جارٍ تجهيز الصفحات…",
   "pagesNeedConfirmation": "{count, plural, =1{صفحة واحدة بحاجة إلى تأكيد التاريخ} other{{count} صفحات بحاجة إلى تأكيد التاريخ}}",
   "confirmThisPage": "تأكيد تاريخ هذه الصفحة"

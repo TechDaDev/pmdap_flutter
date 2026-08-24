@@ -46,6 +46,9 @@ _ArchiveDocument _$ArchiveDocumentFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
+      file: json['file'] == null
+          ? null
+          : StoredFilePublic.fromJson(json['file'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ArchiveDocumentToJson(
@@ -64,6 +67,7 @@ Map<String, dynamic> _$ArchiveDocumentToJson(
   'physician_name': instance.physicianName,
   'processing_status': _$ProcessingStatusEnumMap[instance.processingStatus]!,
   'created_at': instance.createdAt?.toIso8601String(),
+  'file': instance.file,
 };
 
 const _$MedicalDocumentTypeEnumMap = {
@@ -104,6 +108,8 @@ const _$ProcessingStatusEnumMap = {
   ProcessingStatus.awaitingConfirmation: 'awaitingConfirmation',
   ProcessingStatus.dateConfirmed: 'dateConfirmed',
   ProcessingStatus.indexed: 'indexed',
+  ProcessingStatus.duplicateDetected: 'duplicateDetected',
+  ProcessingStatus.partial: 'partial',
   ProcessingStatus.failed: 'failed',
   ProcessingStatus.unknown: 'unknown',
 };

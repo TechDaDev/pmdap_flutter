@@ -278,6 +278,83 @@ void main() {
     expect(find.textContaining('2025-06-30'), findsWidgets);
     expect(find.textContaining('manual'), findsWidgets);
   });
+
+  testWidgets('page results Source document CTA reachable on short viewport', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 520);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      pumpApp(
+        const DocumentPageResultsScreen(uuid: 'd1', pageNumber: 1),
+        overrides: overrides,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Source document'), findsOneWidget);
+    expect(find.text('View original PDF'), findsOneWidget);
+    // Button is normal scroll content — reachable by scrolling on a short
+    // viewport, no absolute/Stack positioning.
+    await tester.dragUntilVisible(
+      find.text('View original PDF'),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
+    expect(find.text('View original PDF'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('page results long list keeps PDF CTA reachable without overflow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      pumpApp(
+        const DocumentPageResultsScreen(uuid: 'd1', pageNumber: 1),
+        overrides: [
+          documentsApiProvider.overrideWithValue(_LongPageApi()),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Extracted results · 21'), findsOneWidget);
+    await tester.dragUntilVisible(
+      find.text('View original PDF'),
+      find.byType(ListView),
+      const Offset(0, -400),
+    );
+    expect(find.text('Source document'), findsOneWidget);
+    expect(find.text('View original PDF'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+class _LongPageApi extends _FakeApi {
+  @override
+  Future<MedicalDocumentPageDetail> documentPageDetail(
+    String uuid,
+    int pageNumber,
+  ) async {
+    final base = _pageDetail(pageNumber);
+    return base.copyWith(
+      labResultCount: 21,
+      labResults: List.generate(
+        21,
+        (i) => LabResultItem(
+          uuid: 'r$i',
+          pageNumber: pageNumber,
+          rowIndex: i,
+          testNameRaw: 'Test $i',
+          resultRaw: '${i}0',
+          unitRaw: 'U/L',
+          referenceRangeRaw: '0-100',
+          extractionConfidence: 0.9,
+        ),
+      ),
+    );
+  }
 }
 
 class _AwaitingApi extends DocumentsApi {

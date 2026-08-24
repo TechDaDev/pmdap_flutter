@@ -128,11 +128,22 @@ class DocumentPageResultsScreen extends ConsumerWidget {
                 ),
               ],
               const SizedBox(height: 16),
+              Text(
+                l10n.sourceDocument,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () => context.push(Routes.documentViewer(uuid)),
                 icon: const Icon(Icons.picture_as_pdf_outlined),
                 label: Text(l10n.viewOriginalPdf),
               ),
+              // Keep the CTA clear of the system bottom inset on this
+              // top-level route (no PMDAP bottom nav here).
+              SizedBox(height: 16 + MediaQuery.of(context).viewPadding.bottom),
             ],
           );
         },

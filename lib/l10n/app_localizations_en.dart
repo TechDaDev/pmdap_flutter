@@ -1602,6 +1602,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewOriginalPdf => 'View original PDF';
 
   @override
+  String get sourceDocument => 'Source document';
+
+  @override
+  String get pdfTag => 'PDF';
+
+  @override
+  String get imageTag => 'Image';
+
+  @override
   String get preparingPages => 'Preparing pages…';
 
   @override
