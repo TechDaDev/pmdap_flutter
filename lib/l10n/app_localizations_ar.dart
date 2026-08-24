@@ -1588,4 +1588,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get preparingPages => 'جارٍ تجهيز الصفحات…';
+
+  @override
+  String pagesNeedConfirmation(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صفحات بحاجة إلى تأكيد التاريخ',
+      one: 'صفحة واحدة بحاجة إلى تأكيد التاريخ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get confirmThisPage => 'تأكيد تاريخ هذه الصفحة';
 }

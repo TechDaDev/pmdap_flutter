@@ -550,5 +550,14 @@
   "resultsNotAvailable": "Results could not be extracted for this page.",
   "noResultsOnPage": "No structured results were detected on this page.",
   "viewOriginalPdf": "View original PDF",
-  "preparingPages": "Preparing pages…"
+  "preparingPages": "Preparing pages…",
+  "pagesNeedConfirmation": "{count, plural, =1{1 page needs confirmation} other{{count} pages need confirmation}}",
+  "@pagesNeedConfirmation": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmThisPage": "Confirm this page's date"
 }

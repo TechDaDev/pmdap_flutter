@@ -251,6 +251,72 @@ void main() {
     expect(find.textContaining('Preparing pages'), findsOneWidget);
     expect(find.textContaining('Extracted reports'), findsNothing);
   });
+
+  testWidgets('multi-page parent detail shows pages need confirmation', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      pumpApp(const DocumentDetailScreen(uuid: 'd1'), overrides: overrides),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('3 pages need confirmation'), findsOneWidget);
+  });
+
+  testWidgets('page results shows confirm CTA when awaiting with candidates', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      pumpApp(
+        const DocumentPageResultsScreen(uuid: 'd1', pageNumber: 1),
+        overrides: [documentsApiProvider.overrideWithValue(_AwaitingApi())],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Confirm this page'), findsOneWidget);
+    expect(find.textContaining('2025-06-30'), findsWidgets);
+    expect(find.textContaining('manual'), findsWidgets);
+  });
+}
+
+class _AwaitingApi extends DocumentsApi {
+  _AwaitingApi() : super(Dio());
+
+  @override
+  Future<MedicalDocumentPageDetail> documentPageDetail(
+    String uuid,
+    int pageNumber,
+  ) async => MedicalDocumentPageDetail(
+    documentUuid: 'd1',
+    pageNumber: pageNumber,
+    pageCount: 3,
+    reportSubtype: ReportSubtype.labChemistry,
+    processingStatus: 'AWAITING_CONFIRMATION',
+    labResultCount: 14,
+    labResults: [
+      LabResultItem(
+        uuid: 'r',
+        pageNumber: pageNumber,
+        rowIndex: 0,
+        testNameRaw: 'Glucose',
+        resultRaw: '92',
+        unitRaw: 'mg/dL',
+        referenceRangeRaw: '70 - 99',
+        extractionConfidence: 0.95,
+      ),
+    ],
+    detectedCandidates: [
+      DateCandidate(
+        uuid: 'c1',
+        date: DateTime(2025, 6, 30),
+        type: 'REPORT_DATE',
+        score: 0.99,
+        pageNumber: pageNumber,
+        isSuggested: true,
+      ),
+    ],
+  );
 }
 
 class _PreparingFakeApi extends DocumentsApi {

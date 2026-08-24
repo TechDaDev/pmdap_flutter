@@ -442,11 +442,18 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       ),
                       _Row(l10n.dateVerifiedLabel, l10n.dateConfirmedState),
                     ] else if (awaiting) ...[
-                      _CandidateDateRow(
-                        candidates: candidatesAsync,
-                        l10n: l10n,
-                      ),
-                      _Row(l10n.dateStatusLabel, l10n.needsConfirmation),
+                      if (multiPage) ...[
+                        _Row(
+                          l10n.dateStatusLabel,
+                          l10n.pagesNeedConfirmation(filePageCount!),
+                        ),
+                      ] else ...[
+                        _CandidateDateRow(
+                          candidates: candidatesAsync,
+                          l10n: l10n,
+                        ),
+                        _Row(l10n.dateStatusLabel, l10n.needsConfirmation),
+                      ],
                     ] else ...[
                       _Row(l10n.reportDate, _dateLabel(l10n, doc)),
                       _Row(

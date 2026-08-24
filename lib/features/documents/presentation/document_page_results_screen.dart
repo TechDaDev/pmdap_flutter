@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pmdap_mobile/app/router.dart';
+import 'package:pmdap_mobile/core/api/api_exception.dart';
+import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/document_page.dart';
 import 'package:pmdap_mobile/core/models/lab_results.dart';
 import 'package:pmdap_mobile/core/utils/status_labels.dart';
@@ -77,6 +79,15 @@ class DocumentPageResultsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               _DateStateRow(detail: detail, l10n: l10n, labels: labels),
+              if (detail.processingStatus == 'AWAITING_CONFIRMATION' &&
+                  !detail.dateVerified) ...[
+                const SizedBox(height: 8),
+                _DateConfirmSection(
+                  uuid: uuid,
+                  pageNumber: pageNumber,
+                  detail: detail,
+                ),
+              ],
               const SizedBox(height: 16),
               Text(
                 '${l10n.extractedResults} · ${detail.labResultCount}',
@@ -134,6 +145,192 @@ class DocumentPageResultsScreen extends ConsumerWidget {
         '${date.day.toString().padLeft(2, '0')}';
   }
 }
+
+class _DateConfirmSection extends ConsumerStatefulWidget {
+  const _DateConfirmSection({
+    required this.uuid,
+    required this.pageNumber,
+    required this.detail,
+  });
+
+  final String uuid;
+  final int pageNumber;
+  final MedicalDocumentPageDetail detail;
+
+  @override
+  ConsumerState<_DateConfirmSection> createState() =>
+      _DateConfirmSectionState();
+}
+
+class _DateConfirmSectionState extends ConsumerState<_DateConfirmSection> {
+  DateTime? _manualDate;
+  bool _confirming = false;
+  String? _errorMessage;
+
+  Future<void> _confirm({String? candidateId}) async {
+    final l10n = AppLocalizations.of(context);
+    setState(() {
+      _confirming = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref
+          .read(documentsApiProvider)
+          .confirmPageDate(
+            widget.uuid,
+            widget.pageNumber,
+            candidateId: candidateId,
+            date: candidateId == null ? _manualDate : null,
+          );
+      // Page + parent summaries follow the confirmed page.
+      ref.invalidate(
+        documentPageDetailProvider((
+          uuid: widget.uuid,
+          pageNumber: widget.pageNumber,
+        )),
+      );
+      ref.invalidate(documentPagesProvider(widget.uuid));
+      invalidateMedicalDocumentLists(ref);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.dateConfirmed)));
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _errorMessage = e.message);
+    } catch (_) {
+      if (mounted) setState(() => _errorMessage = l10n.confirmFailed);
+    } finally {
+      if (mounted) setState(() => _confirming = false);
+    }
+  }
+
+  Future<void> _pickManualDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _manualDate ?? now,
+      firstDate: DateTime(1900),
+      lastDate: now,
+      helpText: AppLocalizations.of(context).manualDate,
+    );
+    if (picked != null) setState(() => _manualDate = picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final candidates = widget.detail.detectedCandidates;
+    return Card(
+      margin: EdgeInsets.zero,
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.confirmThisPage,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (candidates.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.suggestedDate,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              for (final c in candidates.take(3))
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        c.isSuggested
+                            ? Icons.star
+                            : Icons.event_available_outlined,
+                        size: 16,
+                        color: c.isSuggested
+                            ? theme.colorScheme.tertiary
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        c.date == null ? '—' : _formatDateYmd(c.date!),
+                        style: c.isSuggested
+                            ? const TextStyle(fontWeight: FontWeight.bold)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final c in candidates.take(3))
+                    FilledButton.tonalIcon(
+                      onPressed: _confirming
+                          ? null
+                          : () => _confirm(candidateId: c.uuid),
+                      icon: const Icon(Icons.check_circle_outline, size: 18),
+                      label: Text(
+                        c.date == null ? '—' : _formatDateYmd(c.date!),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _pickManualDate,
+                  icon: const Icon(Icons.edit_calendar_outlined, size: 18),
+                  label: Text(
+                    _manualDate == null
+                        ? l10n.manualDate
+                        : _formatDateYmd(_manualDate!),
+                  ),
+                ),
+                if (_manualDate != null) ...[
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _confirming ? null : () => _confirm(),
+                    child: _confirming
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(l10n.confirmDate),
+                  ),
+                ],
+              ],
+            ),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _formatDateYmd(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
 
 class _DateStateRow extends StatelessWidget {
   const _DateStateRow({

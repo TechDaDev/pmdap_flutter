@@ -3139,6 +3139,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preparing pages…'**
   String get preparingPages;
+
+  /// No description provided for @pagesNeedConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page needs confirmation} other{{count} pages need confirmation}}'**
+  String pagesNeedConfirmation(int count);
+
+  /// No description provided for @confirmThisPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm this page\'s date'**
+  String get confirmThisPage;
 }
 
 class _AppLocalizationsDelegate

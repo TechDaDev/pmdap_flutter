@@ -1603,4 +1603,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preparingPages => 'Preparing pages…';
+
+  @override
+  String pagesNeedConfirmation(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages need confirmation',
+      one: '1 page needs confirmation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get confirmThisPage => 'Confirm this page\'s date';
 }
