@@ -65,6 +65,23 @@ Future<void> _submit(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('login does not overflow on a small phone at 150% text scale', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+      tester.platformDispatcher.clearTextScaleFactorTestValue();
+    });
+
+    await tester.pumpWidget(pumpApp(const LoginScreen()));
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('login renders title and fields', (tester) async {
     await tester.pumpWidget(pumpApp(const LoginScreen()));
     expect(find.text('Sign in'), findsWidgets);
