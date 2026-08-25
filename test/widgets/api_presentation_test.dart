@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pmdap_mobile/core/models/archive.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/medical_document.dart';
-import 'package:pmdap_mobile/core/models/minor.dart';
+import 'package:pmdap_mobile/core/models/guardian_relationship_summary.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart' as models;
 import 'package:pmdap_mobile/core/models/pending_date_confirmation.dart';
-import 'package:pmdap_mobile/features/archive/application/archive_providers.dart';
 import 'package:pmdap_mobile/features/documents/application/documents_providers.dart';
 import 'package:pmdap_mobile/features/documents/presentation/medical_document_card.dart';
 import 'package:pmdap_mobile/features/home/presentation/home_screen.dart';
@@ -165,22 +162,31 @@ void main() {
   });
 
   group('minors', () {
-    testWidgets('shows digital id LTR + verified relationship badge', (
+    testWidgets('shows safe child summary + verified relationship badge', (
       tester,
     ) async {
       await tester.pumpWidget(
         pumpApp(
           const MinorsScreen(),
           overrides: [
-            guardianEligibilityProvider.overrideWithValue(
-              const AsyncValue.data(GuardianEligibility(isEligible: true)),
-            ),
-            minorsProvider.overrideWith(
-              (ref) async => models.Page<Minor>(
+            guardianRelationshipsProvider.overrideWith(
+              (ref) async => models.Page<GuardianRelationshipSummary>(
                 count: 1,
                 next: null,
                 previous: null,
-                results: [sampleMinor()],
+                results: [
+                  const GuardianRelationshipSummary(
+                    uuid: 'relationship-1',
+                    child: GuardianChildSummary(
+                      uuid: 'minor-1',
+                      digitalId: '98765432101234567',
+                      fullName: 'Synthetic Child',
+                    ),
+                    relationship: Relationship.mother,
+                    status: GuardianRelationshipStatus.verified,
+                    canRevoke: true,
+                  ),
+                ],
               ),
             ),
           ],
@@ -189,7 +195,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Synthetic Child'), findsOneWidget);
-      expect(find.textContaining('98765432101234567'), findsOneWidget);
+      expect(find.textContaining('98765432101234567'), findsNothing);
       // Relationship verification badge label.
       expect(find.text('Verified'), findsOneWidget);
     });

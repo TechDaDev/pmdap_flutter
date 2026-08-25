@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
-import 'package:pmdap_mobile/core/models/minor.dart';
+import 'package:pmdap_mobile/core/models/guardian_relationship_summary.dart';
 import 'package:pmdap_mobile/core/models/pagination.dart';
 import 'package:pmdap_mobile/core/widgets/patient_card.dart';
 import 'package:pmdap_mobile/features/minors/application/minors_providers.dart';
@@ -11,152 +11,183 @@ import 'package:pmdap_mobile/features/minors/presentation/minors_screen.dart';
 import '../helpers/fixtures.dart';
 import '../helpers/pump.dart';
 
-final _eligible = AsyncValue.data(
-  const GuardianEligibility(isEligible: true, checkedIdentity: true),
+const _eligible = AsyncValue.data(GuardianEligibility(isEligible: true));
+
+GuardianRelationshipSummary relationship(
+  GuardianRelationshipStatus status, {
+  String name = 'Synthetic Child',
+}) => GuardianRelationshipSummary(
+  uuid: 'relationship-${status.api}',
+  child: GuardianChildSummary(
+    uuid: 'minor-${status.api}',
+    digitalId: 'PT-SAFE-0001',
+    fullName: name,
+  ),
+  relationship: Relationship.mother,
+  status: status,
+  canRevoke: status == GuardianRelationshipStatus.verified,
+  createdAt: DateTime(2026, 8, 25),
 );
 
 void main() {
-  testWidgets('minor card shows name, digital id and identity status', (
+  testWidgets('minor patient card remains available for medical contexts', (
     tester,
   ) async {
-    final minor = sampleMinor();
     await tester.pumpWidget(
-      pumpApp(Scaffold(body: PatientCard.fromMinor(minor: minor))),
+      pumpApp(Scaffold(body: PatientCard.fromMinor(minor: sampleMinor()))),
     );
-
     expect(find.text('Synthetic Child'), findsOneWidget);
-    expect(find.textContaining('98765432101234567'), findsOneWidget);
-    expect(find.text('Pending verification'), findsOneWidget);
   });
 
-  testWidgets('minors screen lists minors and add button', (tester) async {
-    final page = Page<Minor>(
-      count: 1,
-      next: null,
-      previous: null,
-      results: [sampleMinor()],
-    );
+  testWidgets('My children renders pending verified rejected and revoked', (
+    tester,
+  ) async {
+    final values = GuardianRelationshipStatus.values
+        .where((status) => status != GuardianRelationshipStatus.unknown)
+        .map((status) => relationship(status, name: status.api))
+        .toList();
     await tester.pumpWidget(
       pumpApp(
-        const MinorsScreen(),
+        const MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(1.5)),
+          child: MinorsScreen(),
+        ),
         overrides: [
-          minorsProvider.overrideWith((ref) async => page),
           guardianEligibilityProvider.overrideWithValue(_eligible),
+          guardianRelationshipsProvider.overrideWith(
+            (ref) async => Page(
+              count: values.length,
+              next: null,
+              previous: null,
+              results: values,
+            ),
+          ),
         ],
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Synthetic Child'), findsOneWidget);
+    for (final name in ['PENDING', 'VERIFIED', 'REJECTED', 'REVOKED']) {
+      expect(find.text(name), findsOneWidget);
+    }
     expect(find.text('Add child'), findsOneWidget);
+    expect(find.textContaining('PT-SAFE'), findsNothing);
   });
 
-  testWidgets('minors screen empty state', (tester) async {
-    final page = const Page<Minor>(
-      count: 0,
-      next: null,
-      previous: null,
-      results: [],
-    );
+  testWidgets('My children empty state explains verification', (tester) async {
     await tester.pumpWidget(
       pumpApp(
         const MinorsScreen(),
         overrides: [
-          minorsProvider.overrideWith((ref) async => page),
           guardianEligibilityProvider.overrideWithValue(_eligible),
-        ],
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('No children linked to your account.'), findsOneWidget);
-  });
-
-  testWidgets('pending relationship is not navigable', (tester) async {
-    final pending = Minor(
-      uuid: 'm-pending',
-      digitalId: '98765432101234567',
-      fullName: 'Pending Child',
-      dateOfBirth: DateTime(2015, 8, 20),
-      age: 10,
-      isMinor: true,
-      sex: Sex.unspecified,
-      nationality: 'ZZ',
-      bloodGroup: BloodGroup.oPos,
-      identityStatus: IdentityStatus.unverified,
-      relationship: GuardianRelationship(
-        uuid: 'r1',
-        relationship: Relationship.father,
-        verificationStatus: VerificationStatus.pending,
-        active: false,
-      ),
-    );
-    final page = Page<Minor>(
-      count: 1,
-      next: null,
-      previous: null,
-      results: [pending],
-    );
-    await tester.pumpWidget(
-      pumpApp(
-        const MinorsScreen(),
-        overrides: [
-          minorsProvider.overrideWith((ref) async => page),
-          guardianEligibilityProvider.overrideWithValue(_eligible),
+          guardianRelationshipsProvider.overrideWith(
+            (ref) async => const Page<GuardianRelationshipSummary>(
+              count: 0,
+              next: null,
+              previous: null,
+              results: [],
+            ),
+          ),
         ],
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Pending Child'), findsOneWidget);
-    expect(find.text('Relationship pending verification'), findsWidgets);
-    final tile = tester.widget<ListTile>(find.byType(ListTile).first);
-    expect(tile.enabled, isFalse);
-    expect(tile.onTap, isNull);
-    // Tapping must not navigate / crash.
-    await tester.tap(find.text('Pending Child'), warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(find.text('Pending Child'), findsOneWidget);
+    expect(find.textContaining('No child relationships'), findsOneWidget);
+    expect(find.textContaining('reviewed before access'), findsOneWidget);
   });
 
-  testWidgets('verified relationship is navigable', (tester) async {
-    final verified = Minor(
-      uuid: 'm-verified',
-      digitalId: '98765432101234567',
-      fullName: 'Verified Child',
-      dateOfBirth: DateTime(2015, 8, 20),
-      age: 10,
-      isMinor: true,
-      sex: Sex.unspecified,
-      nationality: 'ZZ',
-      bloodGroup: BloodGroup.oPos,
-      identityStatus: IdentityStatus.unverified,
-      relationship: GuardianRelationship(
-        uuid: 'r2',
-        relationship: Relationship.father,
-        verificationStatus: VerificationStatus.verified,
-        active: true,
-      ),
-    );
-    final page = Page<Minor>(
-      count: 1,
-      next: null,
-      previous: null,
-      results: [verified],
-    );
+  testWidgets('unknown backend state has safe fallback label', (tester) async {
     await tester.pumpWidget(
       pumpApp(
         const MinorsScreen(),
         overrides: [
-          minorsProvider.overrideWith((ref) async => page),
           guardianEligibilityProvider.overrideWithValue(_eligible),
+          guardianRelationshipsProvider.overrideWith(
+            (ref) async => Page(
+              count: 1,
+              next: null,
+              previous: null,
+              results: [relationship(GuardianRelationshipStatus.unknown)],
+            ),
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Status unavailable'), findsOneWidget);
+  });
+
+  testWidgets('Arabic RTL dark mode fits a 320px phone without overflow', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      pumpApp(
+        const MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(1.5)),
+          child: MinorsScreen(),
+        ),
+        locale: const Locale('ar'),
+        themeMode: ThemeMode.dark,
+        overrides: [
+          guardianEligibilityProvider.overrideWithValue(_eligible),
+          guardianRelationshipsProvider.overrideWith(
+            (ref) async => Page(
+              count: 1,
+              next: null,
+              previous: null,
+              results: [
+                relationship(
+                  GuardianRelationshipStatus.pending,
+                  name: 'طفل تجريبي',
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Verified Child'), findsOneWidget);
-    final tile = tester.widget<ListTile>(find.byType(ListTile).first);
-    expect(tile.enabled, isTrue);
-    expect(tile.onTap, isNotNull);
+    expect(find.text('طفل تجريبي'), findsOneWidget);
+    expect(
+      Directionality.of(tester.element(find.text('طفل تجريبي'))),
+      TextDirection.rtl,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('app resume refreshes relationship state once', (tester) async {
+    var loads = 0;
+    await tester.pumpWidget(
+      pumpApp(
+        const MinorsScreen(),
+        overrides: [
+          guardianEligibilityProvider.overrideWithValue(_eligible),
+          guardianRelationshipsProvider.overrideWith((ref) async {
+            loads++;
+            return const Page<GuardianRelationshipSummary>(
+              count: 0,
+              next: null,
+              previous: null,
+              results: [],
+            );
+          }),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(loads, 1);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+
+    expect(loads, 2);
   });
 }

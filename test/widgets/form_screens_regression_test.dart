@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/theme/app_theme.dart';
 import 'package:pmdap_mobile/features/documents/presentation/document_upload_screen.dart';
 import 'package:pmdap_mobile/features/identity/presentation/identity_submit_screen.dart';
+import 'package:pmdap_mobile/features/minors/presentation/minor_create_screen.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 /// P0 regression: upload + identity forms must render their BODY (not just the
@@ -89,6 +90,24 @@ void main() {
       expect(find.text('Scan back'), findsOneWidget);
       expect(find.text('Choose image'), findsWidgets);
       expect(find.text('Read document'), findsOneWidget);
+    });
+
+    testWidgets('MinorCreateScreen has four-step responsive wizard ($label)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        harness(const MinorCreateScreen(), brightness: brightness),
+      );
+      await tester.pumpAndSettle();
+
+      final stepper = tester.widget<Stepper>(find.byType(Stepper));
+      expect(stepper.steps, hasLength(4));
+      expect((stepper.steps[0].title as Text).data, 'Child identity');
+      expect((stepper.steps[1].title as Text).data, 'Review child details');
+      expect((stepper.steps[2].title as Text).data, 'Relationship');
+      expect((stepper.steps[3].title as Text).data, 'Submit request');
+      expect(find.text('Family number'), findsNothing);
+      expect(find.text('Search child'), findsNothing);
     });
   }
 }

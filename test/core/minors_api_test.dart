@@ -5,12 +5,14 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
+import 'package:pmdap_mobile/core/models/guardian_relationship_summary.dart';
 import 'package:pmdap_mobile/features/minors/data/minors_api.dart';
 
 /// Captures the outgoing request so we can assert multipart contract fields.
 class _CaptureAdapter implements HttpClientAdapter {
   RequestOptions? lastRequest;
   final Map<String, dynamic> body;
+  int calls = 0;
 
   _CaptureAdapter({required this.body});
 
@@ -20,6 +22,7 @@ class _CaptureAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    calls++;
     lastRequest = options;
     return ResponseBody.fromString(
       jsonEncode(body),
@@ -37,7 +40,7 @@ class _CaptureAdapter implements HttpClientAdapter {
 Future<File> _temp(String name) async {
   final dir = await Directory.systemTemp.createTemp('pmdap_minor_test');
   final f = File('${dir.path}/$name');
-  await f.writeAsBytes([0xff, 0xd8, 0xff, 0xe0, 0, 0]);
+  await f.writeAsBytes([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0]);
   return f;
 }
 
@@ -142,6 +145,76 @@ void main() {
       expect(keys.contains('evidence_type'), isFalse);
       expect(keys.contains('evidence_file'), isFalse);
       expect(form.fields.any((e) => e.key == 'national_number'), isTrue);
+      expect(keys.contains('family_number'), isFalse);
     });
+  });
+
+  group('guardian relationship contract', () {
+    Map<String, dynamic> relationshipJson({String status = 'PENDING'}) => {
+      'uuid': 'rel-1',
+      'minor_patient': {
+        'uuid': 'minor-1',
+        'digital_id': 'PT-SAFE-0001',
+        'full_name': 'Synthetic Child',
+      },
+      'relationship': 'MOTHER',
+      'status': status,
+      'can_revoke': status == 'VERIFIED',
+      'created_at': '2026-08-25T10:00:00Z',
+    };
+
+    test('parses every supported state and unknown fallback', () {
+      for (final entry in {
+        'PENDING': GuardianRelationshipStatus.pending,
+        'VERIFIED': GuardianRelationshipStatus.verified,
+        'REJECTED': GuardianRelationshipStatus.rejected,
+        'REVOKED': GuardianRelationshipStatus.revoked,
+        'FUTURE_STATE': GuardianRelationshipStatus.unknown,
+      }.entries) {
+        final value = GuardianRelationshipSummary.fromJson(
+          relationshipJson(status: entry.key),
+        );
+        expect(value.status, entry.value);
+        expect(value.child.fullName, 'Synthetic Child');
+      }
+    });
+
+    test('list parses safe paginated response', () async {
+      final adapter = _CaptureAdapter(
+        body: {
+          'data': {
+            'count': 1,
+            'next': null,
+            'previous': null,
+            'results': [relationshipJson(status: 'REJECTED')],
+          },
+        },
+      );
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+        ..httpClientAdapter = adapter;
+
+      final page = await MinorsApi(dio).relationships();
+
+      expect(page.results.single.status, GuardianRelationshipStatus.rejected);
+      expect(adapter.lastRequest!.path, '/guardian-relationships/');
+    });
+
+    test(
+      'revoke sends exactly one request with no child identity fields',
+      () async {
+        final adapter = _CaptureAdapter(body: {'data': relationshipJson()});
+        final dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+          ..httpClientAdapter = adapter;
+
+        await MinorsApi(dio).revokeRelationship('rel-1');
+
+        expect(adapter.calls, 1);
+        expect(
+          adapter.lastRequest!.path,
+          '/minors/relationships/rel-1/revoke/',
+        );
+        expect(adapter.lastRequest!.data, {'reason': 'Revoked by guardian'});
+      },
+    );
   });
 }
