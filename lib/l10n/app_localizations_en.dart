@@ -364,6 +364,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentNumber => 'Document number';
 
   @override
+  String get firstName => 'First name';
+
+  @override
   String get nationalNumber => 'National number';
 
   @override
@@ -377,6 +380,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uniqueCardBodyNumber => 'Unique card body number';
+
+  @override
+  String get cardBodyNumber => 'Card body number';
 
   @override
   String get issueDate => 'Issue date';

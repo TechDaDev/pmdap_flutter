@@ -361,6 +361,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get documentNumber => 'رقم الوثيقة';
 
   @override
+  String get firstName => 'الاسم الأول';
+
+  @override
   String get nationalNumber => 'الرقم الوطني';
 
   @override
@@ -374,6 +377,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get uniqueCardBodyNumber => 'الرقم الفريد لجسم البطاقة';
+
+  @override
+  String get cardBodyNumber => 'رقم جسم البطاقة';
 
   @override
   String get issueDate => 'تاريخ الإصدار';

@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
+
+import 'identity_image_loader_io.dart'
+    if (dart.library.html) 'identity_image_loader_web.dart';
 
 /// Supported identity image formats.
 enum IdentityImageFormat { jpeg, png }
@@ -68,28 +70,21 @@ Future<IdentityImagePart> identityImagePart(
   String path, {
   String side = 'image',
 }) async {
-  final raf = File(path).openSync();
-  try {
-    final head = raf.readSync(12);
-    final format = detectIdentityImageFormat(Uint8List.fromList(head));
-    if (format == null) {
-      throw const IdentityImageException(
-        'unsupported_format',
-        'Identity images must be JPEG or PNG.',
-      );
-    }
-    final ext = format == IdentityImageFormat.jpeg ? 'jpg' : 'png';
-    final mime = format == IdentityImageFormat.jpeg
-        ? 'image/jpeg'
-        : 'image/png';
-    return IdentityImagePart(
-      path: path,
-      filename: '$side.$ext',
-      contentType: MediaType.parse(mime),
+  final head = await readIdentityImageHeader(path);
+  final format = detectIdentityImageFormat(head);
+  if (format == null) {
+    throw const IdentityImageException(
+      'unsupported_format',
+      'Identity images must be JPEG or PNG.',
     );
-  } finally {
-    raf.closeSync();
   }
+  final ext = format == IdentityImageFormat.jpeg ? 'jpg' : 'png';
+  final mime = format == IdentityImageFormat.jpeg ? 'image/jpeg' : 'image/png';
+  return IdentityImagePart(
+    path: path,
+    filename: '$side.$ext',
+    contentType: MediaType.parse(mime),
+  );
 }
 
 /// Build a Dio [MultipartFile] for an identity image with an explicit content
@@ -102,8 +97,8 @@ Future<MultipartFile> identityMultipartFile(
   String side = 'image',
 }) async {
   final part = await identityImagePart(path, side: side);
-  return MultipartFile.fromFile(
-    part.path,
+  return buildIdentityMultipartFile(
+    path: part.path,
     filename: part.filename,
     contentType: part.contentType,
   );

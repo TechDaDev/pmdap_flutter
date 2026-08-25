@@ -12,20 +12,23 @@ import '../../identity/data/identity_image_part.dart';
 
 class MinorCreateSubmission {
   const MinorCreateSubmission({
-    required this.fullName,
+    required this.firstName,
+    this.fatherName = '',
+    this.grandfatherName = '',
     required this.dateOfBirth,
     required this.sex,
     required this.nationality,
     this.bloodGroup = BloodGroup.unknown,
     required this.relationship,
     required this.documentType,
-    required this.documentNumber,
+    this.documentNumber = '',
     this.nationalNumber = '',
+    this.extractionJobId,
     this.issuingCountry,
     this.issueDate,
     this.expiryDate,
-    required this.frontPath,
-    required this.frontFilename,
+    this.frontPath,
+    this.frontFilename,
     this.backPath,
     this.backFilename,
     this.evidenceType,
@@ -33,7 +36,14 @@ class MinorCreateSubmission {
     this.evidenceFilename,
   });
 
-  final String fullName;
+  final String firstName;
+  final String fatherName;
+  final String grandfatherName;
+  String get displayName => [
+    firstName,
+    fatherName,
+    grandfatherName,
+  ].where((part) => part.trim().isNotEmpty).join(' ');
   final DateTime? dateOfBirth;
   final Sex sex;
   final String nationality;
@@ -42,13 +52,14 @@ class MinorCreateSubmission {
   final IdentityDocumentType documentType;
   final String documentNumber;
   final String nationalNumber;
+  final String? extractionJobId;
 
   /// Document issuing country — a separate field from child nationality.
   final String? issuingCountry;
   final DateTime? issueDate;
   final DateTime? expiryDate;
-  final String frontPath;
-  final String frontFilename;
+  final String? frontPath;
+  final String? frontFilename;
   final String? backPath;
   final String? backFilename;
 
@@ -96,21 +107,29 @@ class MinorsApi {
   }) async {
     try {
       final form = FormData.fromMap({
-        'full_name': s.fullName,
+        'full_name': s.displayName,
+        'name': s.firstName,
+        if (s.fatherName.isNotEmpty) 'father_name': s.fatherName,
+        if (s.grandfatherName.isNotEmpty) 'grandfather_name': s.grandfatherName,
         'date_of_birth': formatApiDate(s.dateOfBirth),
         'sex': s.sex.api,
         'nationality': s.nationality,
         if (s.bloodGroup != BloodGroup.unknown) 'blood_group': s.bloodGroup.api,
         'relationship': s.relationship.api,
         'document_type': s.documentType.api,
-        'document_number': s.documentNumber,
-        'national_number': s.nationalNumber,
+        if (s.extractionJobId != null) 'extraction_job_id': s.extractionJobId,
+        if (s.extractionJobId == null) 'document_number': s.documentNumber,
+        if (s.extractionJobId == null) 'national_number': s.nationalNumber,
         if (s.issuingCountry != null && s.issuingCountry!.isNotEmpty)
           'issuing_country': s.issuingCountry,
         if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
         if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
-        'front_image': await identityMultipartFile(s.frontPath, side: 'front'),
-        if (s.backPath != null)
+        if (s.extractionJobId == null && s.frontPath != null)
+          'front_image': await identityMultipartFile(
+            s.frontPath!,
+            side: 'front',
+          ),
+        if (s.extractionJobId == null && s.backPath != null)
           'back_image': await identityMultipartFile(s.backPath!, side: 'back'),
         // Evidence is optional (father/mother); when present, type + file are
         // always sent together, never one without the other.

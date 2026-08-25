@@ -71,7 +71,9 @@ void main() {
 
       await api.create(
         MinorCreateSubmission(
-          fullName: 'Child',
+          firstName: 'Child',
+          fatherName: 'Synthetic Father',
+          grandfatherName: 'Synthetic Grandfather',
           dateOfBirth: DateTime(2015, 8, 20),
           sex: Sex.unspecified,
           nationality: 'IQ',
@@ -102,8 +104,6 @@ void main() {
     });
 
     test('national card submission omits evidence when optional', () async {
-      final front = await _temp('front.jpg');
-      final back = await _temp('back.jpg');
       final adapter = _CaptureAdapter(
         body: {
           'data': {
@@ -122,19 +122,16 @@ void main() {
 
       await api.create(
         MinorCreateSubmission(
-          fullName: 'Child',
+          firstName: 'Child',
+          fatherName: 'Synthetic Father',
+          grandfatherName: 'Synthetic Grandfather',
           dateOfBirth: DateTime(2015, 8, 20),
           sex: Sex.unspecified,
           nationality: 'IQ',
           relationship: Relationship.father,
           documentType: IdentityDocumentType.unifiedNationalCard,
-          documentNumber: 'DOC123',
-          nationalNumber: 'NN123',
+          extractionJobId: '11111111-2222-4333-8444-555555555555',
           issuingCountry: 'IQ',
-          frontPath: front.path,
-          frontFilename: 'front.jpg',
-          backPath: back.path,
-          backFilename: 'back.jpg',
           // No evidence: father/mother → optional, must NOT be sent.
         ),
         idempotencyKey: 'k',
@@ -144,8 +141,20 @@ void main() {
       final keys = form.fields.map((e) => e.key).toSet();
       expect(keys.contains('evidence_type'), isFalse);
       expect(keys.contains('evidence_file'), isFalse);
-      expect(form.fields.any((e) => e.key == 'national_number'), isTrue);
+      final fields = <String, String>{
+        for (final entry in form.fields) entry.key: entry.value,
+      };
+      expect(fields['name'], 'Child');
+      expect(fields['father_name'], 'Synthetic Father');
+      expect(fields['grandfather_name'], 'Synthetic Grandfather');
+      expect(
+        fields['extraction_job_id'],
+        '11111111-2222-4333-8444-555555555555',
+      );
+      expect(keys.contains('national_number'), isFalse);
       expect(keys.contains('family_number'), isFalse);
+      expect(keys.contains('unique_card_body_number'), isFalse);
+      expect(form.files, isEmpty);
     });
   });
 

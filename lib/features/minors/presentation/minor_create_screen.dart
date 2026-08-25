@@ -15,6 +15,7 @@ import '../../../core/utils/uuid.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../application/minors_providers.dart';
 import '../data/minors_api.dart';
+import '../data/minor_identity_review.dart';
 import '../../identity/data/extraction_models.dart';
 
 typedef MinorImagePicker = Future<XFile?> Function();
@@ -33,10 +34,14 @@ class MinorCreateScreen extends ConsumerStatefulWidget {
 
 class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   final _identityForm = GlobalKey<FormState>();
-  final _fullName = TextEditingController();
+  final _firstName = TextEditingController();
+  final _fatherName = TextEditingController();
+  final _grandfatherName = TextEditingController();
   final _nationality = TextEditingController(text: 'IQ');
   final _documentNumber = TextEditingController();
   final _nationalNumber = TextEditingController();
+  final _cardBodyNumber = TextEditingController();
+  final _familyNumber = TextEditingController();
   final _issuingCountry = TextEditingController(text: 'IQ');
   final _idempotency = IdempotencyKeyManager();
 
@@ -59,6 +64,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   bool _submitting = false;
   String? _notice;
   String? _error;
+  String? _extractionJobId;
 
   bool get _isCard => _documentType == IdentityDocumentType.unifiedNationalCard;
   bool get _isLegalGuardian => _relationship == Relationship.legalGuardian;
@@ -67,7 +73,9 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   void initState() {
     super.initState();
     for (final controller in [
-      _fullName,
+      _firstName,
+      _fatherName,
+      _grandfatherName,
       _nationality,
       _documentNumber,
       _nationalNumber,
@@ -79,10 +87,14 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
 
   @override
   void dispose() {
-    _fullName.dispose();
+    _firstName.dispose();
+    _fatherName.dispose();
+    _grandfatherName.dispose();
     _nationality.dispose();
     _documentNumber.dispose();
     _nationalNumber.dispose();
+    _cardBodyNumber.dispose();
+    _familyNumber.dispose();
     _issuingCountry.dispose();
     super.dispose();
   }
@@ -92,6 +104,21 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
     return lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
         lower.endsWith('.png');
+  }
+
+  void _clearCardExtraction() {
+    _extractionJobId = null;
+    for (final controller in [
+      _firstName,
+      _fatherName,
+      _grandfatherName,
+      _nationalNumber,
+      _cardBodyNumber,
+      _familyNumber,
+    ]) {
+      controller.clear();
+    }
+    _notice = null;
   }
 
   Future<void> _pickImage(bool front) async {
@@ -106,6 +133,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
     _idempotency.noteContentChanged();
     setState(() {
       _error = null;
+      if (_isCard) _clearCardExtraction();
       if (front) {
         _frontPath = file.path;
         _frontName = file.name;
@@ -223,7 +251,10 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
         );
       }
       _applyExtraction(status!.result!);
-      setState(() => _notice = l10n.extractionReady);
+      setState(() {
+        _extractionJobId = job.jobId;
+        _notice = l10n.extractionReady;
+      });
     } on ApiException catch (error) {
       setState(() => _error = error.message);
     } catch (_) {
@@ -235,27 +266,47 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
 
   void _applyExtraction(IdentityExtractionResult result) {
     String value(ExtractedIdentityField? field) => field?.value?.trim() ?? '';
-    final name = value(result.name);
-    final document = _isCard
-        ? value(result.nationalCardNumber)
-        : value(result.documentNumber);
+    final review = MinorIdentityReview.fromExtraction(result);
+    final document = value(result.documentNumber);
     final dob = parseApiDate(value(result.dateOfBirth));
     final sex = Sex.fromApi(value(result.sex).toUpperCase());
     final blood = BloodGroup.fromApi(value(result.bloodGroup).toUpperCase());
     final country = value(result.issuingCountry).toUpperCase();
-    if (name.isNotEmpty) _fullName.text = name;
-    if (document.isNotEmpty) _documentNumber.text = document;
+    if (_isCard) {
+      _firstName.text = review.firstName;
+      _fatherName.text = review.fatherName;
+      _grandfatherName.text = review.grandfatherName;
+      _nationalNumber.text = review.nationalNumber;
+      _cardBodyNumber.text = review.cardBodyNumber;
+      _familyNumber.text = review.familyNumber;
+    } else {
+      final name = value(result.name);
+      if (name.isNotEmpty) _firstName.text = name;
+      if (document.isNotEmpty) _documentNumber.text = document;
+    }
     if (dob != null) _dob = dob;
     if (sex != Sex.unknown) _sex = sex;
     if (blood != BloodGroup.unknown) _bloodGroup = blood;
     if (country.length == 2) _issuingCountry.text = country;
-    // Family-number extraction is intentionally ignored and never displayed.
     _idempotency.noteContentChanged();
   }
 
   bool _validateIdentity() {
     final l10n = AppLocalizations.of(context);
     if (!(_identityForm.currentState?.validate() ?? false)) return false;
+    if (_isCard &&
+        (_extractionJobId == null ||
+            [
+              _firstName,
+              _fatherName,
+              _grandfatherName,
+              _nationalNumber,
+              _cardBodyNumber,
+              _familyNumber,
+            ].any((controller) => controller.text.trim().isEmpty))) {
+      setState(() => _error = l10n.validationFailed);
+      return false;
+    }
     final dobError = _validateDob(_dob);
     if (dobError != null) {
       setState(() => _error = dobError);
@@ -310,7 +361,9 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       _error = null;
     });
     final submission = MinorCreateSubmission(
-      fullName: _fullName.text.trim(),
+      firstName: _firstName.text.trim(),
+      fatherName: _fatherName.text.trim(),
+      grandfatherName: _grandfatherName.text.trim(),
       dateOfBirth: _dob,
       sex: _sex,
       nationality: _nationality.text.trim().toUpperCase(),
@@ -319,15 +372,16 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       documentType: _documentType,
       documentNumber: _documentNumber.text.trim(),
       nationalNumber: _nationalNumber.text.trim(),
+      extractionJobId: _isCard ? _extractionJobId : null,
       issuingCountry: _isCard
           ? 'IQ'
           : _issuingCountry.text.trim().toUpperCase(),
       issueDate: _issueDate,
       expiryDate: _expiryDate,
-      frontPath: _frontPath!,
-      frontFilename: _frontName ?? 'front.jpg',
-      backPath: _backPath,
-      backFilename: _backName,
+      frontPath: _isCard ? null : _frontPath,
+      frontFilename: _isCard ? null : (_frontName ?? 'front.jpg'),
+      backPath: _isCard ? null : _backPath,
+      backFilename: _isCard ? null : _backName,
       evidenceType: _evidenceType,
       evidencePath: _evidencePath,
       evidenceFilename: _evidenceName,
@@ -371,7 +425,9 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
           onStepCancel: _step == 0 ? null : () => setState(() => _step--),
           controlsBuilder: (context, details) => Padding(
             padding: const EdgeInsets.only(top: 20),
-            child: Row(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 SizedBox(
                   width: 144,
@@ -381,7 +437,6 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
                   ),
                 ),
                 if (_step > 0) ...[
-                  const SizedBox(width: 8),
                   SizedBox(
                     width: 96,
                     child: TextButton(
@@ -429,6 +484,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       child: Column(
         children: [
           DropdownButtonFormField<IdentityDocumentType>(
+            isExpanded: true,
             initialValue: _documentType,
             decoration: InputDecoration(labelText: l10n.documentType),
             items:
@@ -444,6 +500,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
                     )
                     .toList(),
             onChanged: (value) => setState(() {
+              if (_documentType != value) _clearCardExtraction();
               _documentType = value ?? _documentType;
               _idempotency.noteContentChanged();
             }),
@@ -474,15 +531,30 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
             label: Text(
               _extracting
                   ? l10n.extractingCardDetails
-                  : l10n.extractCardDetails,
+                  : _extractionJobId == null
+                  ? l10n.extractCardDetails
+                  : l10n.rescan,
             ),
           ),
           const Divider(height: 28),
-          AppTextField(
-            label: l10n.fullName,
-            controller: _fullName,
-            validator: _required,
-          ),
+          if (_isCard) ...[
+            _LockedIdentityField(label: l10n.firstName, value: _firstName.text),
+            const SizedBox(height: 10),
+            _LockedIdentityField(
+              label: l10n.fathersName,
+              value: _fatherName.text,
+            ),
+            const SizedBox(height: 10),
+            _LockedIdentityField(
+              label: l10n.grandfathersName,
+              value: _grandfatherName.text,
+            ),
+          ] else
+            AppTextField(
+              label: l10n.fullName,
+              controller: _firstName,
+              validator: _required,
+            ),
           const SizedBox(height: 10),
           AppTextField(
             label: l10n.dateOfBirth,
@@ -493,6 +565,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<Sex>(
+            isExpanded: true,
             key: ValueKey(_sex),
             initialValue: _sex,
             decoration: InputDecoration(labelText: l10n.sex),
@@ -511,6 +584,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<BloodGroup>(
+            isExpanded: true,
             key: ValueKey(_bloodGroup),
             initialValue: _bloodGroup,
             decoration: InputDecoration(labelText: l10n.bloodGroup),
@@ -535,20 +609,30 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
             validator: _country,
           ),
           const SizedBox(height: 10),
-          AppTextField(
-            label: l10n.documentNumber,
-            controller: _documentNumber,
-            validator: _required,
-          ),
           if (_isCard) ...[
-            const SizedBox(height: 10),
-            AppTextField(
+            _LockedIdentityField(
               label: l10n.nationalNumber,
-              controller: _nationalNumber,
+              value: _nationalNumber.text,
+              forceLtr: true,
+            ),
+            const SizedBox(height: 10),
+            _LockedIdentityField(
+              label: l10n.cardBodyNumber,
+              value: _cardBodyNumber.text,
+              forceLtr: true,
+            ),
+            const SizedBox(height: 10),
+            _LockedIdentityField(
+              label: l10n.familyNumber,
+              value: _familyNumber.text,
+              forceLtr: true,
+            ),
+          ] else ...[
+            AppTextField(
+              label: l10n.documentNumber,
+              controller: _documentNumber,
               validator: _required,
             ),
-          ],
-          if (!_isCard) ...[
             const SizedBox(height: 10),
             AppTextField(
               label: l10n.documentIssuingCountry,
@@ -585,7 +669,12 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   Widget _reviewStep(AppLocalizations l10n) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      _ReviewRow(l10n.fullName, _fullName.text),
+      if (_isCard) ...[
+        _ReviewRow(l10n.firstName, _firstName.text),
+        _ReviewRow(l10n.fathersName, _fatherName.text),
+        _ReviewRow(l10n.grandfathersName, _grandfatherName.text),
+      ] else
+        _ReviewRow(l10n.fullName, _firstName.text),
       _ReviewRow(l10n.dateOfBirth, formatApiDate(_dob)),
       _ReviewRow(l10n.sex, _sexLabel(l10n, _sex)),
       _ReviewRow(
@@ -596,7 +685,12 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
         l10n.documentType,
         StatusLabels(l10n).identityTypeLabel(_documentType),
       ),
-      _ReviewRow(l10n.documentNumber, _documentNumber.text, forceLtr: true),
+      if (_isCard) ...[
+        _ReviewRow(l10n.nationalNumber, _nationalNumber.text, forceLtr: true),
+        _ReviewRow(l10n.cardBodyNumber, _cardBodyNumber.text, forceLtr: true),
+        _ReviewRow(l10n.familyNumber, _familyNumber.text, forceLtr: true),
+      ] else
+        _ReviewRow(l10n.documentNumber, _documentNumber.text, forceLtr: true),
       _ReviewRow(l10n.nationality, _nationality.text.toUpperCase()),
       _errorView(),
     ],
@@ -607,6 +701,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
     return Column(
       children: [
         DropdownButtonFormField<Relationship>(
+          isExpanded: true,
           initialValue: _relationship,
           decoration: InputDecoration(labelText: l10n.relationship),
           items: Relationship.values
@@ -626,6 +721,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
         if (_isLegalGuardian) ...[
           const SizedBox(height: 12),
           DropdownButtonFormField<EvidenceType>(
+            isExpanded: true,
             initialValue: _evidenceType,
             decoration: InputDecoration(labelText: l10n.evidenceType),
             items: EvidenceType.values
@@ -698,6 +794,40 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
         EvidenceType.otherOfficialEvidence => l10n.otherOfficialEvidence,
         EvidenceType.unknown => l10n.unknownStatus,
       };
+}
+
+class _LockedIdentityField extends StatelessWidget {
+  const _LockedIdentityField({
+    required this.label,
+    required this.value,
+    this.forceLtr = false,
+  });
+
+  final String label;
+  final String value;
+  final bool forceLtr;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: label,
+    value: value,
+    textField: true,
+    readOnly: true,
+    child: ExcludeSemantics(
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: const Icon(Icons.lock_outline),
+        ),
+        child: Directionality(
+          textDirection: forceLtr
+              ? TextDirection.ltr
+              : Directionality.of(context),
+          child: Text(value.isEmpty ? '—' : value),
+        ),
+      ),
+    ),
+  );
 }
 
 class _FileTile extends StatelessWidget {

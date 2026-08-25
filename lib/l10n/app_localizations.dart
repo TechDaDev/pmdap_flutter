@@ -782,6 +782,12 @@ abstract class AppLocalizations {
   /// **'Document number'**
   String get documentNumber;
 
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
   /// No description provided for @nationalNumber.
   ///
   /// In en, this message translates to:
@@ -811,6 +817,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unique card body number'**
   String get uniqueCardBodyNumber;
+
+  /// No description provided for @cardBodyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Card body number'**
+  String get cardBodyNumber;
 
   /// No description provided for @issueDate.
   ///

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('minor request never sends or renders family data', () {
+  test('family data is review-only and absent from relationship surfaces', () {
     final api = File(
       'lib/features/minors/data/minors_api.dart',
     ).readAsStringSync();
@@ -16,7 +16,8 @@ void main() {
 
     expect(api.contains("'family_number'"), isFalse);
     expect(api.contains('familyNumber'), isFalse);
-    expect(wizard.contains('familyNumber'), isFalse);
+    expect(wizard.contains('l10n.familyNumber'), isTrue);
+    expect(wizard.contains('_LockedIdentityField'), isTrue);
     expect(list.contains('dateOfBirth'), isFalse);
     expect(list.contains('minorSearch'), isFalse);
     expect(list.toLowerCase().contains('search child'), isFalse);
