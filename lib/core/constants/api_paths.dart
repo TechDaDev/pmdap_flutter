@@ -30,6 +30,11 @@ class ApiPaths {
       '/auth/register/identity/extract/$jobId/';
 
   static const minors = '/minors/';
+  static const guardianRelationships = '/guardian-relationships/';
+  static String guardianRelationshipDetail(String uuid) =>
+      '/guardian-relationships/$uuid/';
+  static String guardianRelationshipRevoke(String uuid) =>
+      '/minors/relationships/$uuid/revoke/';
   static String minorDetail(String uuid) => '/minors/$uuid/';
   static String minorArchive(String uuid) => '/minors/$uuid/archive/';
   static String minorArchiveSummary(String uuid) =>

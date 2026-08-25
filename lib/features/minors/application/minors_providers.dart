@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/models/guardian_relationship_summary.dart';
 import '../../../core/models/minor.dart';
 import '../../../core/models/pagination.dart';
 import '../../identity/application/identity_providers.dart';
@@ -14,6 +15,16 @@ final minorsProvider = FutureProvider.autoDispose<Page<Minor>>(
 final minorDetailProvider = FutureProvider.autoDispose.family<Minor, String>(
   (ref, uuid) => ref.watch(minorsApiProvider).detail(uuid),
 );
+
+final guardianRelationshipsProvider =
+    FutureProvider.autoDispose<Page<GuardianRelationshipSummary>>(
+      (ref) => ref.watch(minorsApiProvider).relationships(),
+    );
+
+final guardianRelationshipDetailProvider = FutureProvider.autoDispose
+    .family<GuardianRelationshipSummary, String>(
+      (ref, uuid) => ref.watch(minorsApiProvider).relationshipDetail(uuid),
+    );
 
 /// Whether the signed-in adult is an eligible guardian.
 ///

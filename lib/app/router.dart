@@ -53,6 +53,8 @@ class Routes {
   static const minors = '/minors';
   static const minorsNew = '/minors/new';
   static String minorDetail(String uuid) => '/minors/$uuid';
+  static String guardianRelationshipDetail(String uuid) =>
+      '/guardian-relationships/$uuid';
   static String minorDocuments(String uuid) => '/minors/$uuid/documents';
   static String minorArchive(String uuid) => '/minors/$uuid/archive';
   static String minorSearch(String uuid) => '/minors/$uuid/search';
@@ -194,6 +196,11 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       ),
       GoRoute(
         path: '/minors/:uuid',
+        builder: (context, state) =>
+            MinorDocumentsScreen(minorUuid: state.pathParameters['uuid']!),
+      ),
+      GoRoute(
+        path: '/guardian-relationships/:uuid',
         builder: (context, state) =>
             MinorDetailScreen(uuid: state.pathParameters['uuid']!),
       ),

@@ -1611,4 +1611,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmThisPage => 'تأكيد تاريخ هذه الصفحة';
+
+  @override
+  String get myChildrenTitle => 'أطفالي';
+
+  @override
+  String get myChildrenEmptyTitle => 'لا توجد علاقات أطفال بعد';
+
+  @override
+  String get myChildrenEmptyBody =>
+      'أضف طفلاً لطلب صلاحية الوصي. تتم مراجعة الطلب قبل تفعيل الوصول.';
+
+  @override
+  String get addFirstChild => 'إضافة طفلك الأول';
+
+  @override
+  String get childStatusPending => 'قيد المراجعة';
+
+  @override
+  String get childStatusVerified => 'موثقة';
+
+  @override
+  String get childStatusRejected => 'مرفوضة';
+
+  @override
+  String get childStatusRevoked => 'ملغاة';
+
+  @override
+  String get childStatusUnknown => 'الحالة غير متاحة';
+
+  @override
+  String get relationshipDetails => 'تفاصيل العلاقة';
+
+  @override
+  String get requestReceived => 'تم استلام الطلب وهو قيد التحقق.';
+
+  @override
+  String get requestRejected => 'لم تتم الموافقة على هذا الطلب.';
+
+  @override
+  String get accessEnded => 'انتهت صلاحية وصول الوصي.';
+
+  @override
+  String get revokeAccess => 'إلغاء الوصول';
+
+  @override
+  String get revokeConfirmTitle => 'إلغاء صلاحية الوصي؟';
+
+  @override
+  String get revokeConfirmBody =>
+      'ستفقد الوصول إلى سجلات هذا الطفل. لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get submittedOn => 'تاريخ الإرسال';
+
+  @override
+  String get activeSince => 'نشطة منذ';
+
+  @override
+  String get childDigitalId => 'المعرّف الرقمي للطفل';
+
+  @override
+  String get relationshipRefreshFailed => 'تعذّر تحديث العلاقات. حاول مجدداً.';
+
+  @override
+  String get relationshipConflict =>
+      'تغيّر الطلب على الخادم. حدّث الصفحة وحاول مجدداً.';
+
+  @override
+  String get relationshipAlreadyExists => 'يوجد طلب علاقة لهذا الطفل بالفعل.';
+
+  @override
+  String get guardianRequestSent => 'تم إرسال الطلب للتحقق.';
+
+  @override
+  String get reviewChildDetails => 'مراجعة بيانات الطفل';
+
+  @override
+  String get childIdentityStep => 'هوية الطفل';
+
+  @override
+  String get relationshipStep => 'العلاقة';
+
+  @override
+  String get submitRequestStep => 'إرسال الطلب';
+
+  @override
+  String get extractCardDetails => 'استخراج بيانات البطاقة';
+
+  @override
+  String get extractingCardDetails => 'جارٍ استخراج بيانات البطاقة…';
+
+  @override
+  String get extractionReady =>
+      'تم استخراج البيانات. راجع كل حقل قبل المتابعة.';
 }

@@ -4,9 +4,11 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/models/guardian_relationship_summary.dart';
 import '../../../core/models/minor.dart';
 import '../../../core/models/pagination.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../identity/data/identity_image_part.dart';
 
 class MinorCreateSubmission {
   const MinorCreateSubmission({
@@ -19,7 +21,6 @@ class MinorCreateSubmission {
     required this.documentType,
     required this.documentNumber,
     this.nationalNumber = '',
-    this.familyNumber = '',
     this.issuingCountry,
     this.issueDate,
     this.expiryDate,
@@ -41,7 +42,6 @@ class MinorCreateSubmission {
   final IdentityDocumentType documentType;
   final String documentNumber;
   final String nationalNumber;
-  final String familyNumber;
 
   /// Document issuing country — a separate field from child nationality.
   final String? issuingCountry;
@@ -105,20 +105,13 @@ class MinorsApi {
         'document_type': s.documentType.api,
         'document_number': s.documentNumber,
         'national_number': s.nationalNumber,
-        'family_number': s.familyNumber,
         if (s.issuingCountry != null && s.issuingCountry!.isNotEmpty)
           'issuing_country': s.issuingCountry,
         if (s.issueDate != null) 'issue_date': formatApiDate(s.issueDate),
         if (s.expiryDate != null) 'expiry_date': formatApiDate(s.expiryDate),
-        'front_image': await MultipartFile.fromFile(
-          s.frontPath,
-          filename: s.frontFilename,
-        ),
+        'front_image': await identityMultipartFile(s.frontPath, side: 'front'),
         if (s.backPath != null)
-          'back_image': await MultipartFile.fromFile(
-            s.backPath!,
-            filename: s.backFilename ?? 'back',
-          ),
+          'back_image': await identityMultipartFile(s.backPath!, side: 'back'),
         // Evidence is optional (father/mother); when present, type + file are
         // always sent together, never one without the other.
         if (s.evidencePath != null && s.evidenceType != null)
@@ -137,6 +130,46 @@ class MinorsApi {
       return decodeData<MinorCreateResponse>(
         resp.data,
         MinorCreateResponse.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<Page<GuardianRelationshipSummary>> relationships({
+    int page = 1,
+  }) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.guardianRelationships,
+        queryParameters: {'page': page},
+      );
+      return decodePage(
+        resp.data,
+        Page<GuardianRelationshipSummary>.fromJson,
+        GuardianRelationshipSummary.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<GuardianRelationshipSummary> relationshipDetail(String uuid) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.guardianRelationshipDetail(uuid),
+      );
+      return decodeData(resp.data, GuardianRelationshipSummary.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<void> revokeRelationship(String uuid) async {
+    try {
+      await _dio.post<dynamic>(
+        ApiPaths.guardianRelationshipRevoke(uuid),
+        data: const {'reason': 'Revoked by guardian'},
       );
     } on DioException catch (e) {
       throw _mapper.map(e);

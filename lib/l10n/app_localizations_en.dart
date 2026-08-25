@@ -1626,4 +1626,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmThisPage => 'Confirm this page\'s date';
+
+  @override
+  String get myChildrenTitle => 'My children';
+
+  @override
+  String get myChildrenEmptyTitle => 'No child relationships yet';
+
+  @override
+  String get myChildrenEmptyBody =>
+      'Add a child to request guardian access. Requests are reviewed before access becomes active.';
+
+  @override
+  String get addFirstChild => 'Add your first child';
+
+  @override
+  String get childStatusPending => 'Pending review';
+
+  @override
+  String get childStatusVerified => 'Verified';
+
+  @override
+  String get childStatusRejected => 'Rejected';
+
+  @override
+  String get childStatusRevoked => 'Revoked';
+
+  @override
+  String get childStatusUnknown => 'Status unavailable';
+
+  @override
+  String get relationshipDetails => 'Relationship details';
+
+  @override
+  String get requestReceived => 'Request received. Verification is pending.';
+
+  @override
+  String get requestRejected => 'This request was not approved.';
+
+  @override
+  String get accessEnded => 'Guardian access has ended.';
+
+  @override
+  String get revokeAccess => 'Revoke access';
+
+  @override
+  String get revokeConfirmTitle => 'Revoke guardian access?';
+
+  @override
+  String get revokeConfirmBody =>
+      'You will lose access to this child\'s records. This action cannot be undone.';
+
+  @override
+  String get submittedOn => 'Submitted';
+
+  @override
+  String get activeSince => 'Active since';
+
+  @override
+  String get childDigitalId => 'Child digital ID';
+
+  @override
+  String get relationshipRefreshFailed =>
+      'Could not refresh relationships. Try again.';
+
+  @override
+  String get relationshipConflict =>
+      'This request changed on the server. Refresh and try again.';
+
+  @override
+  String get relationshipAlreadyExists =>
+      'A relationship request for this child already exists.';
+
+  @override
+  String get guardianRequestSent => 'Request sent for verification.';
+
+  @override
+  String get reviewChildDetails => 'Review child details';
+
+  @override
+  String get childIdentityStep => 'Child identity';
+
+  @override
+  String get relationshipStep => 'Relationship';
+
+  @override
+  String get submitRequestStep => 'Submit request';
+
+  @override
+  String get extractCardDetails => 'Extract card details';
+
+  @override
+  String get extractingCardDetails => 'Extracting card details…';
+
+  @override
+  String get extractionReady =>
+      'Details extracted. Review every field before continuing.';
 }

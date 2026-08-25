@@ -1,157 +1,227 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pmdap_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../app/router.dart';
-import '../../../core/models/enums.dart';
+import '../../../core/models/guardian_relationship_summary.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
-import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
 import '../application/minors_providers.dart';
 
-/// Guardian view of linked minor patients.
-class MinorsScreen extends ConsumerWidget {
+class MinorsScreen extends ConsumerStatefulWidget {
   const MinorsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final eligibility = ref.watch(guardianEligibilityProvider);
+  ConsumerState<MinorsScreen> createState() => _MinorsScreenState();
+}
 
-    // Present the eligibility gate before the normal minors workflow.
+class _MinorsScreenState extends ConsumerState<MinorsScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(guardianRelationshipsProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final relationships = ref.watch(guardianRelationshipsProvider);
+    final eligibility = ref.watch(guardianEligibilityProvider);
+    final canAdd = eligibility.valueOrNull?.isEligible == true;
     return PmdapScaffold(
-      title: l10n.minorsTitle,
-      floatingActionButton: eligibility.valueOrNull?.isEligible == true
+      title: l10n.myChildrenTitle,
+      floatingActionButton: canAdd
           ? FloatingActionButton.extended(
               onPressed: () => context.push(Routes.minorsNew),
-              icon: const Icon(Icons.person_add_alt),
+              icon: const Icon(Icons.person_add_alt_1_outlined),
               label: Text(l10n.addMinor),
             )
           : null,
-      body: eligibility.when(
+      body: relationships.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => _buildMinorsList(context, ref),
-        data: (elig) => elig.isEligible
-            ? _buildMinorsList(context, ref)
-            : _GuardianEligibilityView(
-                onVerify: () => context.push(Routes.identity),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildMinorsList(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final async = ref.watch(minorsProvider);
-    return AsyncStateView(
-      value: async,
-      onRetry: () => ref.invalidate(minorsProvider),
-      emptyBuilder: (page) => page.results.isEmpty
-          ? EmptyState(icon: Icons.family_restroom, message: l10n.noMinors)
-          : null,
-      builder: (page) {
-        final labels = StatusLabels(l10n);
-        return ListView.separated(
-          padding: const EdgeInsets.only(bottom: 96),
-          itemCount: page.results.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, i) {
-            final minor = page.results[i];
-            final pending =
-                minor.relationship?.verificationStatus ==
-                VerificationStatus.pending;
-            final dob = localizedDate(l10n, minor.dateOfBirth);
-            return ListTile(
-              // PENDING relationships are not fully accessible — detail and
-              // protected sub-routes require VERIFIED + active.
-              onTap: pending
-                  ? null
-                  : () => context.push(Routes.minorDetail(minor.uuid)),
-              enabled: !pending,
-              leading: CircleAvatar(
-                child: Text(patientInitials(minor.fullName)),
-              ),
-              title: Text(minor.fullName),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    pending
-                        ? l10n.relationshipPending
-                        : '${l10n.minorAge}: ${minor.age} · $dob',
-                  ),
-                  if (!pending) ...[
-                    const SizedBox(height: 2),
-                    // Digital ID — keep LTR inside Arabic UI.
-                    Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: Text(
-                        '${l10n.digitalId}: ${minor.digitalId}',
-                        style: Theme.of(context).textTheme.bodySmall,
+        error: (_, _) => _ErrorState(
+          onRetry: () => ref.invalidate(guardianRelationshipsProvider),
+        ),
+        data: (page) => RefreshIndicator(
+          onRefresh: () => ref.refresh(guardianRelationshipsProvider.future),
+          child: page.results.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * .68,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          EmptyState(
+                            icon: Icons.family_restroom_outlined,
+                            message:
+                                '${l10n.myChildrenEmptyTitle}\n\n${l10n.myChildrenEmptyBody}',
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            onPressed: () => context.push(
+                              canAdd ? Routes.minorsNew : Routes.identity,
+                            ),
+                            icon: Icon(
+                              canAdd
+                                  ? Icons.person_add_alt_1_outlined
+                                  : Icons.verified_user_outlined,
+                            ),
+                            label: Text(
+                              canAdd ? l10n.addFirstChild : l10n.verifyIdentity,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ],
-              ),
-              trailing: labels.verification(
-                minor.relationship?.verificationStatus ??
-                    VerificationStatus.unknown,
-              ),
-            );
-          },
-        );
-      },
+                )
+              : ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+                  itemCount: page.results.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) => _RelationshipCard(
+                    value: page.results[index],
+                    onTap: () => context.push(
+                      Routes.guardianRelationshipDetail(
+                        page.results[index].uuid,
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }
 
-/// Bilingual gate shown when the guardian is not yet eligible.
-class _GuardianEligibilityView extends StatelessWidget {
-  const _GuardianEligibilityView({required this.onVerify});
+class _RelationshipCard extends StatelessWidget {
+  const _RelationshipCard({required this.value, required this.onTap});
+  final GuardianRelationshipSummary value;
+  final VoidCallback onTap;
 
-  final VoidCallback onVerify;
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = StatusLabels(l10n);
+    final color = _statusColor(Theme.of(context).colorScheme, value.status);
+    return Semantics(
+      button: true,
+      label:
+          '${value.child.fullName}, ${relationshipStatusLabel(l10n, value.status)}',
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  child: Text(patientInitials(value.child.fullName)),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        value.child.fullName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(labels.relationshipLabel(value.relationship)),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: .14),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          relationshipStatusLabel(l10n, value.status),
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.onRetry});
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Center(
-      child: SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              Icons.verified_user_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            const Icon(Icons.cloud_off_outlined, size: 48),
+            const SizedBox(height: 12),
+            Text(l10n.relationshipRefreshFailed, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            Text(
-              l10n.guardianEligibilityTitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.guardianEligibilityBody,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: onVerify,
-              icon: const Icon(Icons.badge_outlined),
-              label: Text(l10n.verifyIdentity),
-            ),
+            OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),
           ],
         ),
       ),
     );
   }
 }
+
+String relationshipStatusLabel(
+  AppLocalizations l10n,
+  GuardianRelationshipStatus status,
+) => switch (status) {
+  GuardianRelationshipStatus.pending => l10n.childStatusPending,
+  GuardianRelationshipStatus.verified => l10n.childStatusVerified,
+  GuardianRelationshipStatus.rejected => l10n.childStatusRejected,
+  GuardianRelationshipStatus.revoked => l10n.childStatusRevoked,
+  GuardianRelationshipStatus.unknown => l10n.childStatusUnknown,
+};
+
+Color _statusColor(ColorScheme colors, GuardianRelationshipStatus status) =>
+    switch (status) {
+      GuardianRelationshipStatus.verified => colors.primary,
+      GuardianRelationshipStatus.pending => colors.tertiary,
+      GuardianRelationshipStatus.rejected => colors.error,
+      GuardianRelationshipStatus.revoked => colors.outline,
+      GuardianRelationshipStatus.unknown => colors.outline,
+    };

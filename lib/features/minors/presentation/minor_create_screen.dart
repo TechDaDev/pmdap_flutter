@@ -1,8 +1,10 @@
+import 'dart:async';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pmdap_mobile/l10n/app_localizations.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
@@ -11,11 +13,17 @@ import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/utils/uuid.dart';
 import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/buttons.dart';
 import '../application/minors_providers.dart';
 import '../data/minors_api.dart';
+import '../../identity/data/extraction_models.dart';
 
-/// Add a minor (guardian). Multipart, requires `Idempotency-Key` header.
+typedef MinorImagePicker = Future<XFile?> Function();
+
+final minorImagePickerProvider = Provider<MinorImagePicker>(
+  (ref) =>
+      () => ImagePicker().pickImage(source: ImageSource.gallery),
+);
+
 class MinorCreateScreen extends ConsumerStatefulWidget {
   const MinorCreateScreen({super.key});
 
@@ -24,100 +32,88 @@ class MinorCreateScreen extends ConsumerStatefulWidget {
 }
 
 class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
-  final _nationalityController = TextEditingController(text: 'IQ');
-  final _documentNumberController = TextEditingController();
-  final _nationalNumberController = TextEditingController();
-  final _familyNumberController = TextEditingController();
-  final _issuingCountryController = TextEditingController(text: 'IQ');
+  final _identityForm = GlobalKey<FormState>();
+  final _fullName = TextEditingController();
+  final _nationality = TextEditingController(text: 'IQ');
+  final _documentNumber = TextEditingController();
+  final _nationalNumber = TextEditingController();
+  final _issuingCountry = TextEditingController(text: 'IQ');
+  final _idempotency = IdempotencyKeyManager();
 
+  int _step = 0;
   DateTime? _dob;
+  DateTime? _issueDate;
+  DateTime? _expiryDate;
   Sex _sex = Sex.unspecified;
   BloodGroup _bloodGroup = BloodGroup.unknown;
   Relationship _relationship = Relationship.father;
-  IdentityDocumentType _docType = IdentityDocumentType.birthDocument;
-  DateTime? _issueDate;
-  DateTime? _expiryDate;
-
+  IdentityDocumentType _documentType = IdentityDocumentType.birthDocument;
+  EvidenceType? _evidenceType;
   String? _frontPath;
   String? _frontName;
   String? _backPath;
   String? _backName;
-  EvidenceType? _evidenceType;
   String? _evidencePath;
   String? _evidenceName;
-
-  final _idempotency = IdempotencyKeyManager();
+  bool _extracting = false;
   bool _submitting = false;
-  String? _errorMessage;
+  String? _notice;
+  String? _error;
 
-  bool get _isNationalCard =>
-      _docType == IdentityDocumentType.unifiedNationalCard;
+  bool get _isCard => _documentType == IdentityDocumentType.unifiedNationalCard;
   bool get _isLegalGuardian => _relationship == Relationship.legalGuardian;
 
   @override
+  void initState() {
+    super.initState();
+    for (final controller in [
+      _fullName,
+      _nationality,
+      _documentNumber,
+      _nationalNumber,
+      _issuingCountry,
+    ]) {
+      controller.addListener(_idempotency.noteContentChanged);
+    }
+  }
+
+  @override
   void dispose() {
-    _fullNameController.dispose();
-    _nationalityController.dispose();
-    _documentNumberController.dispose();
-    _nationalNumberController.dispose();
-    _familyNumberController.dispose();
-    _issuingCountryController.dispose();
+    _fullName.dispose();
+    _nationality.dispose();
+    _documentNumber.dispose();
+    _nationalNumber.dispose();
+    _issuingCountry.dispose();
     super.dispose();
   }
 
-  static bool _supportsImage(String? name) {
-    if (name == null) return false;
+  bool _supported(String name) {
     final lower = name.toLowerCase();
     return lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
         lower.endsWith('.png');
   }
 
-  /// Identity images and guardian evidence are validated by the backend with
-  /// the same secure validator (JPEG/PNG only). Reject others client-side.
-  bool _applyPicked({String? path, String? name, required int kind}) {
-    if (!_supportsImage(name)) {
+  Future<void> _pickImage(bool front) async {
+    final file = await ref.read(minorImagePickerProvider)();
+    if (file == null || !mounted) return;
+    if (!_supported(file.name)) {
       setState(
-        () =>
-            _errorMessage = AppLocalizations.of(context).unsupportedImageFormat,
+        () => _error = AppLocalizations.of(context).unsupportedImageFormat,
       );
-      return false;
+      return;
     }
     _idempotency.noteContentChanged();
     setState(() {
-      switch (kind) {
-        case 0:
-          _frontPath = path;
-          _frontName = name;
-        case 1:
-          _backPath = path;
-          _backName = name;
-        default:
-          _evidencePath = path;
-          _evidenceName = name;
+      _error = null;
+      if (front) {
+        _frontPath = file.path;
+        _frontName = file.name;
+      } else {
+        _backPath = file.path;
+        _backName = file.name;
       }
     });
-    return true;
-  }
-
-  Future<void> _pickImage({required bool front}) async {
-    final picker = ImagePicker();
-    final xfile = await picker.pickImage(source: ImageSource.gallery);
-    if (xfile == null) return;
-    final ok = _applyPicked(
-      path: xfile.path,
-      name: xfile.name,
-      kind: front ? 0 : 1,
-    );
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).unsupportedImageFormat),
-        ),
-      );
-    }
   }
 
   Future<void> _pickEvidence() async {
@@ -125,121 +121,207 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       type: FileType.custom,
       allowedExtensions: const ['jpg', 'jpeg', 'png'],
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result == null || result.files.isEmpty || !mounted) return;
     final file = result.files.first;
-    final ok = _applyPicked(path: file.path, name: file.name, kind: 2);
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).unsupportedImageFormat),
-        ),
+    if (file.path == null || !_supported(file.name)) {
+      setState(
+        () => _error = AppLocalizations.of(context).unsupportedImageFormat,
       );
+      return;
     }
+    _idempotency.noteContentChanged();
+    setState(() {
+      _evidencePath = file.path;
+      _evidenceName = file.name;
+      _error = null;
+    });
   }
 
-  /// Date of birth — past only and under 18 (exact calendar age).
+  Future<DateTime?> _pickDate({
+    required DateTime initial,
+    required DateTime first,
+    required DateTime last,
+  }) => showDatePicker(
+    context: context,
+    initialDate: initial,
+    firstDate: first,
+    lastDate: last,
+  );
+
   Future<void> _pickDob() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(today.year - 10, today.month, today.day),
-      firstDate: DateTime(1990),
-      lastDate: today,
+    final today = DateUtils.dateOnly(DateTime.now());
+    final value = await _pickDate(
+      initial: _dob ?? DateTime(today.year - 10, today.month, today.day),
+      first: DateTime(today.year - 18, today.month, today.day + 1),
+      last: today,
     );
-    if (picked != null) {
+    if (value != null) {
       _idempotency.noteContentChanged();
-      setState(() => _dob = DateTime(picked.year, picked.month, picked.day));
+      setState(() => _dob = value);
     }
   }
 
   Future<void> _pickIssueDate() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(today.year - 5, today.month, today.day),
-      firstDate: DateTime(1990),
-      lastDate: today,
+    final today = DateUtils.dateOnly(DateTime.now());
+    final value = await _pickDate(
+      initial: _issueDate ?? today,
+      first: DateTime(1990),
+      last: today,
     );
-    if (picked != null) {
+    if (value != null) {
       _idempotency.noteContentChanged();
-      setState(() => _issueDate = picked);
+      setState(() => _issueDate = value);
     }
   }
 
   Future<void> _pickExpiryDate() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(today.year + 5, today.month, today.day),
-      firstDate: _issueDate ?? today,
-      lastDate: DateTime(2100, 12, 31),
+    final today = DateUtils.dateOnly(DateTime.now());
+    final value = await _pickDate(
+      initial: _expiryDate ?? DateTime(today.year + 5),
+      first: _issueDate ?? today,
+      last: DateTime(2100, 12, 31),
     );
-    if (picked != null) {
+    if (value != null) {
       _idempotency.noteContentChanged();
-      setState(() => _expiryDate = picked);
+      setState(() => _expiryDate = value);
     }
   }
 
-  static int _calendarAge(DateTime dob, DateTime today) {
-    var age = today.year - dob.year;
-    final beforeBirthday =
-        today.month < dob.month ||
-        (today.month == dob.month && today.day < dob.day);
-    if (beforeBirthday) age--;
-    return age;
+  Future<void> _extract() async {
+    final l10n = AppLocalizations.of(context);
+    if (_frontPath == null || (_isCard && _backPath == null)) {
+      setState(
+        () => _error = _frontPath == null
+            ? l10n.frontImageRequired
+            : l10n.backImageRequired,
+      );
+      return;
+    }
+    setState(() {
+      _extracting = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      final api = ref.read(identityApiProvider);
+      final job = await api.extract(
+        documentType: _documentType,
+        frontPath: _frontPath!,
+        backPath: _backPath,
+      );
+      ExtractionStatus? status;
+      for (var attempt = 0; attempt < 30; attempt++) {
+        status = await api.extractStatus(job.jobId);
+        if (status.isTerminal) break;
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+      if (status?.status != ExtractionJobStatus.success ||
+          status?.result == null) {
+        throw const ApiException(
+          code: 'identity_extraction_failed',
+          message: 'Could not extract identity details.',
+        );
+      }
+      _applyExtraction(status!.result!);
+      setState(() => _notice = l10n.extractionReady);
+    } on ApiException catch (error) {
+      setState(() => _error = error.message);
+    } catch (_) {
+      setState(() => _error = l10n.errorGeneric);
+    } finally {
+      if (mounted) setState(() => _extracting = false);
+    }
   }
 
-  String? _validateDob(DateTime? dob) {
+  void _applyExtraction(IdentityExtractionResult result) {
+    String value(ExtractedIdentityField? field) => field?.value?.trim() ?? '';
+    final name = value(result.name);
+    final document = _isCard
+        ? value(result.nationalCardNumber)
+        : value(result.documentNumber);
+    final dob = parseApiDate(value(result.dateOfBirth));
+    final sex = Sex.fromApi(value(result.sex).toUpperCase());
+    final blood = BloodGroup.fromApi(value(result.bloodGroup).toUpperCase());
+    final country = value(result.issuingCountry).toUpperCase();
+    if (name.isNotEmpty) _fullName.text = name;
+    if (document.isNotEmpty) _documentNumber.text = document;
+    if (dob != null) _dob = dob;
+    if (sex != Sex.unknown) _sex = sex;
+    if (blood != BloodGroup.unknown) _bloodGroup = blood;
+    if (country.length == 2) _issuingCountry.text = country;
+    // Family-number extraction is intentionally ignored and never displayed.
+    _idempotency.noteContentChanged();
+  }
+
+  bool _validateIdentity() {
     final l10n = AppLocalizations.of(context);
-    if (dob == null) return l10n.validationFailed;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    if (dob.isAfter(today)) return l10n.dobNotFuture;
-    if (_calendarAge(dob, today) >= 18) return l10n.dobUnder18;
-    return null;
+    if (!(_identityForm.currentState?.validate() ?? false)) return false;
+    final dobError = _validateDob(_dob);
+    if (dobError != null) {
+      setState(() => _error = dobError);
+      return false;
+    }
+    if (_frontPath == null) {
+      setState(() => _error = l10n.frontImageRequired);
+      return false;
+    }
+    if (_isCard && _backPath == null) {
+      setState(() => _error = l10n.backImageRequired);
+      return false;
+    }
+    return true;
+  }
+
+  String? _validateDob(DateTime? value) {
+    final l10n = AppLocalizations.of(context);
+    if (value == null) return l10n.validationFailed;
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (value.isAfter(today)) return l10n.dobNotFuture;
+    var age = today.year - value.year;
+    if (today.month < value.month ||
+        (today.month == value.month && today.day < value.day)) {
+      age--;
+    }
+    return age >= 18 ? l10n.dobUnder18 : null;
+  }
+
+  void _continue() {
+    if (_step == 0 && !_validateIdentity()) return;
+    if (_step == 2 &&
+        _isLegalGuardian &&
+        (_evidenceType == null || _evidencePath == null)) {
+      setState(
+        () =>
+            _error = AppLocalizations.of(context).legalGuardianEvidenceRequired,
+      );
+      return;
+    }
+    setState(() {
+      _error = null;
+      _step++;
+    });
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_submitting || !_validateIdentity()) return;
     final l10n = AppLocalizations.of(context);
-
-    if (_frontPath == null) {
-      setState(() => _errorMessage = l10n.frontImageRequired);
-      return;
-    }
-    // Back image is required for a National Card (minor), optional otherwise.
-    if (_isNationalCard && _backPath == null) {
-      setState(() => _errorMessage = l10n.backImageRequired);
-      return;
-    }
-    // Evidence (type + file) is required only for a legal guardian.
-    if (_isLegalGuardian && (_evidencePath == null || _evidenceType == null)) {
-      setState(() => _errorMessage = l10n.legalGuardianEvidenceRequired);
-      return;
-    }
-
     setState(() {
       _submitting = true;
-      _errorMessage = null;
+      _error = null;
     });
-
     final submission = MinorCreateSubmission(
-      fullName: _fullNameController.text.trim(),
+      fullName: _fullName.text.trim(),
       dateOfBirth: _dob,
       sex: _sex,
-      nationality: _nationalityController.text.trim().toUpperCase(),
+      nationality: _nationality.text.trim().toUpperCase(),
       bloodGroup: _bloodGroup,
       relationship: _relationship,
-      documentType: _docType,
-      documentNumber: _documentNumberController.text.trim(),
-      nationalNumber: _nationalNumberController.text.trim(),
-      familyNumber: _familyNumberController.text.trim(),
-      issuingCountry: _isNationalCard
+      documentType: _documentType,
+      documentNumber: _documentNumber.text.trim(),
+      nationalNumber: _nationalNumber.text.trim(),
+      issuingCountry: _isCard
           ? 'IQ'
-          : _issuingCountryController.text.trim().toUpperCase(),
+          : _issuingCountry.text.trim().toUpperCase(),
       issueDate: _issueDate,
       expiryDate: _expiryDate,
       frontPath: _frontPath!,
@@ -255,16 +337,23 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
           .read(minorsApiProvider)
           .create(submission, idempotencyKey: _idempotency.keyForSubmission());
       _idempotency.reset();
-      ref.invalidate(minorsProvider);
+      ref.invalidate(guardianRelationshipsProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.minorCreated)));
-      Navigator.of(context).maybePop();
-    } on ApiException catch (e) {
-      setState(() => _errorMessage = e.message);
+      ).showSnackBar(SnackBar(content: Text(l10n.guardianRequestSent)));
+      Navigator.of(context).pop();
+    } on ApiException catch (error) {
+      if (error.statusCode == 409) {
+        ref.invalidate(guardianRelationshipsProvider);
+      }
+      setState(
+        () => _error = error.statusCode == 409
+            ? l10n.relationshipAlreadyExists
+            : error.message,
+      );
     } catch (_) {
-      setState(() => _errorMessage = l10n.minorCreateFailed);
+      setState(() => _error = l10n.minorCreateFailed);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -273,305 +362,398 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final labels = StatusLabels(l10n);
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.addMinor)),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stepper(
+          currentStep: _step,
+          onStepContinue: _step == 3 ? _submit : _continue,
+          onStepCancel: _step == 0 ? null : () => setState(() => _step--),
+          controlsBuilder: (context, details) => Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Row(
               children: [
-                AppTextField(
-                  label: l10n.fullName,
-                  controller: _fullNameController,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? l10n.validationFailed
-                      : null,
+                SizedBox(
+                  width: 144,
+                  child: FilledButton(
+                    onPressed: _submitting ? null : details.onStepContinue,
+                    child: Text(_step == 3 ? l10n.submit : l10n.next),
+                  ),
                 ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.dateOfBirth,
-                  controller: TextEditingController(text: formatApiDate(_dob)),
-                  readOnly: true,
-                  onTap: _pickDob,
-                  validator: (_) => _validateDob(_dob),
-                ),
-                const SizedBox(height: 14),
-                DropdownButtonFormField<Sex>(
-                  initialValue: _sex,
-                  decoration: InputDecoration(labelText: l10n.sex),
-                  items: [
-                    for (final s in [Sex.male, Sex.female, Sex.unspecified])
-                      DropdownMenuItem(
-                        value: s,
-                        child: Text(_sexLabel(l10n, s)),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => _sex = v ?? Sex.unspecified),
-                ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.nationality,
-                  controller: _nationalityController,
-                  maxLength: 2,
-                  validator: (v) =>
-                      !RegExp(r'^[A-Za-z]{2}$').hasMatch(v?.trim() ?? '')
-                      ? l10n.validationFailed
-                      : null,
-                ),
-                const SizedBox(height: 14),
-                DropdownButtonFormField<BloodGroup>(
-                  initialValue: _bloodGroup,
-                  decoration: InputDecoration(labelText: l10n.bloodGroup),
-                  items: [
-                    const DropdownMenuItem(
-                      value: BloodGroup.unknown,
-                      child: Text('—'),
+                if (_step > 0) ...[
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 96,
+                    child: TextButton(
+                      onPressed: _submitting ? null : details.onStepCancel,
+                      child: Text(l10n.back),
                     ),
-                    for (final b in BloodGroup.values)
-                      if (b != BloodGroup.unknown)
-                        DropdownMenuItem(value: b, child: Text(b.api)),
-                  ],
-                  onChanged: (v) =>
-                      setState(() => _bloodGroup = v ?? BloodGroup.unknown),
-                ),
-                const SizedBox(height: 14),
-                DropdownButtonFormField<Relationship>(
-                  initialValue: _relationship,
-                  decoration: InputDecoration(labelText: l10n.relationship),
-                  items: [
-                    for (final r in Relationship.values)
-                      if (r != Relationship.unknown)
-                        DropdownMenuItem(
-                          value: r,
-                          child: Text(labels.relationshipLabel(r)),
-                        ),
-                  ],
-                  onChanged: (v) => setState(() {
-                    _relationship = v ?? _relationship;
-                    _idempotency.noteContentChanged();
-                  }),
-                ),
-                const Divider(height: 32),
-                DropdownButtonFormField<IdentityDocumentType>(
-                  initialValue: _docType,
-                  decoration: InputDecoration(labelText: l10n.documentType),
-                  items: [
-                    // Backend accepts only primary minor identity documents.
-                    for (final t in [
-                      IdentityDocumentType.unifiedNationalCard,
-                      IdentityDocumentType.birthDocument,
-                    ])
-                      DropdownMenuItem(
-                        value: t,
-                        child: Text(labels.identityTypeLabel(t)),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() {
-                    _docType = v ?? _docType;
-                    _idempotency.noteContentChanged();
-                  }),
-                ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.documentNumber,
-                  controller: _documentNumberController,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? l10n.validationFailed
-                      : null,
-                ),
-                if (_isNationalCard) ...[
-                  const SizedBox(height: 14),
-                  AppTextField(
-                    label: l10n.nationalNumber,
-                    controller: _nationalNumberController,
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? l10n.nationalNumberRequired
-                        : null,
                   ),
                 ],
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.familyNumber,
-                  controller: _familyNumberController,
-                ),
-                const SizedBox(height: 14),
-                // Issuing country is a separate field from child nationality.
-                AppTextField(
-                  label: l10n.documentIssuingCountry,
-                  controller: _issuingCountryController,
-                  maxLength: 2,
-                  readOnly: _isNationalCard,
-                  validator: (v) {
-                    if (_isNationalCard) {
-                      return (v?.trim().toUpperCase() == 'IQ')
-                          ? null
-                          : l10n.validationFailed;
-                    }
-                    return !RegExp(r'^[A-Za-z]{2}$').hasMatch(v?.trim() ?? '')
-                        ? l10n.validationFailed
-                        : null;
-                  },
-                ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.issueDate,
-                  controller: TextEditingController(
-                    text: formatApiDate(_issueDate),
-                  ),
-                  readOnly: true,
-                  onTap: _pickIssueDate,
-                ),
-                const SizedBox(height: 14),
-                AppTextField(
-                  label: l10n.expiryDate,
-                  controller: TextEditingController(
-                    text: formatApiDate(_expiryDate),
-                  ),
-                  readOnly: true,
-                  onTap: _pickExpiryDate,
-                ),
-                const Divider(height: 32),
-                _FileTile(
-                  label: l10n.frontImage,
-                  actionLabel: l10n.chooseExistingImage,
-                  path: _frontPath,
-                  onPick: () => _pickImage(front: true),
-                ),
-                const SizedBox(height: 12),
-                _FileTile(
-                  label: l10n.backImage,
-                  actionLabel: l10n.chooseExistingImage,
-                  path: _backPath,
-                  onPick: () => _pickImage(front: false),
-                ),
-                if (_isLegalGuardian) ...[
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<EvidenceType>(
-                    initialValue: _evidenceType,
-                    decoration: InputDecoration(labelText: l10n.evidenceType),
-                    items: [
-                      for (final e in EvidenceType.values)
-                        if (e != EvidenceType.unknown)
-                          DropdownMenuItem(
-                            value: e,
-                            child: Text(_evidenceLabel(l10n, e)),
-                          ),
-                    ],
-                    onChanged: (v) => setState(() {
-                      _evidenceType = v;
-                      _idempotency.noteContentChanged();
-                    }),
-                  ),
-                  const SizedBox(height: 12),
-                  _FileTile(
-                    label: l10n.evidenceFile,
-                    actionLabel: l10n.chooseFile,
-                    path: _evidencePath,
-                    onPick: _pickEvidence,
-                  ),
-                ],
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(color: theme.colorScheme.error),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  label: l10n.submit,
-                  onPressed: _submitting ? null : _submit,
-                  loading: _submitting,
-                ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  String _sexLabel(AppLocalizations l10n, Sex s) {
-    switch (s) {
-      case Sex.male:
-        return l10n.male;
-      case Sex.female:
-        return l10n.female;
-      case Sex.unspecified:
-        return l10n.unspecified;
-      case Sex.unknown:
-        return l10n.unknownStatus;
-    }
-  }
-
-  String _evidenceLabel(AppLocalizations l10n, EvidenceType e) {
-    switch (e) {
-      case EvidenceType.legalGuardianshipDocument:
-        return l10n.legalGuardianshipDocument;
-      case EvidenceType.courtDocument:
-        return l10n.courtDocument;
-      case EvidenceType.otherOfficialEvidence:
-        return l10n.otherOfficialEvidence;
-      case EvidenceType.unknown:
-        return l10n.unknownStatus;
-    }
-  }
-}
-
-class _FileTile extends StatelessWidget {
-  const _FileTile({
-    required this.label,
-    required this.actionLabel,
-    required this.onPick,
-    this.path,
-  });
-
-  final String label;
-  final String actionLabel;
-  final VoidCallback onPick;
-  final String? path;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasFile = path != null;
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  hasFile ? Icons.insert_drive_file : Icons.add,
-                  color: scheme.primary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ],
+          steps: [
+            Step(
+              title: Text(l10n.childIdentityStep),
+              isActive: _step >= 0,
+              state: _step > 0 ? StepState.complete : StepState.indexed,
+              content: _identityStep(l10n),
             ),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: onPick,
-                child: Text(actionLabel),
-              ),
+            Step(
+              title: Text(l10n.reviewChildDetails),
+              isActive: _step >= 1,
+              state: _step > 1 ? StepState.complete : StepState.indexed,
+              content: _reviewStep(l10n),
+            ),
+            Step(
+              title: Text(l10n.relationshipStep),
+              isActive: _step >= 2,
+              state: _step > 2 ? StepState.complete : StepState.indexed,
+              content: _relationshipStep(l10n),
+            ),
+            Step(
+              title: Text(l10n.submitRequestStep),
+              isActive: _step >= 3,
+              content: _submitStep(l10n),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _identityStep(AppLocalizations l10n) {
+    return Form(
+      key: _identityForm,
+      child: Column(
+        children: [
+          DropdownButtonFormField<IdentityDocumentType>(
+            initialValue: _documentType,
+            decoration: InputDecoration(labelText: l10n.documentType),
+            items:
+                [
+                      IdentityDocumentType.birthDocument,
+                      IdentityDocumentType.unifiedNationalCard,
+                    ]
+                    .map(
+                      (type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(StatusLabels(l10n).identityTypeLabel(type)),
+                      ),
+                    )
+                    .toList(),
+            onChanged: (value) => setState(() {
+              _documentType = value ?? _documentType;
+              _idempotency.noteContentChanged();
+            }),
+          ),
+          const SizedBox(height: 12),
+          _FileTile(
+            label: l10n.frontImage,
+            filename: _frontName,
+            onTap: () => _pickImage(true),
+          ),
+          if (_isCard) ...[
+            const SizedBox(height: 8),
+            _FileTile(
+              label: l10n.backImage,
+              filename: _backName,
+              onTap: () => _pickImage(false),
+            ),
+          ],
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _extracting ? null : _extract,
+            icon: _extracting
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.document_scanner_outlined),
+            label: Text(
+              _extracting
+                  ? l10n.extractingCardDetails
+                  : l10n.extractCardDetails,
+            ),
+          ),
+          const Divider(height: 28),
+          AppTextField(
+            label: l10n.fullName,
+            controller: _fullName,
+            validator: _required,
+          ),
+          const SizedBox(height: 10),
+          AppTextField(
+            label: l10n.dateOfBirth,
+            controller: TextEditingController(text: formatApiDate(_dob)),
+            readOnly: true,
+            onTap: _pickDob,
+            validator: (_) => _validateDob(_dob),
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<Sex>(
+            key: ValueKey(_sex),
+            initialValue: _sex,
+            decoration: InputDecoration(labelText: l10n.sex),
+            items: [Sex.male, Sex.female, Sex.unspecified]
+                .map(
+                  (sex) => DropdownMenuItem(
+                    value: sex,
+                    child: Text(_sexLabel(l10n, sex)),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              _idempotency.noteContentChanged();
+              setState(() => _sex = value ?? _sex);
+            },
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<BloodGroup>(
+            key: ValueKey(_bloodGroup),
+            initialValue: _bloodGroup,
+            decoration: InputDecoration(labelText: l10n.bloodGroup),
+            items: BloodGroup.values
+                .map(
+                  (group) => DropdownMenuItem(
+                    value: group,
+                    child: Text(group == BloodGroup.unknown ? '—' : group.api),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              _idempotency.noteContentChanged();
+              setState(() => _bloodGroup = value ?? _bloodGroup);
+            },
+          ),
+          const SizedBox(height: 10),
+          AppTextField(
+            label: l10n.nationality,
+            controller: _nationality,
+            maxLength: 2,
+            validator: _country,
+          ),
+          const SizedBox(height: 10),
+          AppTextField(
+            label: l10n.documentNumber,
+            controller: _documentNumber,
+            validator: _required,
+          ),
+          if (_isCard) ...[
+            const SizedBox(height: 10),
+            AppTextField(
+              label: l10n.nationalNumber,
+              controller: _nationalNumber,
+              validator: _required,
+            ),
+          ],
+          if (!_isCard) ...[
+            const SizedBox(height: 10),
+            AppTextField(
+              label: l10n.documentIssuingCountry,
+              controller: _issuingCountry,
+              maxLength: 2,
+              validator: _country,
+            ),
+            const SizedBox(height: 10),
+            _DateButton(
+              label: l10n.issueDate,
+              value: _issueDate,
+              onTap: _pickIssueDate,
+            ),
+            const SizedBox(height: 10),
+            _DateButton(
+              label: l10n.expiryDate,
+              value: _expiryDate,
+              onTap: _pickExpiryDate,
+            ),
+          ],
+          if (_notice != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              _notice!,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ],
+          _errorView(),
+        ],
+      ),
+    );
+  }
+
+  Widget _reviewStep(AppLocalizations l10n) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _ReviewRow(l10n.fullName, _fullName.text),
+      _ReviewRow(l10n.dateOfBirth, formatApiDate(_dob)),
+      _ReviewRow(l10n.sex, _sexLabel(l10n, _sex)),
+      _ReviewRow(
+        l10n.bloodGroup,
+        _bloodGroup == BloodGroup.unknown ? '—' : _bloodGroup.api,
+      ),
+      _ReviewRow(
+        l10n.documentType,
+        StatusLabels(l10n).identityTypeLabel(_documentType),
+      ),
+      _ReviewRow(l10n.documentNumber, _documentNumber.text, forceLtr: true),
+      _ReviewRow(l10n.nationality, _nationality.text.toUpperCase()),
+      _errorView(),
+    ],
+  );
+
+  Widget _relationshipStep(AppLocalizations l10n) {
+    final labels = StatusLabels(l10n);
+    return Column(
+      children: [
+        DropdownButtonFormField<Relationship>(
+          initialValue: _relationship,
+          decoration: InputDecoration(labelText: l10n.relationship),
+          items: Relationship.values
+              .where((item) => item != Relationship.unknown)
+              .map(
+                (item) => DropdownMenuItem(
+                  value: item,
+                  child: Text(labels.relationshipLabel(item)),
+                ),
+              )
+              .toList(),
+          onChanged: (value) => setState(() {
+            _relationship = value ?? _relationship;
+            _idempotency.noteContentChanged();
+          }),
+        ),
+        if (_isLegalGuardian) ...[
+          const SizedBox(height: 12),
+          DropdownButtonFormField<EvidenceType>(
+            initialValue: _evidenceType,
+            decoration: InputDecoration(labelText: l10n.evidenceType),
+            items: EvidenceType.values
+                .where((item) => item != EvidenceType.unknown)
+                .map(
+                  (item) => DropdownMenuItem(
+                    value: item,
+                    child: Text(_evidenceLabel(l10n, item)),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              _idempotency.noteContentChanged();
+              setState(() => _evidenceType = value);
+            },
+          ),
+          const SizedBox(height: 8),
+          _FileTile(
+            label: l10n.evidenceFile,
+            filename: _evidenceName,
+            onTap: _pickEvidence,
+          ),
+        ],
+        _errorView(),
+      ],
+    );
+  }
+
+  Widget _submitStep(AppLocalizations l10n) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const Icon(Icons.fact_check_outlined, size: 52),
+      const SizedBox(height: 12),
+      Text(l10n.myChildrenEmptyBody, textAlign: TextAlign.center),
+      _errorView(),
+    ],
+  );
+
+  Widget _errorView() => _error == null
+      ? const SizedBox.shrink()
+      : Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Text(
+            _error!,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        );
+
+  String? _required(String? value) => value == null || value.trim().isEmpty
+      ? AppLocalizations.of(context).validationFailed
+      : null;
+
+  String? _country(String? value) =>
+      RegExp(r'^[A-Za-z]{2}$').hasMatch(value?.trim() ?? '')
+      ? null
+      : AppLocalizations.of(context).validationFailed;
+
+  String _sexLabel(AppLocalizations l10n, Sex value) => switch (value) {
+    Sex.male => l10n.male,
+    Sex.female => l10n.female,
+    Sex.unspecified => l10n.unspecified,
+    Sex.unknown => l10n.unknownStatus,
+  };
+
+  String _evidenceLabel(AppLocalizations l10n, EvidenceType value) =>
+      switch (value) {
+        EvidenceType.legalGuardianshipDocument =>
+          l10n.legalGuardianshipDocument,
+        EvidenceType.courtDocument => l10n.courtDocument,
+        EvidenceType.otherOfficialEvidence => l10n.otherOfficialEvidence,
+        EvidenceType.unknown => l10n.unknownStatus,
+      };
+}
+
+class _FileTile extends StatelessWidget {
+  const _FileTile({
+    required this.label,
+    required this.filename,
+    required this.onTap,
+  });
+  final String label;
+  final String? filename;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    child: ListTile(
+      onTap: onTap,
+      leading: const Icon(Icons.add_photo_alternate_outlined),
+      title: Text(label),
+      subtitle: filename == null ? null : Text(filename!),
+      trailing: const Icon(Icons.chevron_right_rounded),
+    ),
+  );
+}
+
+class _DateButton extends StatelessWidget {
+  const _DateButton({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+  final String label;
+  final DateTime? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    onPressed: onTap,
+    icon: const Icon(Icons.calendar_today_outlined),
+    label: Text('$label: ${formatApiDate(value)}'),
+  );
+}
+
+class _ReviewRow extends StatelessWidget {
+  const _ReviewRow(this.label, this.value, {this.forceLtr = false});
+  final String label;
+  final String value;
+  final bool forceLtr;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    title: Text(label),
+    subtitle: Directionality(
+      textDirection: forceLtr ? TextDirection.ltr : Directionality.of(context),
+      child: Text(value.isEmpty ? '—' : value),
+    ),
+  );
 }

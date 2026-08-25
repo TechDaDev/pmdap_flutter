@@ -3169,6 +3169,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm this page\'s date'**
   String get confirmThisPage;
+
+  /// No description provided for @myChildrenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My children'**
+  String get myChildrenTitle;
+
+  /// No description provided for @myChildrenEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No child relationships yet'**
+  String get myChildrenEmptyTitle;
+
+  /// No description provided for @myChildrenEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a child to request guardian access. Requests are reviewed before access becomes active.'**
+  String get myChildrenEmptyBody;
+
+  /// No description provided for @addFirstChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first child'**
+  String get addFirstChild;
+
+  /// No description provided for @childStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending review'**
+  String get childStatusPending;
+
+  /// No description provided for @childStatusVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get childStatusVerified;
+
+  /// No description provided for @childStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get childStatusRejected;
+
+  /// No description provided for @childStatusRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get childStatusRevoked;
+
+  /// No description provided for @childStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Status unavailable'**
+  String get childStatusUnknown;
+
+  /// No description provided for @relationshipDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship details'**
+  String get relationshipDetails;
+
+  /// No description provided for @requestReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Request received. Verification is pending.'**
+  String get requestReceived;
+
+  /// No description provided for @requestRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'This request was not approved.'**
+  String get requestRejected;
+
+  /// No description provided for @accessEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian access has ended.'**
+  String get accessEnded;
+
+  /// No description provided for @revokeAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke access'**
+  String get revokeAccess;
+
+  /// No description provided for @revokeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke guardian access?'**
+  String get revokeConfirmTitle;
+
+  /// No description provided for @revokeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will lose access to this child\'s records. This action cannot be undone.'**
+  String get revokeConfirmBody;
+
+  /// No description provided for @submittedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get submittedOn;
+
+  /// No description provided for @activeSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Active since'**
+  String get activeSince;
+
+  /// No description provided for @childDigitalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Child digital ID'**
+  String get childDigitalId;
+
+  /// No description provided for @relationshipRefreshFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh relationships. Try again.'**
+  String get relationshipRefreshFailed;
+
+  /// No description provided for @relationshipConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This request changed on the server. Refresh and try again.'**
+  String get relationshipConflict;
+
+  /// No description provided for @relationshipAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A relationship request for this child already exists.'**
+  String get relationshipAlreadyExists;
+
+  /// No description provided for @guardianRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent for verification.'**
+  String get guardianRequestSent;
+
+  /// No description provided for @reviewChildDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Review child details'**
+  String get reviewChildDetails;
+
+  /// No description provided for @childIdentityStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Child identity'**
+  String get childIdentityStep;
+
+  /// No description provided for @relationshipStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship'**
+  String get relationshipStep;
+
+  /// No description provided for @submitRequestStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get submitRequestStep;
+
+  /// No description provided for @extractCardDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract card details'**
+  String get extractCardDetails;
+
+  /// No description provided for @extractingCardDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting card details…'**
+  String get extractingCardDetails;
+
+  /// No description provided for @extractionReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Details extracted. Review every field before continuing.'**
+  String get extractionReady;
 }
 
 class _AppLocalizationsDelegate
