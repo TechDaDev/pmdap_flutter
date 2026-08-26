@@ -9,13 +9,14 @@ import '../../../app/router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/date_candidate.dart';
-import '../../../core/models/document_page.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../core/models/pagination.dart' as pag;
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../documents/application/documents_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 import 'document_page_section.dart';
 import 'extracted_report_section.dart';
 import 'lab_results_section.dart';
@@ -71,7 +72,19 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   /// OCR can take minutes; poll generously but with a hard, finite deadline.
   static const Duration _maxPollDuration = Duration(minutes: 5);
 
-  bool get _isMinor => widget.minorUuid != null;
+  PatientContext get _patientContext {
+    final selected = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? selected.minorUuid;
+    return minorUuid == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: minorUuid,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+  }
+
+  bool get _isMinor => _patientContext.isMinor;
 
   @override
   void initState() {
@@ -88,7 +101,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
       // views so home/archive pick up any backend progress.
       _pollStartedAt = null;
       _pollExpired = false;
-      invalidateMedicalDocumentLists(ref);
+      invalidateMedicalDocumentLists(ref, _patientContext);
       _schedulePollingIfNeeded();
     } else {
       _timer?.cancel();
@@ -111,12 +124,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   DateTime _now() => (widget.clock ?? DateTime.now)();
 
   Future<MedicalDocumentDetail> _load() {
-    if (_isMinor) {
-      return ref
-          .read(minorDocumentsApiProvider)
-          .detail(widget.minorUuid!, widget.uuid);
-    }
-    return ref.read(documentsApiProvider).detail(widget.uuid);
+    return ref
+        .read(medicalRecordsRepositoryProvider)
+        .getDocument(_patientContext, widget.uuid);
   }
 
   void _reload() {
@@ -134,9 +144,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
   void _invalidateLabResults() {
     if (_isMinor) {
       ref.invalidate(
-        minorLabResultsProvider((
-          minorUuid: widget.minorUuid!,
-          documentUuid: widget.uuid,
+        contextLabResultsProvider((
+          context: _patientContext,
+          uuid: widget.uuid,
         )),
       );
     } else {
@@ -179,7 +189,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     if (_lastStatus != status) {
       _lastStatus = status;
       // Status moved (including to a terminal state): refresh every list view.
-      invalidateMedicalDocumentLists(ref);
+      invalidateMedicalDocumentLists(ref, _patientContext);
       _invalidateLabResults();
     }
     _pollStartedAt ??= _now();
@@ -244,14 +254,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
     );
     if (confirmed != true) return;
     try {
-      if (_isMinor) {
-        await ref
-            .read(minorDocumentsApiProvider)
-            .delete(widget.minorUuid!, widget.uuid);
-      } else {
-        await ref.read(documentsApiProvider).delete(widget.uuid);
-      }
-      ref.invalidate(documentsProvider);
+      await ref
+          .read(medicalRecordsRepositoryProvider)
+          .delete(_patientContext, widget.uuid);
+      invalidateMedicalDocumentLists(ref, _patientContext);
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.deleted)));
       navigator.maybePop();
@@ -312,9 +318,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
           // detail view — no stale candidate display.
           final candidatesAsync = _isMinor
               ? ref.watch(
-                  minorDateCandidatesProvider((
-                    minorUuid: widget.minorUuid!,
-                    documentUuid: widget.uuid,
+                  contextDateCandidatesProvider((
+                    context: _patientContext,
+                    uuid: widget.uuid,
                   )),
                 )
               : ref.watch(dateCandidatesProvider(widget.uuid));
@@ -323,11 +329,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
           // Gate the pages fetch on the stored file's page count so
           // single-page documents never touch the pages endpoint.
           final filePageCount = doc.file?.pageCount;
-          final multiPage =
-              !_isMinor && filePageCount != null && filePageCount > 1;
-          final pagesAsync = multiPage
-              ? ref.watch(documentPagesProvider(widget.uuid))
-              : null;
+          final multiPage = filePageCount != null && filePageCount > 1;
           final isPdf = mime.contains('pdf');
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -445,7 +447,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       if (multiPage) ...[
                         _Row(
                           l10n.dateStatusLabel,
-                          l10n.pagesNeedConfirmation(filePageCount!),
+                          l10n.pagesNeedConfirmation(filePageCount),
                         ),
                       ] else ...[
                         _CandidateDateRow(
@@ -489,7 +491,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
               // date state, results). Single-page docs keep the flat sections.
               if (multiPage) ...[
                 const SizedBox(height: 16),
-                DocumentPageSection(uuid: widget.uuid),
+                DocumentPageSection(
+                  uuid: widget.uuid,
+                  patientContext: _patientContext,
+                ),
               ],
               // Structured lab results (derived, read-only). Only shown for
               // laboratory documents; the section hides itself for
@@ -560,7 +565,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen>
                       extra: widget.minorUuid,
                     );
                     if (!mounted) return;
-                    invalidateMedicalDocumentLists(ref);
+                    invalidateMedicalDocumentLists(ref, _patientContext);
                     _reload();
                   },
                   icon: const Icon(Icons.event_available),

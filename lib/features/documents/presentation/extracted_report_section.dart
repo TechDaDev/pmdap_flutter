@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/extracted_content.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/documents_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 
 /// "Extracted report" narrative section for the document detail page.
 ///
@@ -17,17 +19,24 @@ class ExtractedReportSection extends ConsumerWidget {
   final String uuid;
   final String? minorUuid;
 
-  bool get _isMinor => minorUuid != null;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final async = _isMinor
+    final selected = ref.watch(patientContextProvider);
+    final effectiveMinor = minorUuid ?? selected.minorUuid;
+    final effectiveContext = effectiveMinor == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: effectiveMinor,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+    final async = effectiveContext.isMinor
         ? ref.watch(
-            minorExtractedContentProvider((
-              minorUuid: minorUuid!,
-              documentUuid: uuid,
+            contextExtractedContentProvider((
+              context: effectiveContext,
+              uuid: uuid,
             )),
           )
         : ref.watch(extractedContentProvider(uuid));

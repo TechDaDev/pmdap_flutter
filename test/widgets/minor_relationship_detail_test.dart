@@ -64,7 +64,7 @@ void main() {
     });
   }
 
-  testWidgets('verified detail shows existing record links and revoke action', (
+  testWidgets('verified detail shows Open records and revoke action', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -79,7 +79,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Documents'), findsOneWidget);
+    expect(find.text('Open records'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Revoke access'),
       180,

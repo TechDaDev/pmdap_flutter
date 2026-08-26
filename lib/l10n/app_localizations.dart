@@ -3361,6 +3361,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details extracted. Review every field before continuing.'**
   String get extractionReady;
+
+  /// No description provided for @childRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Child records'**
+  String get childRecords;
+
+  /// No description provided for @viewingRecordsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing records for'**
+  String get viewingRecordsFor;
+
+  /// No description provided for @backToMyRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to my records'**
+  String get backToMyRecords;
+
+  /// No description provided for @accessNoLongerActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your access to this child\'s records is no longer active.'**
+  String get accessNoLongerActive;
+
+  /// No description provided for @openRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Open records'**
+  String get openRecords;
+
+  /// No description provided for @noMedicalDocumentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No medical documents yet'**
+  String get noMedicalDocumentsYet;
+
+  /// No description provided for @medicalContextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical context'**
+  String get medicalContextLabel;
 }
 
 class _AppLocalizationsDelegate

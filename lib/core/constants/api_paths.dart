@@ -54,6 +54,23 @@ class ApiPaths {
       '/minors/$minor/documents/$doc/confirm-date/';
   static String minorPendingDateConfirmations(String minor) =>
       '/minors/$minor/documents/date-confirmations/pending/';
+  static String minorDocumentPages(String minor, String doc) =>
+      '/minors/$minor/documents/$doc/pages/';
+  static String minorDocumentPageDetail(
+    String minor,
+    String doc,
+    int pageNumber,
+  ) => '/minors/$minor/documents/$doc/pages/$pageNumber/';
+  static String minorDocumentPageLabResults(
+    String minor,
+    String doc,
+    int pageNumber,
+  ) => '/minors/$minor/documents/$doc/pages/$pageNumber/lab-results/';
+  static String minorDocumentPageConfirmDate(
+    String minor,
+    String doc,
+    int pageNumber,
+  ) => '/minors/$minor/documents/$doc/pages/$pageNumber/confirm-date/';
   static String minorSearch(String minor) => '/minors/$minor/search/';
 
   static const documents = '/documents/';

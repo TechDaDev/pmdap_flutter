@@ -7,6 +7,7 @@ import 'package:pmdap_mobile/core/utils/status_labels.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../application/documents_providers.dart';
+import '../../medical_context/domain/patient_context.dart';
 
 /// "Extracted reports · N pages" section for multi-page PDFs.
 ///
@@ -14,18 +15,27 @@ import '../application/documents_providers.dart';
 /// subtype, status, date state, result count). Tapping a card opens that
 /// page's results. Hidden entirely for single-page documents.
 class DocumentPageSection extends ConsumerWidget {
-  const DocumentPageSection({super.key, required this.uuid});
+  const DocumentPageSection({
+    super.key,
+    required this.uuid,
+    this.patientContext = const PatientContext.self(),
+  });
 
   final String uuid;
+  final PatientContext patientContext;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final pagesAsync = ref.watch(documentPagesProvider(uuid));
+    final pagesAsync = patientContext.isMinor
+        ? ref.watch(
+            contextDocumentPagesProvider((context: patientContext, uuid: uuid)),
+          )
+        : ref.watch(documentPagesProvider(uuid));
     return pagesAsync.when(
       loading: () => const _PreparingCard(),
-      error: (Object _, StackTrace __) => const SizedBox.shrink(),
+      error: (Object _, StackTrace _) => const SizedBox.shrink(),
       data: (summary) {
         // Multi-page gate already passed (source file page_count > 1). While
         // the worker creates page units, the pages endpoint returns 0 rows —

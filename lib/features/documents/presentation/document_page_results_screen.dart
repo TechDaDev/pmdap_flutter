@@ -10,6 +10,8 @@ import 'package:pmdap_mobile/core/utils/status_labels.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../application/documents_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 
 /// Results for ONE report page unit of a multi-page PDF.
 ///
@@ -29,9 +31,18 @@ class DocumentPageResultsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final detailAsync = ref.watch(
-      documentPageDetailProvider((uuid: uuid, pageNumber: pageNumber)),
-    );
+    final patientContext = ref.watch(patientContextProvider);
+    final detailAsync = patientContext.isMinor
+        ? ref.watch(
+            contextDocumentPageDetailProvider((
+              context: patientContext,
+              uuid: uuid,
+              pageNumber: pageNumber,
+            )),
+          )
+        : ref.watch(
+            documentPageDetailProvider((uuid: uuid, pageNumber: pageNumber)),
+          );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -41,7 +52,7 @@ class DocumentPageResultsScreen extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (Object error, StackTrace __) => Center(
+        error: (Object error, StackTrace _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
@@ -83,6 +94,7 @@ class DocumentPageResultsScreen extends ConsumerWidget {
                   !detail.dateVerified) ...[
                 const SizedBox(height: 8),
                 _DateConfirmSection(
+                  patientContext: patientContext,
                   uuid: uuid,
                   pageNumber: pageNumber,
                   detail: detail,
@@ -162,11 +174,13 @@ class _DateConfirmSection extends ConsumerStatefulWidget {
     required this.uuid,
     required this.pageNumber,
     required this.detail,
+    required this.patientContext,
   });
 
   final String uuid;
   final int pageNumber;
   final MedicalDocumentPageDetail detail;
+  final PatientContext patientContext;
 
   @override
   ConsumerState<_DateConfirmSection> createState() =>
@@ -186,22 +200,39 @@ class _DateConfirmSectionState extends ConsumerState<_DateConfirmSection> {
     });
     try {
       await ref
-          .read(documentsApiProvider)
+          .read(medicalRecordsRepositoryProvider)
           .confirmPageDate(
+            widget.patientContext,
             widget.uuid,
             widget.pageNumber,
             candidateId: candidateId,
             date: candidateId == null ? _manualDate : null,
           );
       // Page + parent summaries follow the confirmed page.
-      ref.invalidate(
-        documentPageDetailProvider((
-          uuid: widget.uuid,
-          pageNumber: widget.pageNumber,
-        )),
-      );
-      ref.invalidate(documentPagesProvider(widget.uuid));
-      invalidateMedicalDocumentLists(ref);
+      if (widget.patientContext.isMinor) {
+        ref.invalidate(
+          contextDocumentPageDetailProvider((
+            context: widget.patientContext,
+            uuid: widget.uuid,
+            pageNumber: widget.pageNumber,
+          )),
+        );
+        ref.invalidate(
+          contextDocumentPagesProvider((
+            context: widget.patientContext,
+            uuid: widget.uuid,
+          )),
+        );
+      } else {
+        ref.invalidate(
+          documentPageDetailProvider((
+            uuid: widget.uuid,
+            pageNumber: widget.pageNumber,
+          )),
+        );
+        ref.invalidate(documentPagesProvider(widget.uuid));
+      }
+      invalidateMedicalDocumentLists(ref, widget.patientContext);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import '../core/preferences/app_preferences_controller.dart';
 import '../core/theme/app_theme.dart';
+import '../features/medical_context/presentation/patient_context_frame.dart';
 
 /// Root widget. Locale + theme follow the device by default (SYSTEM) but can
 /// be overridden locally from App settings. Switching updates the whole app
@@ -26,6 +27,9 @@ class PmdapApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,
       routerConfig: router,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      builder: (context, child) =>
+          PatientContextFrame(child: child ?? const SizedBox.shrink()),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

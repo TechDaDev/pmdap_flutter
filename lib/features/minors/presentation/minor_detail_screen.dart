@@ -11,6 +11,7 @@ import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../application/minors_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
 import 'minors_screen.dart';
 
 class MinorDetailScreen extends ConsumerStatefulWidget {
@@ -118,32 +119,9 @@ class _MinorDetailScreenState extends ConsumerState<MinorDetailScreen> {
           if (value.isVerified) ...[
             const SizedBox(height: 20),
             FilledButton.tonalIcon(
-              onPressed: () =>
-                  context.push(Routes.minorDocuments(value.child.uuid)),
-              icon: const Icon(Icons.description_outlined),
-              label: Text(l10n.minorDocuments),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () =>
-                        context.push(Routes.minorArchive(value.child.uuid)),
-                    icon: const Icon(Icons.archive_outlined),
-                    label: Text(l10n.minorArchive),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () =>
-                        context.push(Routes.minorSearch(value.child.uuid)),
-                    icon: const Icon(Icons.search),
-                    label: Text(l10n.minorSearch),
-                  ),
-                ),
-              ],
+              onPressed: () => _openRecords(value),
+              icon: const Icon(Icons.folder_shared_outlined),
+              label: Text(l10n.openRecords),
             ),
           ],
           if (value.canRevoke) ...[
@@ -195,6 +173,23 @@ class _MinorDetailScreenState extends ConsumerState<MinorDetailScreen> {
       ).showSnackBar(SnackBar(content: Text(message)));
     } finally {
       if (mounted) setState(() => _revoking = false);
+    }
+  }
+
+  Future<void> _openRecords(GuardianRelationshipSummary relationship) async {
+    final entered = await ref
+        .read(patientContextControllerProvider.notifier)
+        .enter(relationship);
+    if (!mounted) return;
+    if (entered) {
+      context.go(Routes.home);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).accessNoLongerActive),
+        ),
+      );
+      ref.invalidate(guardianRelationshipDetailProvider(widget.uuid));
     }
   }
 }

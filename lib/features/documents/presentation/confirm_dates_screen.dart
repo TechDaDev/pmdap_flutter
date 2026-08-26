@@ -8,6 +8,8 @@ import '../../../core/models/pending_date_confirmation.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 import '../application/documents_providers.dart';
 
 /// Confirm Dates queue — document-centric.
@@ -25,13 +27,29 @@ class ConfirmDatesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final queueAsync = ref.watch(pendingDateConfirmationDocumentsProvider);
+    final selected = ref.watch(patientContextProvider);
+    final effective = minorUuid == null
+        ? selected
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: minorUuid!,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+    final queueAsync = effective.isMinor
+        ? ref.watch(contextPendingDateConfirmationDocumentsProvider(effective))
+        : ref.watch(pendingDateConfirmationDocumentsProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.confirmDatesTitle)),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(pendingDateConfirmationDocumentsProvider);
+          if (effective.isMinor) {
+            ref.invalidate(
+              contextPendingDateConfirmationDocumentsProvider(effective),
+            );
+          } else {
+            ref.invalidate(pendingDateConfirmationDocumentsProvider);
+          }
         },
         child: queueAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -62,7 +80,7 @@ class ConfirmDatesScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: queue.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final entry = queue[index];
                 return _PendingDocumentCard(

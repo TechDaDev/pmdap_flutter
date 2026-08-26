@@ -1711,4 +1711,25 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get extractionReady =>
       'تم استخراج البيانات. راجع كل حقل قبل المتابعة.';
+
+  @override
+  String get childRecords => 'سجلات الطفل';
+
+  @override
+  String get viewingRecordsFor => 'عرض السجلات لـ';
+
+  @override
+  String get backToMyRecords => 'العودة إلى سجلاتي';
+
+  @override
+  String get accessNoLongerActive => 'لم يعد وصولك إلى سجلات هذا الطفل نشطاً.';
+
+  @override
+  String get openRecords => 'فتح السجلات';
+
+  @override
+  String get noMedicalDocumentsYet => 'لا توجد مستندات طبية بعد';
+
+  @override
+  String get medicalContextLabel => 'السياق الطبي';
 }

@@ -23,8 +23,8 @@ import '../features/identity/presentation/identity_documents_screen.dart';
 import '../features/identity/presentation/identity_submit_screen.dart';
 import '../features/minors/presentation/minor_create_screen.dart';
 import '../features/minors/presentation/minor_detail_screen.dart';
-import '../features/minors/presentation/minor_documents_screen.dart';
 import '../features/minors/presentation/minors_screen.dart';
+import '../features/medical_context/presentation/minor_context_gate.dart';
 import '../features/patient/presentation/profile_edit_screen.dart';
 import '../features/patient/presentation/profile_screen.dart';
 import '../features/search/presentation/search_screen.dart';
@@ -196,8 +196,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       ),
       GoRoute(
         path: '/minors/:uuid',
-        builder: (context, state) =>
-            MinorDocumentsScreen(minorUuid: state.pathParameters['uuid']!),
+        builder: (context, state) => MinorContextGate(
+          minorUuid: state.pathParameters['uuid']!,
+          destination: Routes.home,
+        ),
       ),
       GoRoute(
         path: '/guardian-relationships/:uuid',
@@ -206,18 +208,24 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       ),
       GoRoute(
         path: '/minors/:uuid/documents',
-        builder: (context, state) =>
-            MinorDocumentsScreen(minorUuid: state.pathParameters['uuid']!),
+        builder: (context, state) => MinorContextGate(
+          minorUuid: state.pathParameters['uuid']!,
+          destination: Routes.home,
+        ),
       ),
       GoRoute(
         path: '/minors/:uuid/archive',
-        builder: (context, state) =>
-            ArchiveScreen(minorUuid: state.pathParameters['uuid']!),
+        builder: (context, state) => MinorContextGate(
+          minorUuid: state.pathParameters['uuid']!,
+          destination: Routes.archive,
+        ),
       ),
       GoRoute(
         path: '/minors/:uuid/search',
-        builder: (context, state) =>
-            SearchScreen(minorUuid: state.pathParameters['uuid']!),
+        builder: (context, state) => MinorContextGate(
+          minorUuid: state.pathParameters['uuid']!,
+          destination: Routes.search,
+        ),
       ),
       GoRoute(
         path: Routes.documents,
@@ -225,22 +233,17 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       ),
       GoRoute(
         path: Routes.documentsNew,
-        builder: (context, state) =>
-            DocumentUploadScreen(minorUuid: state.extra as String?),
+        builder: (context, state) => const DocumentUploadScreen(),
       ),
       GoRoute(
         path: '/documents/:uuid',
-        builder: (context, state) => DocumentDetailScreen(
-          uuid: state.pathParameters['uuid']!,
-          minorUuid: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            DocumentDetailScreen(uuid: state.pathParameters['uuid']!),
       ),
       GoRoute(
         path: '/documents/:uuid/view',
-        builder: (context, state) => DocumentViewerScreen(
-          uuid: state.pathParameters['uuid']!,
-          minorUuid: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            DocumentViewerScreen(uuid: state.pathParameters['uuid']!),
       ),
       GoRoute(
         path: '/documents/:uuid/page/:pageNumber',
@@ -257,7 +260,6 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
         path: '/documents/:uuid/date',
         builder: (context, state) => DateConfirmationScreen(
           documentUuid: state.pathParameters['uuid']!,
-          minorUuid: state.extra as String?,
           pageNumber: int.tryParse(state.uri.queryParameters['page'] ?? ''),
         ),
       ),

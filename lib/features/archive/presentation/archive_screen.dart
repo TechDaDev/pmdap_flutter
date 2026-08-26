@@ -7,6 +7,7 @@ import '../../../app/router.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/document_card.dart';
+import '../../medical_context/application/patient_context_controller.dart';
 import '../application/archive_providers.dart';
 import '../data/archive_api.dart';
 
@@ -22,11 +23,13 @@ class ArchiveScreen extends ConsumerStatefulWidget {
 }
 
 class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
-  ArchiveScope get _scope => widget.minorUuid == null
-      ? const ArchiveScope.adult()
-      : ArchiveScope.minor(widget.minorUuid!);
-
-  String get _filterKey => widget.minorUuid ?? 'adult';
+  ArchiveScope _scope() {
+    final context = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? context.minorUuid;
+    return minorUuid == null
+        ? const ArchiveScope.adult()
+        : ArchiveScope.minor(minorUuid);
+  }
 
   @override
   void initState() {
@@ -37,18 +40,20 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
       context,
     )?.routerDelegate.currentConfiguration.extra;
     if (extra is ArchiveQuery) {
-      ref.read(archiveFilterProvider(_filterKey).notifier).state = extra;
+      final key = _scope().minorUuid ?? 'adult';
+      ref.read(archiveFilterProvider(key).notifier).state = extra;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scope = _scope;
+    ref.watch(patientContextProvider);
+    final scope = _scope();
+    final filterKey = scope.minorUuid ?? 'adult';
     final async = ref.watch(archiveProvider(scope));
     final unconfirmed =
-        ref.watch(archiveFilterProvider(_filterKey)).dateStatus ==
-        'UNCONFIRMED';
+        ref.watch(archiveFilterProvider(filterKey)).dateStatus == 'UNCONFIRMED';
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.archiveTitle)),
@@ -59,18 +64,23 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
         },
         child: Column(
           children: [
-            _Filters(filterKey: _filterKey),
+            _Filters(filterKey: filterKey),
             Expanded(
               child: AsyncStateView(
                 value: async,
                 onRetry: () => ref.invalidate(archiveProvider(scope)),
                 emptyBuilder: (page) => page.results.isEmpty
-                    ? _ArchiveEmpty(isUnconfirmed: unconfirmed, l10n: l10n)
+                    ? _ArchiveEmpty(
+                        isUnconfirmed: unconfirmed,
+                        isChild: scope.minorUuid != null,
+                        l10n: l10n,
+                      )
                     : null,
                 builder: (page) {
                   if (page.results.isEmpty) {
                     return _ArchiveEmpty(
                       isUnconfirmed: unconfirmed,
+                      isChild: scope.minorUuid != null,
                       l10n: l10n,
                     );
                   }
@@ -307,9 +317,14 @@ class _FilterChipButton extends StatelessWidget {
 /// Empty archive state with supporting copy and an upload CTA (only for the
 /// unfiltered/default state; UNCONFIRMED gets its own message and no CTA).
 class _ArchiveEmpty extends StatelessWidget {
-  const _ArchiveEmpty({required this.isUnconfirmed, required this.l10n});
+  const _ArchiveEmpty({
+    required this.isUnconfirmed,
+    required this.isChild,
+    required this.l10n,
+  });
 
   final bool isUnconfirmed;
+  final bool isChild;
   final AppLocalizations l10n;
 
   @override
@@ -328,7 +343,11 @@ class _ArchiveEmpty extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              isUnconfirmed ? l10n.noUnconfirmedArchive : l10n.noArchive,
+              isUnconfirmed
+                  ? l10n.noUnconfirmedArchive
+                  : isChild
+                  ? l10n.noMedicalDocumentsYet
+                  : l10n.noArchive,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -345,7 +364,9 @@ class _ArchiveEmpty extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: () => context.push(Routes.documentsNew),
                 icon: const Icon(Icons.upload_file_outlined),
-                label: Text(l10n.uploadDocument),
+                label: Text(
+                  isChild ? l10n.addMedicalDocument : l10n.uploadDocument,
+                ),
               ),
             ],
           ],

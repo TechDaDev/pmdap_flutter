@@ -1728,4 +1728,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get extractionReady =>
       'Details extracted. Review every field before continuing.';
+
+  @override
+  String get childRecords => 'Child records';
+
+  @override
+  String get viewingRecordsFor => 'Viewing records for';
+
+  @override
+  String get backToMyRecords => 'Back to my records';
+
+  @override
+  String get accessNoLongerActive =>
+      'Your access to this child\'s records is no longer active.';
+
+  @override
+  String get openRecords => 'Open records';
+
+  @override
+  String get noMedicalDocumentsYet => 'No medical documents yet';
+
+  @override
+  String get medicalContextLabel => 'Medical context';
 }

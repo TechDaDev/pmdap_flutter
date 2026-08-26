@@ -18,6 +18,8 @@ import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../facilities/presentation/facilities_screen.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 import '../application/documents_providers.dart';
 import '../data/documents_api.dart';
 import '../data/medical_image_optimizer.dart';
@@ -46,6 +48,18 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   final _physicianController = TextEditingController();
   final _locationController = TextEditingController();
   final _dateController = TextEditingController();
+
+  PatientContext get _patientContext {
+    final selected = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? selected.minorUuid;
+    return minorUuid == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: minorUuid,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+  }
 
   MedicalDocumentType? _docType;
   DateTime? _documentDate;
@@ -391,21 +405,16 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       },
     );
     try {
-      final doc = widget.minorUuid != null
-          ? await ref
-                .read(minorDocumentsApiProvider)
-                .upload(widget.minorUuid!, input)
-          : await ref.read(documentsApiProvider).upload(input);
-      ref.invalidate(documentsProvider);
+      final doc = await ref
+          .read(medicalRecordsRepositoryProvider)
+          .upload(_patientContext, input);
+      invalidateMedicalDocumentLists(ref, _patientContext);
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.uploadSuccess)));
       // Success: the derivative is no longer needed.
       await optimizer.disposeTemporary(asset);
       if (!mounted) return;
-      context.pushReplacement(
-        Routes.documentDetail(doc.uuid),
-        extra: widget.minorUuid,
-      );
+      context.pushReplacement(Routes.documentDetail(doc.uuid));
     } on ApiException catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -463,10 +472,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
       ),
     );
     if (!mounted || result == null || result == 'cancel') return;
-    context.pushReplacement(
-      Routes.documentDetail(result),
-      extra: widget.minorUuid,
-    );
+    context.pushReplacement(Routes.documentDetail(result));
   }
 
   @override

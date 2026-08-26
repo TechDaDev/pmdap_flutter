@@ -580,5 +580,13 @@
   "submitRequestStep": "إرسال الطلب",
   "extractCardDetails": "استخراج بيانات البطاقة",
   "extractingCardDetails": "جارٍ استخراج بيانات البطاقة…",
-  "extractionReady": "تم استخراج البيانات. راجع كل حقل قبل المتابعة."
+  "extractionReady": "تم استخراج البيانات. راجع كل حقل قبل المتابعة.",
+  "childRecords": "سجلات الطفل",
+  "viewingRecordsFor": "عرض السجلات لـ",
+  "backToMyRecords": "العودة إلى سجلاتي",
+  "accessNoLongerActive": "لم يعد وصولك إلى سجلات هذا الطفل نشطاً.",
+  "openRecords": "فتح السجلات",
+  "noMedicalDocumentsYet": "لا توجد مستندات طبية بعد",
+  "addMedicalDocument": "إضافة مستند طبي",
+  "medicalContextLabel": "السياق الطبي"
 }

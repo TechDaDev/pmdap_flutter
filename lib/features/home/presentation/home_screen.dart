@@ -12,9 +12,9 @@ import '../../../core/widgets/patient_avatar.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../archive/application/archive_providers.dart';
-import '../../archive/data/archive_api.dart';
 import '../../documents/application/documents_providers.dart';
 import '../../documents/presentation/medical_document_card.dart';
+import '../../medical_context/application/patient_context_controller.dart';
 import '../../patient/application/patient_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -23,13 +23,22 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final patientContext = ref.watch(patientContextProvider);
     final profileAsync = ref.watch(patientProfileProvider);
-    final docsAsync = ref.watch(documentsProvider);
+    final docsAsync = patientContext.isMinor
+        ? ref.watch(contextDocumentsProvider(patientContext))
+        : ref.watch(documentsProvider);
     // Single source for the badge: the same document-centric queue the Confirm
     // Dates page renders. Never a separate count that can drift.
     final pendingCount =
         ref
-            .watch(pendingDateConfirmationDocumentsProvider)
+            .watch(
+              patientContext.isMinor
+                  ? contextPendingDateConfirmationDocumentsProvider(
+                      patientContext,
+                    )
+                  : pendingDateConfirmationDocumentsProvider,
+            )
             .valueOrNull
             ?.length ??
         0;
@@ -54,9 +63,19 @@ class HomeScreen extends ConsumerWidget {
         color: AppColors.primaryNavy,
         onRefresh: () async {
           ref.invalidate(patientProfileProvider);
-          ref.invalidate(archiveSummaryProvider(const ArchiveScope.adult()));
-          ref.invalidate(documentsProvider);
-          ref.invalidate(pendingDateConfirmationDocumentsProvider);
+          final scope = patientContext.isMinor
+              ? ArchiveScope.minor(patientContext.minorUuid!)
+              : const ArchiveScope.adult();
+          ref.invalidate(archiveSummaryProvider(scope));
+          if (patientContext.isMinor) {
+            ref.invalidate(contextDocumentsProvider(patientContext));
+            ref.invalidate(
+              contextPendingDateConfirmationDocumentsProvider(patientContext),
+            );
+          } else {
+            ref.invalidate(documentsProvider);
+            ref.invalidate(pendingDateConfirmationDocumentsProvider);
+          }
         },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
@@ -87,7 +106,9 @@ class HomeScreen extends ConsumerWidget {
             SectionHeader(
               title: l10n.recentDocuments,
               actionLabel: l10n.viewAll,
-              onAction: () => context.push(Routes.documents),
+              onAction: () => context.push(
+                patientContext.isMinor ? Routes.archive : Routes.documents,
+              ),
             ),
             AsyncStateView(
               value: docsAsync,

@@ -8,6 +8,8 @@ import '../../../core/models/date_candidate.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../documents/application/documents_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 
 /// Date candidate selection + manual YYYY-MM-DD correction.
 /// The backend owns `date_source`/`date_verified` — the client never sets them.
@@ -38,7 +40,17 @@ class _DateConfirmationScreenState
   bool _confirming = false;
   String? _errorMessage;
 
-  bool get _isMinor => widget.minorUuid != null;
+  PatientContext get _patientContext {
+    final selected = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? selected.minorUuid;
+    return minorUuid == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: minorUuid,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+  }
 
   @override
   void initState() {
@@ -49,15 +61,16 @@ class _DateConfirmationScreenState
   Future<dynamic> _load() {
     if (widget.pageNumber != null) {
       return ref
-          .read(documentsApiProvider)
-          .documentPageDetail(widget.documentUuid, widget.pageNumber!);
+          .read(medicalRecordsRepositoryProvider)
+          .documentPageDetail(
+            _patientContext,
+            widget.documentUuid,
+            widget.pageNumber!,
+          );
     }
-    if (_isMinor) {
-      return ref
-          .read(minorDocumentsApiProvider)
-          .dateCandidates(widget.minorUuid!, widget.documentUuid);
-    }
-    return ref.read(documentsApiProvider).dateCandidates(widget.documentUuid);
+    return ref
+        .read(medicalRecordsRepositoryProvider)
+        .dateCandidates(_patientContext, widget.documentUuid);
   }
 
   void _reload() => setState(() => _future = _load());
@@ -75,26 +88,19 @@ class _DateConfirmationScreenState
     try {
       if (widget.pageNumber != null) {
         await ref
-            .read(documentsApiProvider)
+            .read(medicalRecordsRepositoryProvider)
             .confirmPageDate(
+              _patientContext,
               widget.documentUuid,
               widget.pageNumber!,
               candidateId: candidateId,
               date: candidateId == null ? _manualDate : null,
             );
-      } else if (_isMinor) {
-        await ref
-            .read(minorDocumentsApiProvider)
-            .confirmDate(
-              widget.minorUuid!,
-              widget.documentUuid,
-              candidateId: candidateId,
-              date: candidateId == null ? _manualDate : null,
-            );
       } else {
         await ref
-            .read(documentsApiProvider)
+            .read(medicalRecordsRepositoryProvider)
             .confirmDate(
+              _patientContext,
               widget.documentUuid,
               candidateId: candidateId,
               date: candidateId == null ? _manualDate : null,
@@ -102,8 +108,17 @@ class _DateConfirmationScreenState
       }
       // Refresh everything date-related: detail, confirm queue, Home badge,
       // archive + summary — no app restart.
-      ref.invalidate(documentDetailProvider(widget.documentUuid));
-      invalidateMedicalDocumentLists(ref);
+      if (_patientContext.isMinor) {
+        ref.invalidate(
+          contextDocumentDetailProvider((
+            context: _patientContext,
+            uuid: widget.documentUuid,
+          )),
+        );
+      } else {
+        ref.invalidate(documentDetailProvider(widget.documentUuid));
+      }
+      invalidateMedicalDocumentLists(ref, _patientContext);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

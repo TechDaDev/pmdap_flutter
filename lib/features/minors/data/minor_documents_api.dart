@@ -7,6 +7,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_error_mapper.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/models/date_candidate.dart';
+import '../../../core/models/document_page.dart';
 import '../../../core/models/extracted_content.dart';
 import '../../../core/models/lab_results.dart';
 import '../../../core/models/medical_document.dart';
@@ -210,8 +211,8 @@ class MinorDocumentsApi {
   }) async {
     try {
       final body = <String, dynamic>{
-        if (candidateId != null) 'candidate_id': candidateId,
-        if (date != null) 'date': formatApiDate(date),
+        'candidate_id': ?candidateId,
+        'date': ?(date == null ? null : formatApiDate(date)),
       };
       final resp = await _dio.post<dynamic>(
         ApiPaths.minorDocumentConfirmDate(minorUuid, docUuid),
@@ -221,6 +222,72 @@ class MinorDocumentsApi {
         resp.data,
         DocumentDateConfirmationResponse.fromJson,
       );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<MedicalDocumentPageSummary> documentPages(
+    String minorUuid,
+    String docUuid,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorDocumentPages(minorUuid, docUuid),
+      );
+      return decodeData(resp.data, MedicalDocumentPageSummary.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<MedicalDocumentPageDetail> documentPageDetail(
+    String minorUuid,
+    String docUuid,
+    int pageNumber,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorDocumentPageDetail(minorUuid, docUuid, pageNumber),
+      );
+      return decodeData(resp.data, MedicalDocumentPageDetail.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<MedicalDocumentPageLabResults> pageLabResults(
+    String minorUuid,
+    String docUuid,
+    int pageNumber,
+  ) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.minorDocumentPageLabResults(minorUuid, docUuid, pageNumber),
+      );
+      return decodeData(resp.data, MedicalDocumentPageLabResults.fromJson);
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  Future<MedicalDocumentPageDetail> confirmPageDate(
+    String minorUuid,
+    String docUuid,
+    int pageNumber, {
+    String? candidateId,
+    DateTime? date,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'candidate_id': ?candidateId,
+        'date': ?(date == null ? null : formatApiDate(date)),
+      };
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.minorDocumentPageConfirmDate(minorUuid, docUuid, pageNumber),
+        data: body,
+      );
+      return decodeData(resp.data, MedicalDocumentPageDetail.fromJson);
     } on DioException catch (e) {
       throw _mapper.map(e);
     }

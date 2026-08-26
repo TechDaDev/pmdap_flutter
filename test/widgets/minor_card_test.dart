@@ -68,9 +68,15 @@ void main() {
     await tester.pumpAndSettle();
 
     for (final name in ['PENDING', 'VERIFIED', 'REJECTED', 'REVOKED']) {
+      await tester.scrollUntilVisible(
+        find.text(name),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text(name), findsOneWidget);
     }
     expect(find.text('Add child'), findsOneWidget);
+    expect(find.text('Open records'), findsOneWidget);
     expect(find.textContaining('PT-SAFE'), findsNothing);
   });
 

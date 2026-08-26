@@ -7,6 +7,8 @@ import 'package:pdfrx/pdfrx.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/medical_document.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 
 /// In-app private medical document viewer.
 ///
@@ -30,7 +32,17 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
   MedicalDocumentDetail? _detail;
   Object? _error;
 
-  bool get _isMinor => widget.minorUuid != null;
+  PatientContext get _patientContext {
+    final selected = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? selected.minorUuid;
+    return minorUuid == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selected.relationshipUuid ?? '',
+            minorUuid: minorUuid,
+            safeDisplayName: selected.safeDisplayName ?? '',
+          );
+  }
 
   @override
   void initState() {
@@ -39,14 +51,9 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
   }
 
   void _load() {
-    final api = ref.read(documentsApiProvider);
-    final minorApi = ref.read(minorDocumentsApiProvider);
-    final detailFuture = _isMinor
-        ? minorApi.detail(widget.minorUuid!, widget.uuid)
-        : api.detail(widget.uuid);
-    final bytesFuture = _isMinor
-        ? minorApi.fetchFile(widget.minorUuid!, widget.uuid)
-        : api.fetchFile(widget.uuid);
+    final repository = ref.read(medicalRecordsRepositoryProvider);
+    final detailFuture = repository.getDocument(_patientContext, widget.uuid);
+    final bytesFuture = repository.fetchFile(_patientContext, widget.uuid);
     detailFuture.then(
       (detail) {
         if (mounted) setState(() => _detail = detail);

@@ -17,6 +17,8 @@ import '../../features/facilities/data/facilities_api.dart';
 import '../../features/identity/data/identity_api.dart';
 import '../../features/minors/data/minor_documents_api.dart';
 import '../../features/minors/data/minors_api.dart';
+import '../../features/medical_context/application/patient_context_controller.dart';
+import '../../features/medical_context/data/medical_records_repository.dart';
 import '../../features/patient/data/patient_api.dart';
 import '../../features/search/data/minor_search_api.dart';
 import '../../features/search/data/search_api.dart';
@@ -145,6 +147,20 @@ final minorSearchApiProvider = Provider<MinorSearchApi>(
 
 final minorArchiveApiProvider = Provider<MinorArchiveApi>(
   (ref) => MinorArchiveApi(ref.watch(dioProvider)),
+);
+
+final medicalRecordsRepositoryProvider = Provider<MedicalRecordsRepository>(
+  (ref) => MedicalRecordsRepository(
+    documentsApi: ref.watch(documentsApiProvider),
+    minorDocumentsApi: ref.watch(minorDocumentsApiProvider),
+    archiveApi: ref.watch(archiveApiProvider),
+    minorArchiveApi: ref.watch(minorArchiveApiProvider),
+    searchApi: ref.watch(searchApiProvider),
+    minorSearchApi: ref.watch(minorSearchApiProvider),
+    onMinorAccessDenied: ref
+        .read(patientContextControllerProvider.notifier)
+        .accessDenied,
+  ),
 );
 
 final claimsApiProvider = Provider<ClaimsApi>(

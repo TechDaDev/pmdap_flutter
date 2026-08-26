@@ -10,6 +10,7 @@ import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
 import '../application/minors_providers.dart';
+import '../../medical_context/application/patient_context_controller.dart';
 
 class MinorsScreen extends ConsumerStatefulWidget {
   const MinorsScreen({super.key});
@@ -106,18 +107,50 @@ class _MinorsScreenState extends ConsumerState<MinorsScreen>
                         page.results[index].uuid,
                       ),
                     ),
+                    onOpen: page.results[index].isVerified
+                        ? () => _openRecords(page.results[index])
+                        : null,
                   ),
                 ),
         ),
       ),
     );
   }
+
+  Future<void> _openRecords(GuardianRelationshipSummary relationship) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final entered = await ref
+          .read(patientContextControllerProvider.notifier)
+          .enter(relationship);
+      if (!mounted) return;
+      if (entered) {
+        context.go(Routes.home);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.accessNoLongerActive)));
+        ref.invalidate(guardianRelationshipsProvider);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.accessNoLongerActive)));
+      ref.invalidate(guardianRelationshipsProvider);
+    }
+  }
 }
 
 class _RelationshipCard extends StatelessWidget {
-  const _RelationshipCard({required this.value, required this.onTap});
+  const _RelationshipCard({
+    required this.value,
+    required this.onTap,
+    this.onOpen,
+  });
   final GuardianRelationshipSummary value;
   final VoidCallback onTap;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -130,51 +163,65 @@ class _RelationshipCard extends StatelessWidget {
           '${value.child.fullName}, ${relationshipStatusLabel(l10n, value.status)}',
       child: Card(
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  child: Text(patientInitials(value.child.fullName)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value.child.fullName,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(labels.relationshipLabel(value.relationship)),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: .14),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          relationshipStatusLabel(l10n, value.status),
-                          style: TextStyle(
-                            color: color,
-                            fontWeight: FontWeight.w700,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            InkWell(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      child: Text(patientInitials(value.child.fullName)),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            value.child.fullName,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Text(labels.relationshipLabel(value.relationship)),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: .14),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              relationshipStatusLabel(l10n, value.status),
+                              style: TextStyle(
+                                color: color,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          if (onOpen != null)
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton.icon(
+                                onPressed: onOpen,
+                                icon: const Icon(Icons.folder_shared_outlined),
+                                label: Text(l10n.openRecords),
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded),
+                  ],
                 ),
-                const Icon(Icons.chevron_right_rounded),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

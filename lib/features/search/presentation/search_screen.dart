@@ -12,6 +12,8 @@ import '../../../core/models/enums.dart';
 import '../../../core/widgets/document_card.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pmdap_scaffold.dart';
+import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 import '../application/search_providers.dart';
 import '../data/search_api.dart';
 
@@ -34,9 +36,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(searchScopeProvider.notifier).state = widget.minorUuid == null
-        ? const SearchScope.adult()
-        : SearchScope.minor(widget.minorUuid!);
+  }
+
+  void _setQuery(SearchQuery query) {
+    final patientContext = ref.read(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? patientContext.minorUuid;
+    if (minorUuid == null) {
+      ref.read(searchQueryProvider.notifier).state = query;
+    } else {
+      final key = 'minor:$minorUuid';
+      ref.read(contextSearchQueryProvider(key).notifier).state = query;
+    }
   }
 
   @override
@@ -49,27 +59,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _onChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
-      ref.read(searchQueryProvider.notifier).state = SearchQuery(
-        q: value,
-        documentType: _type,
-        dateStatus: _dateStatus,
+      _setQuery(
+        SearchQuery(q: value, documentType: _type, dateStatus: _dateStatus),
       );
     });
   }
 
   void _applyFilters() {
-    ref.read(searchQueryProvider.notifier).state = SearchQuery(
-      q: _controller.text,
-      documentType: _type,
-      dateStatus: _dateStatus,
+    _setQuery(
+      SearchQuery(
+        q: _controller.text,
+        documentType: _type,
+        dateStatus: _dateStatus,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final resultsAsync = ref.watch(searchResultsProvider);
-    final current = ref.watch(searchQueryProvider);
+    final selectedContext = ref.watch(patientContextProvider);
+    final minorUuid = widget.minorUuid ?? selectedContext.minorUuid;
+    final effectiveContext = minorUuid == null
+        ? const PatientContext.self()
+        : PatientContext.minor(
+            relationshipUuid: selectedContext.relationshipUuid ?? '',
+            minorUuid: minorUuid,
+            safeDisplayName: selectedContext.safeDisplayName ?? '',
+          );
+    final resultsAsync = minorUuid == null
+        ? ref.watch(searchResultsProvider)
+        : ref.watch(contextSearchResultsProvider(effectiveContext));
+    final current = minorUuid == null
+        ? ref.watch(searchQueryProvider)
+        : ref.watch(contextSearchQueryProvider(effectiveContext.cacheKey));
 
     return PmdapScaffold(
       title: l10n.searchTitle,

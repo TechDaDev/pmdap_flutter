@@ -594,5 +594,13 @@
   "submitRequestStep": "Submit request",
   "extractCardDetails": "Extract card details",
   "extractingCardDetails": "Extracting card details…",
-  "extractionReady": "Details extracted. Review every field before continuing."
+  "extractionReady": "Details extracted. Review every field before continuing.",
+  "childRecords": "Child records",
+  "viewingRecordsFor": "Viewing records for",
+  "backToMyRecords": "Back to my records",
+  "accessNoLongerActive": "Your access to this child's records is no longer active.",
+  "openRecords": "Open records",
+  "noMedicalDocumentsYet": "No medical documents yet",
+  "addMedicalDocument": "Add medical document",
+  "medicalContextLabel": "Medical context"
 }
