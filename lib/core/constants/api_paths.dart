@@ -33,6 +33,8 @@ class ApiPaths {
   static const guardianRelationships = '/guardian-relationships/';
   static String guardianRelationshipDetail(String uuid) =>
       '/guardian-relationships/$uuid/';
+  static String guardianRelationshipDismiss(String uuid) =>
+      '/guardian-relationships/$uuid/dismiss/';
   static String guardianRelationshipRevoke(String uuid) =>
       '/minors/relationships/$uuid/revoke/';
   static String minorDetail(String uuid) => '/minors/$uuid/';

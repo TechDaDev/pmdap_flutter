@@ -1669,6 +1669,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستفقد الوصول إلى سجلات هذا الطفل. لا يمكن التراجع عن هذا الإجراء.';
 
   @override
+  String get removeRequest => 'إزالة الطلب';
+
+  @override
+  String get dismissConfirmTitle => 'إزالة هذا الطلب المرفوض من قائمة أطفالي؟';
+
+  @override
+  String get dismissConfirmBody =>
+      'سيؤدي هذا إلى إزالته من قائمتك فقط. يبقى سجل المراجعة محفوظاً.';
+
+  @override
+  String get dismissHelper =>
+      'سيؤدي هذا إلى إزالته من قائمتك فقط. يبقى سجل المراجعة محفوظاً.';
+
+  @override
   String get submittedOn => 'تاريخ الإرسال';
 
   @override
@@ -1714,6 +1728,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get childRecords => 'سجلات الطفل';
+
+  @override
+  String get childRecordsSubtitle => 'أنت تعرض السجلات الطبية لهذا الطفل.';
+
+  @override
+  String profileChildContextNotice(String childName) {
+    return 'أنت تعرض السجلات الطبية لـ $childName. إعدادات الحساب تخص حسابك.';
+  }
 
   @override
   String get viewingRecordsFor => 'عرض السجلات لـ';

@@ -15,6 +15,7 @@ import '../../archive/application/archive_providers.dart';
 import '../../documents/application/documents_providers.dart';
 import '../../documents/presentation/medical_document_card.dart';
 import '../../medical_context/application/patient_context_controller.dart';
+import '../../medical_context/domain/patient_context.dart';
 import '../../patient/application/patient_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -85,23 +86,33 @@ class HomeScreen extends ConsumerWidget {
             AppSpacing.xxxl,
           ),
           children: [
-            AsyncStateView(
-              value: profileAsync,
-              builder: (profile) => _Greeting(profile: profile, l10n: l10n),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            AsyncStateView(
-              value: profileAsync,
-              builder: (profile) =>
-                  _DigitalIdCard(profile: profile, l10n: l10n),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            AsyncStateView(
-              value: profileAsync,
-              builder: (profile) => _IdentityCard(profile: profile, l10n: l10n),
-            ),
+            if (patientContext.isMinor)
+              _ChildRecordsHeader(patientContext: patientContext, l10n: l10n)
+            else ...[
+              AsyncStateView(
+                value: profileAsync,
+                builder: (profile) => _Greeting(profile: profile, l10n: l10n),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              AsyncStateView(
+                value: profileAsync,
+                builder: (profile) =>
+                    _DigitalIdCard(profile: profile, l10n: l10n),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AsyncStateView(
+                value: profileAsync,
+                builder: (profile) =>
+                    _IdentityCard(profile: profile, l10n: l10n),
+              ),
+            ],
             const SizedBox(height: AppSpacing.xxl),
-            _ShortcutGrid(l10n: l10n, unconfirmedCount: pendingCount),
+            _ShortcutGrid(
+              l10n: l10n,
+              unconfirmedCount: pendingCount,
+              isMinor: patientContext.isMinor,
+              minorUuid: patientContext.minorUuid,
+            ),
             const SizedBox(height: AppSpacing.xxl),
             SectionHeader(
               title: l10n.recentDocuments,
@@ -145,6 +156,62 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ChildRecordsHeader extends StatelessWidget {
+  const _ChildRecordsHeader({
+    required this.patientContext,
+    required this.l10n,
+  });
+
+  final PatientContext patientContext;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final childName = patientContext.safeDisplayName ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.family_restroom_rounded,
+              color: scheme.primary,
+              size: 22,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                l10n.childRecords,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: scheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          '${l10n.viewingRecordsFor} $childName',
+          style: TextStyle(
+            color: scheme.onSurfaceVariant,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.childRecordsSubtitle,
+          style: TextStyle(
+            color: scheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -387,13 +454,29 @@ class _IdentityCard extends StatelessWidget {
 }
 
 class _ShortcutGrid extends StatelessWidget {
-  const _ShortcutGrid({required this.l10n, required this.unconfirmedCount});
+  const _ShortcutGrid({
+    required this.l10n,
+    required this.unconfirmedCount,
+    required this.isMinor,
+    this.minorUuid,
+  });
 
   final AppLocalizations l10n;
   final int unconfirmedCount;
+  final bool isMinor;
+  final String? minorUuid;
 
   @override
   Widget build(BuildContext context) {
+    // In child context the guardian's self actions (My children, Identity)
+    // are hidden so the screen never looks like the child owns them. Upload
+    // and Confirm dates are routed to the minor-scoped endpoints.
+    final uploadRoute = isMinor
+        ? Routes.minorUpload(minorUuid!)
+        : Routes.documentsNew;
+    final confirmRoute = isMinor
+        ? Routes.minorConfirmDates(minorUuid!)
+        : Routes.confirmDates;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -420,27 +503,29 @@ class _ShortcutGrid extends StatelessWidget {
               icon: Icons.upload_file_rounded,
               label: l10n.uploadDocumentShortcut,
               color: AppColors.brandTeal,
-              onTap: () => context.push(Routes.documentsNew),
+              onTap: () => context.push(uploadRoute),
             ),
             _Shortcut(
               icon: Icons.fact_check_outlined,
               label: l10n.needsConfirmationShortcut,
               color: AppColors.warning,
               count: unconfirmedCount,
-              onTap: () => context.push(Routes.confirmDates),
+              onTap: () => context.push(confirmRoute),
             ),
-            _Shortcut(
-              icon: Icons.family_restroom_rounded,
-              label: l10n.myChildrenShortcut,
-              color: AppColors.brandCyan,
-              onTap: () => context.push(Routes.minors),
-            ),
-            _Shortcut(
-              icon: Icons.badge_outlined,
-              label: l10n.identityShortcut,
-              color: AppColors.primaryBlue,
-              onTap: () => context.push(Routes.identity),
-            ),
+            if (!isMinor) ...[
+              _Shortcut(
+                icon: Icons.family_restroom_rounded,
+                label: l10n.myChildrenShortcut,
+                color: AppColors.brandCyan,
+                onTap: () => context.push(Routes.minors),
+              ),
+              _Shortcut(
+                icon: Icons.badge_outlined,
+                label: l10n.identityShortcut,
+                color: AppColors.primaryBlue,
+                onTap: () => context.push(Routes.identity),
+              ),
+            ],
           ],
         ),
       ],

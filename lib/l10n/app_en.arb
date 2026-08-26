@@ -581,6 +581,10 @@
   "revokeAccess": "Revoke access",
   "revokeConfirmTitle": "Revoke guardian access?",
   "revokeConfirmBody": "You will lose access to this child's records. This action cannot be undone.",
+  "removeRequest": "Remove request",
+  "dismissConfirmTitle": "Remove this rejected request from My Children?",
+  "dismissConfirmBody": "This only removes it from your list. The review history is retained.",
+  "dismissHelper": "This only removes it from your list. The review history is retained.",
   "submittedOn": "Submitted",
   "activeSince": "Active since",
   "childDigitalId": "Child digital ID",
@@ -596,6 +600,15 @@
   "extractingCardDetails": "Extracting card details…",
   "extractionReady": "Details extracted. Review every field before continuing.",
   "childRecords": "Child records",
+  "childRecordsSubtitle": "You are viewing medical records for this child.",
+  "profileChildContextNotice": "You are viewing medical records for {childName}. Profile settings belong to your account.",
+  "@profileChildContextNotice": {
+    "placeholders": {
+      "childName": {
+        "type": "String"
+      }
+    }
+  },
   "viewingRecordsFor": "Viewing records for",
   "backToMyRecords": "Back to my records",
   "accessNoLongerActive": "Your access to this child's records is no longer active.",

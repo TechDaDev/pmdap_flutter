@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
 import '../../../app/router.dart';
+import '../../../core/api/api_exception.dart';
+import '../../../core/di/providers.dart';
 import '../../../core/models/guardian_relationship_summary.dart';
 import '../../../core/utils/presentation.dart';
 import '../../../core/utils/status_labels.dart';
@@ -110,11 +112,52 @@ class _MinorsScreenState extends ConsumerState<MinorsScreen>
                     onOpen: page.results[index].isVerified
                         ? () => _openRecords(page.results[index])
                         : null,
+                    onDismiss:
+                        page.results[index].canDismiss &&
+                            !page.results[index].isVerified
+                        ? () => _confirmDismiss(page.results[index].uuid)
+                        : null,
                   ),
                 ),
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDismiss(String relationshipUuid) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dismissConfirmTitle),
+        content: Text(l10n.dismissConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.removeRequest),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await ref.read(minorsApiProvider).dismissRelationship(relationshipUuid);
+      if (!mounted) return;
+      ref.invalidate(guardianRelationshipsProvider);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      final message = error.statusCode == 409
+          ? l10n.relationshipConflict
+          : error.message;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+      ref.invalidate(guardianRelationshipsProvider);
+    }
   }
 
   Future<void> _openRecords(GuardianRelationshipSummary relationship) async {
@@ -147,10 +190,12 @@ class _RelationshipCard extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.onOpen,
+    this.onDismiss,
   });
   final GuardianRelationshipSummary value;
   final VoidCallback onTap;
   final VoidCallback? onOpen;
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -211,6 +256,15 @@ class _RelationshipCard extends StatelessWidget {
                                 onPressed: onOpen,
                                 icon: const Icon(Icons.folder_shared_outlined),
                                 label: Text(l10n.openRecords),
+                              ),
+                            ),
+                          if (onDismiss != null)
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton.icon(
+                                onPressed: onDismiss,
+                                icon: const Icon(Icons.delete_outline),
+                                label: Text(l10n.removeRequest),
                               ),
                             ),
                         ],

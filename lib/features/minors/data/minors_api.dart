@@ -194,4 +194,17 @@ class MinorsApi {
       throw _mapper.map(e);
     }
   }
+
+  /// Patient-facing dismissal of a rejected/revoked request. Presentation
+  /// only — the review history and audit trail are retained server-side.
+  Future<void> dismissRelationship(String uuid) async {
+    try {
+      await _dio.post<dynamic>(
+        ApiPaths.guardianRelationshipDismiss(uuid),
+        data: const {},
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
 }

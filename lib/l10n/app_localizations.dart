@@ -3278,6 +3278,30 @@ abstract class AppLocalizations {
   /// **'You will lose access to this child\'s records. This action cannot be undone.'**
   String get revokeConfirmBody;
 
+  /// No description provided for @removeRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove request'**
+  String get removeRequest;
+
+  /// No description provided for @dismissConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this rejected request from My Children?'**
+  String get dismissConfirmTitle;
+
+  /// No description provided for @dismissConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This only removes it from your list. The review history is retained.'**
+  String get dismissConfirmBody;
+
+  /// No description provided for @dismissHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'This only removes it from your list. The review history is retained.'**
+  String get dismissHelper;
+
   /// No description provided for @submittedOn.
   ///
   /// In en, this message translates to:
@@ -3367,6 +3391,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Child records'**
   String get childRecords;
+
+  /// No description provided for @childRecordsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are viewing medical records for this child.'**
+  String get childRecordsSubtitle;
+
+  /// No description provided for @profileChildContextNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'You are viewing medical records for {childName}. Profile settings belong to your account.'**
+  String profileChildContextNotice(String childName);
 
   /// No description provided for @viewingRecordsFor.
   ///

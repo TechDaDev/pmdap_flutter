@@ -43,6 +43,8 @@ class GuardianRelationshipSummary {
     required this.relationship,
     required this.status,
     required this.canRevoke,
+    this.canDismiss = false,
+    this.dismissedAt,
     this.startedAt,
     this.verifiedAt,
     this.endedAt,
@@ -55,6 +57,10 @@ class GuardianRelationshipSummary {
   final Relationship relationship;
   final GuardianRelationshipStatus status;
   final bool canRevoke;
+
+  /// Rejected/revoked rows may be removed from My Children (presentation only).
+  final bool canDismiss;
+  final DateTime? dismissedAt;
   final DateTime? startedAt;
   final DateTime? verifiedAt;
   final DateTime? endedAt;
@@ -72,6 +78,8 @@ class GuardianRelationshipSummary {
         relationship: Relationship.fromApi(json['relationship'] as String?),
         status: GuardianRelationshipStatus.fromApi(json['status'] as String?),
         canRevoke: json['can_revoke'] as bool? ?? false,
+        canDismiss: json['can_dismiss'] as bool? ?? false,
+        dismissedAt: DateTime.tryParse(json['dismissed_at'] as String? ?? ''),
         startedAt: DateTime.tryParse(json['started_at'] as String? ?? ''),
         verifiedAt: DateTime.tryParse(json['verified_at'] as String? ?? ''),
         endedAt: DateTime.tryParse(json['ended_at'] as String? ?? ''),

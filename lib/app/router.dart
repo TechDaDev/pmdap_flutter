@@ -58,6 +58,9 @@ class Routes {
   static String minorDocuments(String uuid) => '/minors/$uuid/documents';
   static String minorArchive(String uuid) => '/minors/$uuid/archive';
   static String minorSearch(String uuid) => '/minors/$uuid/search';
+  static String minorUpload(String uuid) => '/minors/$uuid/upload';
+  static String minorConfirmDates(String uuid) =>
+      '/minors/$uuid/confirm-dates';
 
   static const documents = '/documents';
   static const documentsNew = '/documents/new';
@@ -255,6 +258,16 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: Routes.confirmDates,
         builder: (context, state) => const ConfirmDatesScreen(),
+      ),
+      GoRoute(
+        path: '/minors/:uuid/confirm-dates',
+        builder: (context, state) =>
+            ConfirmDatesScreen(minorUuid: state.pathParameters['uuid']),
+      ),
+      GoRoute(
+        path: '/minors/:uuid/upload',
+        builder: (context, state) =>
+            DocumentUploadScreen(minorUuid: state.pathParameters['uuid']),
       ),
       GoRoute(
         path: '/documents/:uuid/date',

@@ -15,6 +15,7 @@ import '../../../core/utils/status_labels.dart';
 import '../../../core/widgets/async_state_view.dart';
 import '../../../core/widgets/patient_avatar.dart';
 import '../../auth/application/session_controller.dart';
+import '../../medical_context/application/patient_context_controller.dart';
 import '../../patient/application/patient_providers.dart';
 
 /// Patient profile — display of safe public/account fields plus the private
@@ -64,6 +65,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 final labels = StatusLabels(l10n);
                 return Column(
                   children: [
+                    if (ref.watch(patientContextProvider).isMinor) ...[
+                      _ChildContextNotice(l10n: l10n),
+                      const SizedBox(height: 16),
+                    ],
                     Stack(
                       alignment: AlignmentDirectional.bottomEnd,
                       children: [
@@ -459,6 +464,42 @@ class _InfoRow extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(flex: 3, child: valueText),
         ],
+      ),
+    );
+  }
+}
+
+/// Notice shown on the guardian's Profile while child context is active:
+/// authentication/account settings belong to the guardian, not the child.
+class _ChildContextNotice extends ConsumerWidget {
+  const _ChildContextNotice({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final childName =
+        ref.watch(patientContextProvider).safeDisplayName ?? '';
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.family_restroom_rounded,
+              color: scheme.onSecondaryContainer,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l10n.profileChildContextNotice(childName),
+                style: TextStyle(color: scheme.onSecondaryContainer),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

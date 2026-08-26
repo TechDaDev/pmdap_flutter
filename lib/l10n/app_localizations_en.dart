@@ -1684,6 +1684,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'You will lose access to this child\'s records. This action cannot be undone.';
 
   @override
+  String get removeRequest => 'Remove request';
+
+  @override
+  String get dismissConfirmTitle =>
+      'Remove this rejected request from My Children?';
+
+  @override
+  String get dismissConfirmBody =>
+      'This only removes it from your list. The review history is retained.';
+
+  @override
+  String get dismissHelper =>
+      'This only removes it from your list. The review history is retained.';
+
+  @override
   String get submittedOn => 'Submitted';
 
   @override
@@ -1731,6 +1746,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get childRecords => 'Child records';
+
+  @override
+  String get childRecordsSubtitle =>
+      'You are viewing medical records for this child.';
+
+  @override
+  String profileChildContextNotice(String childName) {
+    return 'You are viewing medical records for $childName. Profile settings belong to your account.';
+  }
 
   @override
   String get viewingRecordsFor => 'Viewing records for';

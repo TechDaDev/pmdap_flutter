@@ -567,6 +567,10 @@
   "revokeAccess": "إلغاء الوصول",
   "revokeConfirmTitle": "إلغاء صلاحية الوصي؟",
   "revokeConfirmBody": "ستفقد الوصول إلى سجلات هذا الطفل. لا يمكن التراجع عن هذا الإجراء.",
+  "removeRequest": "إزالة الطلب",
+  "dismissConfirmTitle": "إزالة هذا الطلب المرفوض من قائمة أطفالي؟",
+  "dismissConfirmBody": "سيؤدي هذا إلى إزالته من قائمتك فقط. يبقى سجل المراجعة محفوظاً.",
+  "dismissHelper": "سيؤدي هذا إلى إزالته من قائمتك فقط. يبقى سجل المراجعة محفوظاً.",
   "submittedOn": "تاريخ الإرسال",
   "activeSince": "نشطة منذ",
   "childDigitalId": "المعرّف الرقمي للطفل",
@@ -582,6 +586,15 @@
   "extractingCardDetails": "جارٍ استخراج بيانات البطاقة…",
   "extractionReady": "تم استخراج البيانات. راجع كل حقل قبل المتابعة.",
   "childRecords": "سجلات الطفل",
+  "childRecordsSubtitle": "أنت تعرض السجلات الطبية لهذا الطفل.",
+  "profileChildContextNotice": "أنت تعرض السجلات الطبية لـ {childName}. إعدادات الحساب تخص حسابك.",
+  "@profileChildContextNotice": {
+    "placeholders": {
+      "childName": {
+        "type": "String"
+      }
+    }
+  },
   "viewingRecordsFor": "عرض السجلات لـ",
   "backToMyRecords": "العودة إلى سجلاتي",
   "accessNoLongerActive": "لم يعد وصولك إلى سجلات هذا الطفل نشطاً.",

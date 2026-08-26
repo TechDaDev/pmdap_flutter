@@ -24,6 +24,7 @@ class MinorDetailScreen extends ConsumerStatefulWidget {
 
 class _MinorDetailScreenState extends ConsumerState<MinorDetailScreen> {
   bool _revoking = false;
+  bool _dismissing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +133,72 @@ class _MinorDetailScreenState extends ConsumerState<MinorDetailScreen> {
               label: Text(l10n.revokeAccess),
             ),
           ],
+          if (value.canDismiss && !value.isVerified) ...[
+            const SizedBox(height: 28),
+            Text(
+              l10n.dismissHelper,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _dismissing
+                  ? null
+                  : () => _confirmDismiss(value.uuid),
+              icon: const Icon(Icons.delete_outline),
+              label: Text(l10n.removeRequest),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDismiss(String relationshipUuid) async {
+    if (_dismissing) return;
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dismissConfirmTitle),
+        content: Text(l10n.dismissConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.removeRequest),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _dismissing = true);
+    try {
+      await ref.read(minorsApiProvider).dismissRelationship(relationshipUuid);
+      if (!mounted) return;
+      ref.invalidate(guardianRelationshipsProvider);
+      ref.invalidate(guardianRelationshipDetailProvider(widget.uuid));
+      // Deep-linked detail (nothing beneath) stays put; normal flow pops.
+      if (context.canPop()) {
+        context.pop();
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      final message = error.statusCode == 409
+          ? l10n.relationshipConflict
+          : error.message;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) setState(() => _dismissing = false);
+    }
   }
 
   Future<void> _confirmRevoke(String relationshipUuid) async {
