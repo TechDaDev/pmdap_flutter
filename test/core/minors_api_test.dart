@@ -74,6 +74,7 @@ void main() {
           firstName: 'Child',
           fatherName: 'Synthetic Father',
           grandfatherName: 'Synthetic Grandfather',
+          motherName: 'Synthetic Mother',
           dateOfBirth: DateTime(2015, 8, 20),
           sex: Sex.unspecified,
           nationality: 'IQ',
@@ -125,6 +126,7 @@ void main() {
           firstName: 'Child',
           fatherName: 'Synthetic Father',
           grandfatherName: 'Synthetic Grandfather',
+          motherName: 'Synthetic Mother',
           dateOfBirth: DateTime(2015, 8, 20),
           sex: Sex.unspecified,
           nationality: 'IQ',
@@ -147,6 +149,7 @@ void main() {
       expect(fields['name'], 'Child');
       expect(fields['father_name'], 'Synthetic Father');
       expect(fields['grandfather_name'], 'Synthetic Grandfather');
+      expect(fields['mother_name'], 'Synthetic Mother');
       expect(
         fields['extraction_job_id'],
         '11111111-2222-4333-8444-555555555555',

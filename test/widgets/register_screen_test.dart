@@ -111,6 +111,7 @@ IdentityExtractionResult _successResult() {
       'name': f('Ali'),
       'father_name': f('Ahmed'),
       'grandfather_name': f('Hassan'),
+      'mother_name': f('Fatima'),
       'sex': f('MALE'),
       'blood_group': f('O+'),
       'date_of_birth': f('1990-01-15'),
@@ -128,6 +129,7 @@ IdentityExtractionResult _resultWith({
   String? name,
   String? fatherName,
   String? grandfatherName,
+  String? motherName,
   String? sex,
   String? dateOfBirth,
   String? bloodGroup,
@@ -151,6 +153,7 @@ IdentityExtractionResult _resultWith({
   apply('name', name);
   apply('father_name', fatherName);
   apply('grandfather_name', grandfatherName);
+  apply('mother_name', motherName);
   apply('sex', sex);
   apply('date_of_birth', dateOfBirth);
   apply('blood_group', bloodGroup);
@@ -636,6 +639,7 @@ void main() {
         name: 'علي',
         fatherName: 'محمد',
         grandfatherName: 'حسين',
+        motherName: 'فاطمة',
         sex: 'MALE',
         dateOfBirth: '1990-01-15',
         bloodGroup: 'O+',
@@ -667,6 +671,7 @@ void main() {
     expect(id.name, 'علي');
     expect(id.fatherName, 'محمد');
     expect(id.grandfatherName, 'حسين');
+    expect(id.motherName, 'فاطمة');
     expect(id.nationalCardNumber, '123456789012');
     expect(id.familyNumber, '9021A1B90870045612');
     expect(id.uniqueCardBodyNumber, 'G12345678');
@@ -757,6 +762,7 @@ void main() {
     expect(id.name, 'Ali');
     expect(id.fatherName, 'Ahmed');
     expect(id.grandfatherName, 'Hassan');
+    expect(id.motherName, 'Fatima');
     expect(id.confirmation, isTrue);
     expect(id.nationalCardNumber, '999999999999');
     expect(id.familyNumber, 'FAM-EDITED');

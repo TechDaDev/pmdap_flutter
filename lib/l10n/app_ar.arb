@@ -84,6 +84,7 @@
   "name": "الاسم",
   "fathersName": "اسم الأب",
   "grandfathersName": "اسم الجد",
+  "mothersName": "اسم الأم",
   "personalInformation": "المعلومات الشخصية",
   "cardInformation": "معلومات البطاقة",
   "registrationSuccess": "تم إنشاء الحساب. سجّل الدخول.",

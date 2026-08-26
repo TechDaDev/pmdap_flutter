@@ -199,6 +199,7 @@ class _IdentityExtractionReviewScreenState
           l10n.grandfathersName,
           direction: TextDirection.rtl,
         ),
+        personal('mother_name', l10n.mothersName, direction: TextDirection.rtl),
         personal('sex', l10n.sex, displayValue: _sexDisplay(f('sex'))),
         personal(
           'date_of_birth',

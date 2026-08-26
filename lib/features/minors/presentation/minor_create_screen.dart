@@ -37,6 +37,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
   final _firstName = TextEditingController();
   final _fatherName = TextEditingController();
   final _grandfatherName = TextEditingController();
+  final _motherName = TextEditingController();
   final _nationality = TextEditingController(text: 'IQ');
   final _documentNumber = TextEditingController();
   final _nationalNumber = TextEditingController();
@@ -76,6 +77,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       _firstName,
       _fatherName,
       _grandfatherName,
+      _motherName,
       _nationality,
       _documentNumber,
       _nationalNumber,
@@ -90,6 +92,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
     _firstName.dispose();
     _fatherName.dispose();
     _grandfatherName.dispose();
+    _motherName.dispose();
     _nationality.dispose();
     _documentNumber.dispose();
     _nationalNumber.dispose();
@@ -112,6 +115,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       _firstName,
       _fatherName,
       _grandfatherName,
+      _motherName,
       _nationalNumber,
       _cardBodyNumber,
       _familyNumber,
@@ -276,6 +280,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       _firstName.text = review.firstName;
       _fatherName.text = review.fatherName;
       _grandfatherName.text = review.grandfatherName;
+      _motherName.text = review.motherName;
       _nationalNumber.text = review.nationalNumber;
       _cardBodyNumber.text = review.cardBodyNumber;
       _familyNumber.text = review.familyNumber;
@@ -364,6 +369,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
       firstName: _firstName.text.trim(),
       fatherName: _fatherName.text.trim(),
       grandfatherName: _grandfatherName.text.trim(),
+      motherName: _motherName.text.trim(),
       dateOfBirth: _dob,
       sex: _sex,
       nationality: _nationality.text.trim().toUpperCase(),
@@ -549,6 +555,11 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
               label: l10n.grandfathersName,
               value: _grandfatherName.text,
             ),
+            const SizedBox(height: 10),
+            _LockedIdentityField(
+              label: l10n.mothersName,
+              value: _motherName.text,
+            ),
           ] else
             AppTextField(
               label: l10n.fullName,
@@ -673,6 +684,7 @@ class _MinorCreateScreenState extends ConsumerState<MinorCreateScreen> {
         _ReviewRow(l10n.firstName, _firstName.text),
         _ReviewRow(l10n.fathersName, _fatherName.text),
         _ReviewRow(l10n.grandfathersName, _grandfatherName.text),
+        _ReviewRow(l10n.mothersName, _motherName.text),
       ] else
         _ReviewRow(l10n.fullName, _firstName.text),
       _ReviewRow(l10n.dateOfBirth, formatApiDate(_dob)),

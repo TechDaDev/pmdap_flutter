@@ -72,6 +72,7 @@ class RegistrationIdentityInput {
     required this.name,
     required this.fatherName,
     required this.grandfatherName,
+    this.motherName = '',
     required this.confirmation,
     required this.dateOfBirth,
     required this.sex,
@@ -89,6 +90,7 @@ class RegistrationIdentityInput {
   final String name;
   final String fatherName;
   final String grandfatherName;
+  final String motherName;
   final bool confirmation;
   final DateTime? dateOfBirth;
   final Sex sex;
@@ -106,6 +108,7 @@ class RegistrationIdentityInput {
     'name': name,
     'father_name': fatherName,
     'grandfather_name': grandfatherName,
+    'mother_name': motherName,
     'confirmation': confirmation,
     'date_of_birth': formatApiDate(dateOfBirth),
     'sex': sex.api,

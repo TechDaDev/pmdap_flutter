@@ -84,6 +84,7 @@
   "name": "Name",
   "fathersName": "Father's name",
   "grandfathersName": "Grandfather's name",
+  "mothersName": "Mother's name",
   "personalInformation": "Personal information",
   "cardInformation": "Card information",
   "registrationSuccess": "Account created. Please sign in.",

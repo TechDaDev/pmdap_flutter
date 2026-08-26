@@ -116,6 +116,7 @@ IdentityExtractionResult _ncResult({
   String name = 'Ali',
   String father = 'Ahmed',
   String grandfather = 'Hassan',
+  String mother = 'Fatima',
   String sex = 'MALE',
   String bloodGroup = 'O+',
   String? dob = '1990-01-15',
@@ -153,6 +154,7 @@ IdentityExtractionResult _ncResult({
         0.92,
         IdentityExtractionSource.frontPrinted,
       ),
+      'mother_name': f(mother, 0.91, IdentityExtractionSource.frontPrinted),
       'sex': f(
         sex,
         0.96,
@@ -395,61 +397,62 @@ void main() {
       expect(find.textContaining(en.couldNotReadThisField), findsWidgets);
     });
 
-    testWidgets(
-      'all nine V2 fields land in own boxes; identifiers stay distinct',
-      (tester) async {
-        // Nine DISTINCT invented values: name/father/grandfather, sex, blood,
-        // dob, card number, family, and the H... card body number. Each must
-        // land in its own box; the body number must never be displayed as (or
-        // submitted as) the family or card number.
-        fakeApi.extractionResult = _ncResult(
-          nationalCard: '999999999999',
-          family: 'TESTFAMILY123456',
-          body: 'H12345678',
-        );
-        await tester.pumpWidget(host(const IdentitySubmitScreen()));
-        await tester.pumpAndSettle();
-        await scanFront(tester);
-        await scanBack(tester);
-        await tapPrimary(tester, en.readDocument);
+    testWidgets('all V2 fields land in own boxes; identifiers stay distinct', (
+      tester,
+    ) async {
+      // Nine DISTINCT invented values: name/father/grandfather, sex, blood,
+      // dob, card number, family, and the H... card body number. Each must
+      // land in its own box; the body number must never be displayed as (or
+      // submitted as) the family or card number.
+      fakeApi.extractionResult = _ncResult(
+        nationalCard: '999999999999',
+        family: 'TESTFAMILY123456',
+        body: 'H12345678',
+      );
+      await tester.pumpWidget(host(const IdentitySubmitScreen()));
+      await tester.pumpAndSettle();
+      await scanFront(tester);
+      await scanBack(tester);
+      await tapPrimary(tester, en.readDocument);
 
-        expect(find.text(en.personalInformation), findsOneWidget);
-        expect(find.text(en.cardInformation), findsOneWidget);
+      expect(find.text(en.personalInformation), findsOneWidget);
+      expect(find.text(en.cardInformation), findsOneWidget);
 
-        // Personal info fields.
-        expect(find.widgetWithText(TextField, 'Ali'), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'Ahmed'), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'Hassan'), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'Male'), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'O+'), findsOneWidget);
+      // Personal info fields.
+      expect(find.widgetWithText(TextField, 'Ali'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Ahmed'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Hassan'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Fatima'), findsOneWidget);
+      expect(find.text(en.mothersName), findsWidgets);
+      expect(find.widgetWithText(TextField, 'Male'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'O+'), findsOneWidget);
 
-        // Card info fields: each value in exactly one box.
-        expect(find.widgetWithText(TextField, '999999999999'), findsOneWidget);
-        expect(
-          find.widgetWithText(TextField, 'TESTFAMILY123456'),
-          findsOneWidget,
-        );
-        expect(find.widgetWithText(TextField, 'H12345678'), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'IQ'), findsOneWidget);
+      // Card info fields: each value in exactly one box.
+      expect(find.widgetWithText(TextField, '999999999999'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextField, 'TESTFAMILY123456'),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(TextField, 'H12345678'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'IQ'), findsOneWidget);
 
-        // Legacy "National number" row is GONE for the Iraqi card.
-        expect(find.textContaining(en.nationalNumber), findsNothing);
-        // The card number is NOT labeled "Document number".
-        expect(find.textContaining(en.documentNumber), findsNothing);
-        // It IS labeled "National/Card number" (header row + field label).
-        expect(find.textContaining(en.nationalCardNumber), findsWidgets);
+      // Legacy "National number" row is GONE for the Iraqi card.
+      expect(find.textContaining(en.nationalNumber), findsNothing);
+      // The card number is NOT labeled "Document number".
+      expect(find.textContaining(en.documentNumber), findsNothing);
+      // It IS labeled "National/Card number" (header row + field label).
+      expect(find.textContaining(en.nationalCardNumber), findsWidgets);
 
-        await tapPrimary(tester, en.submitForVerification);
-        expect(fakeApi.submitted, hasLength(1));
-        final s = fakeApi.submitted.single;
-        expect(s.documentNumber, '999999999999');
-        expect(s.nationalNumber, '');
-        expect(s.familyNumber, 'TESTFAMILY123456');
-        // Body number must never leak into family/card/document slots.
-        expect(s.familyNumber, isNot('H12345678'));
-        expect(s.documentNumber, isNot('H12345678'));
-      },
-    );
+      await tapPrimary(tester, en.submitForVerification);
+      expect(fakeApi.submitted, hasLength(1));
+      final s = fakeApi.submitted.single;
+      expect(s.documentNumber, '999999999999');
+      expect(s.nationalNumber, '');
+      expect(s.familyNumber, 'TESTFAMILY123456');
+      // Body number must never leak into family/card/document slots.
+      expect(s.familyNumber, isNot('H12345678'));
+      expect(s.documentNumber, isNot('H12345678'));
+    });
 
     testWidgets('DOB is rendered human-readable for the Iraqi card', (
       tester,
@@ -563,6 +566,10 @@ void main() {
       expect(dirOf(find.widgetWithText(TextField, 'Ahmed')), TextDirection.rtl);
       expect(
         dirOf(find.widgetWithText(TextField, 'Hassan')),
+        TextDirection.rtl,
+      );
+      expect(
+        dirOf(find.widgetWithText(TextField, 'Fatima')),
         TextDirection.rtl,
       );
     });

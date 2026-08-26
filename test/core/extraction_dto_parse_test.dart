@@ -7,7 +7,7 @@ import 'package:pmdap_mobile/features/identity/data/extraction_models.dart';
 /// real patient data.
 void main() {
   group('IdentityExtractionResult.fromJson (V2 National Card)', () {
-    test('parses all nine structured fields with cross_check + sources', () {
+    test('parses maternal name with all structured card fields', () {
       final json = <String, dynamic>{
         'document_type': 'UNIFIED_NATIONAL_CARD',
         'extractor_version': 'identity-v1',
@@ -26,6 +26,11 @@ void main() {
           'grandfather_name': {
             'value': 'SYNTH GRANDFATHER',
             'confidence': 0.92,
+            'source': 'FRONT_PRINTED',
+          },
+          'mother_name': {
+            'value': 'SYNTH MOTHER',
+            'confidence': 0.91,
             'source': 'FRONT_PRINTED',
           },
           'sex': {
@@ -76,11 +81,12 @@ void main() {
       expect(r.documentType, IdentityDocumentType.unifiedNationalCard);
       expect(r.mrzVerified, isTrue);
 
-      // Typed accessors for the nine required V2 fields.
+      // Typed accessors for the shared National Card fields.
       expect(r.name?.value, 'SYNTH NAME');
       expect(r.name?.source, IdentityExtractionSource.frontPrinted);
       expect(r.fatherName?.value, 'SYNTH FATHER');
       expect(r.grandfatherName?.value, 'SYNTH GRANDFATHER');
+      expect(r.motherName?.value, 'SYNTH MOTHER');
       expect(r.sex?.value, 'MALE');
       expect(r.sex?.mrzAgree, isTrue);
       expect(r.bloodGroup?.value, 'O+');
@@ -112,6 +118,7 @@ void main() {
       expect(r.name, isNull);
       expect(r.fatherName, isNull);
       expect(r.grandfatherName, isNull);
+      expect(r.motherName, isNull);
       expect(r.sex, isNull);
       expect(r.bloodGroup, isNull);
       expect(r.nationalCardNumber, isNull);

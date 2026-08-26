@@ -259,6 +259,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get grandfathersName => 'Grandfather\'s name';
 
   @override
+  String get mothersName => 'Mother\'s name';
+
+  @override
   String get personalInformation => 'Personal information';
 
   @override

@@ -101,6 +101,7 @@ class IdentityExtractionResult {
   ExtractedIdentityField? get name => fields['name'];
   ExtractedIdentityField? get fatherName => fields['father_name'];
   ExtractedIdentityField? get grandfatherName => fields['grandfather_name'];
+  ExtractedIdentityField? get motherName => fields['mother_name'];
   ExtractedIdentityField? get sex => fields['sex'];
   ExtractedIdentityField? get bloodGroup => fields['blood_group'];
   ExtractedIdentityField? get nationalCardNumber =>

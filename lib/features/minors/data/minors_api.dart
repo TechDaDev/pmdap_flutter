@@ -15,6 +15,7 @@ class MinorCreateSubmission {
     required this.firstName,
     this.fatherName = '',
     this.grandfatherName = '',
+    this.motherName = '',
     required this.dateOfBirth,
     required this.sex,
     required this.nationality,
@@ -39,6 +40,7 @@ class MinorCreateSubmission {
   final String firstName;
   final String fatherName;
   final String grandfatherName;
+  final String motherName;
   String get displayName => [
     firstName,
     fatherName,
@@ -111,6 +113,7 @@ class MinorsApi {
         'name': s.firstName,
         if (s.fatherName.isNotEmpty) 'father_name': s.fatherName,
         if (s.grandfatherName.isNotEmpty) 'grandfather_name': s.grandfatherName,
+        if (s.motherName.isNotEmpty) 'mother_name': s.motherName,
         'date_of_birth': formatApiDate(s.dateOfBirth),
         'sex': s.sex.api,
         'nationality': s.nationality,

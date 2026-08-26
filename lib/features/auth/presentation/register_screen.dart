@@ -58,6 +58,7 @@ enum _ReviewFieldKey {
   name,
   fatherName,
   grandfatherName,
+  motherName,
   sex,
   dateOfBirth,
   bloodGroup,
@@ -81,6 +82,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nameController = TextEditingController();
   final _fatherNameController = TextEditingController();
   final _grandfatherNameController = TextEditingController();
+  final _motherNameController = TextEditingController();
   final _cardNumberController = TextEditingController();
   final _familyNumberController = TextEditingController();
   final _bodyNumberController = TextEditingController();
@@ -106,6 +108,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _nameController.dispose();
     _fatherNameController.dispose();
     _grandfatherNameController.dispose();
+    _motherNameController.dispose();
     _cardNumberController.dispose();
     _familyNumberController.dispose();
     _bodyNumberController.dispose();
@@ -242,6 +245,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _nameController.text = state.review.name;
     _fatherNameController.text = state.review.fatherName;
     _grandfatherNameController.text = state.review.grandfatherName;
+    _motherNameController.text = state.review.motherName;
     _cardNumberController.text = state.review.nationalCardNumber;
     _familyNumberController.text = state.review.familyNumber;
     _bodyNumberController.text = state.review.uniqueCardBodyNumber;
@@ -333,6 +337,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       name: _nameController.text.trim(),
       fatherName: _fatherNameController.text.trim(),
       grandfatherName: _grandfatherNameController.text.trim(),
+      motherName: _motherNameController.text.trim(),
       nationalCardNumber: _cardNumberController.text.trim(),
       documentNumber: _cardNumberController.text.trim(),
       familyNumber: _familyNumberController.text.trim(),
@@ -736,6 +741,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           errorText: _reviewErrors[_ReviewFieldKey.grandfatherName],
           onValueChanged: () =>
               _clearFieldError(_ReviewFieldKey.grandfatherName),
+        ),
+        const SizedBox(height: 12),
+        _ReviewField(
+          key: _reviewFieldKeys[_ReviewFieldKey.motherName],
+          label: l10n.mothersName,
+          controller: _motherNameController,
+          direction: TextDirection.rtl,
+          bucket: bucket('mother_name'),
+          hasValue: state.review.motherName.isNotEmpty,
+          onValueChanged: () => _clearFieldError(_ReviewFieldKey.motherName),
         ),
         const SizedBox(height: 12),
         _SexField(

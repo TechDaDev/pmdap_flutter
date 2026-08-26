@@ -36,6 +36,7 @@ class RegistrationReviewValues {
     this.name = '',
     this.fatherName = '',
     this.grandfatherName = '',
+    this.motherName = '',
     this.sex = Sex.unspecified,
     this.bloodGroup = BloodGroup.unknown,
     this.dateOfBirth,
@@ -49,6 +50,7 @@ class RegistrationReviewValues {
   final String name;
   final String fatherName;
   final String grandfatherName;
+  final String motherName;
   final Sex sex;
   final BloodGroup bloodGroup;
   final DateTime? dateOfBirth;
@@ -62,6 +64,7 @@ class RegistrationReviewValues {
     String? name,
     String? fatherName,
     String? grandfatherName,
+    String? motherName,
     Sex? sex,
     BloodGroup? bloodGroup,
     DateTime? dateOfBirth,
@@ -75,6 +78,7 @@ class RegistrationReviewValues {
       name: name ?? this.name,
       fatherName: fatherName ?? this.fatherName,
       grandfatherName: grandfatherName ?? this.grandfatherName,
+      motherName: motherName ?? this.motherName,
       sex: sex ?? this.sex,
       bloodGroup: bloodGroup ?? this.bloodGroup,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
@@ -416,6 +420,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       name: (v('name') ?? '').trim(),
       fatherName: (v('father_name') ?? '').trim(),
       grandfatherName: (v('grandfather_name') ?? '').trim(),
+      motherName: (v('mother_name') ?? '').trim(),
       sex: Sex.fromApi(v('sex')),
       bloodGroup: BloodGroup.fromApi(v('blood_group')),
       dateOfBirth: parseApiDate(v('date_of_birth')),
@@ -468,6 +473,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
           name: review.name,
           fatherName: review.fatherName,
           grandfatherName: review.grandfatherName,
+          motherName: review.motherName,
           confirmation: review.confirmation,
           dateOfBirth: review.dateOfBirth,
           sex: review.sex,

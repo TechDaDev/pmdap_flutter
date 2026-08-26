@@ -15,6 +15,7 @@ void main() {
         'name': field('SyntheticGiven'),
         'father_name': field('SyntheticFather'),
         'grandfather_name': field('SyntheticGrandfather'),
+        'mother_name': field('SyntheticMother'),
         'national_card_number': field('100000000001'),
         'unique_card_body_number': field('A10000001'),
         'family_number': field('SYNTH-FAMILY-100'),
@@ -27,6 +28,7 @@ void main() {
     expect(review.firstName, 'SyntheticGiven');
     expect(review.fatherName, 'SyntheticFather');
     expect(review.grandfatherName, 'SyntheticGrandfather');
+    expect(review.motherName, 'SyntheticMother');
     expect(
       review.displayName,
       'SyntheticGiven SyntheticFather SyntheticGrandfather',

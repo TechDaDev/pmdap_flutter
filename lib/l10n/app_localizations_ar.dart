@@ -256,6 +256,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get grandfathersName => 'اسم الجد';
 
   @override
+  String get mothersName => 'اسم الأم';
+
+  @override
   String get personalInformation => 'المعلومات الشخصية';
 
   @override

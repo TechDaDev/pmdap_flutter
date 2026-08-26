@@ -5,6 +5,7 @@ class MinorIdentityReview {
     this.firstName = '',
     this.fatherName = '',
     this.grandfatherName = '',
+    this.motherName = '',
     this.nationalNumber = '',
     this.cardBodyNumber = '',
     this.familyNumber = '',
@@ -13,6 +14,7 @@ class MinorIdentityReview {
   final String firstName;
   final String fatherName;
   final String grandfatherName;
+  final String motherName;
   final String nationalNumber;
   final String cardBodyNumber;
   final String familyNumber;
@@ -29,6 +31,7 @@ class MinorIdentityReview {
       firstName: value(result.name),
       fatherName: value(result.fatherName),
       grandfatherName: value(result.grandfatherName),
+      motherName: value(result.motherName),
       nationalNumber: value(result.nationalCardNumber),
       cardBodyNumber: value(result.uniqueCardBodyNumber),
       familyNumber: value(result.familyNumber),
