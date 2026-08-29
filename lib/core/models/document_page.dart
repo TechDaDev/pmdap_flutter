@@ -3,8 +3,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'date_candidate.dart';
-import 'enum_json.dart';
-import 'enums.dart';
 import 'lab_results.dart';
 
 part 'document_page.freezed.dart';

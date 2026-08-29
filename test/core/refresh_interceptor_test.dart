@@ -68,7 +68,7 @@ void main() {
     dio = Dio();
   });
 
-  DioException _unauthorized(String path) {
+  DioException unauthorized(String path) {
     final options = RequestOptions(path: path, baseUrl: 'http://x/api/v1');
     return DioException(
       requestOptions: options,
@@ -85,7 +85,7 @@ void main() {
       onSessionExpired: () => sessionExpired = true,
     );
     final handler = _MockHandler();
-    await interceptor.onError(_unauthorized('/auth/login/'), handler);
+    await interceptor.onError(unauthorized('/auth/login/'), handler);
     expect(refresher.refreshCalls, 0);
     expect(handler.nextCount, 1);
     expect(sessionExpired, isFalse);
@@ -104,7 +104,7 @@ void main() {
       onSessionExpired: () => sessionExpired = true,
     );
     final handler = _MockHandler();
-    await interceptor.onError(_unauthorized('/documents/'), handler);
+    await interceptor.onError(unauthorized('/documents/'), handler);
 
     expect(refresher.refreshCalls, 1);
     expect(handler.resolveCount, 1);
@@ -123,7 +123,7 @@ void main() {
       onSessionExpired: () => sessionExpired = true,
     );
     final handler = _MockHandler();
-    await interceptor.onError(_unauthorized('/documents/'), handler);
+    await interceptor.onError(unauthorized('/documents/'), handler);
 
     expect(refresher.refreshCalls, 1);
     expect(sessionExpired, isTrue);
@@ -131,7 +131,7 @@ void main() {
   });
 
   test('already-retried requests do not refresh again', () async {
-    final err = _unauthorized('/documents/');
+    final err = unauthorized('/documents/');
     err.requestOptions.extra['pmdap_retried'] = true;
     final interceptor = RefreshInterceptor(
       dio: dio,

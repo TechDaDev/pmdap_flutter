@@ -28,7 +28,8 @@ const _childContext = PatientContext.minor(
 
 class _SeededChildContextController extends PatientContextController {
   @override
-  PatientContextState build() => const PatientContextState(context: _childContext);
+  PatientContextState build() =>
+      const PatientContextState(context: _childContext);
 }
 
 class _SelfContextController extends PatientContextController {
@@ -70,10 +71,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      pumpApp(
-        const HomeScreen(),
-        overrides: _overrides(),
-      ),
+      pumpApp(const HomeScreen(), overrides: _overrides()),
     );
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
@@ -123,10 +121,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      pumpApp(
-        const HomeScreen(),
-        overrides: _overrides(minor: false),
-      ),
+      pumpApp(const HomeScreen(), overrides: _overrides(minor: false)),
     );
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
@@ -155,7 +150,9 @@ void main() {
         GoRoute(
           path: '/minors/:uuid/confirm-dates',
           builder: (_, state) {
-            visited.add('/minors/${state.pathParameters['uuid']}/confirm-dates');
+            visited.add(
+              '/minors/${state.pathParameters['uuid']}/confirm-dates',
+            );
             return const Scaffold(body: Text('CONFIRM_MARKER'));
           },
         ),
@@ -206,7 +203,9 @@ void main() {
         GoRoute(
           path: '/minors/:uuid/confirm-dates',
           builder: (_, state) {
-            visited.add('/minors/${state.pathParameters['uuid']}/confirm-dates');
+            visited.add(
+              '/minors/${state.pathParameters['uuid']}/confirm-dates',
+            );
             return const Scaffold(body: Text('CONFIRM_MARKER'));
           },
         ),

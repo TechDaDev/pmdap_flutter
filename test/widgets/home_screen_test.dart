@@ -26,7 +26,9 @@ void main() {
         const HomeScreen(),
         overrides: [
           patientProfileProvider.overrideWith((ref) async => sampleProfile()),
-          pendingDateConfirmationDocumentsProvider.overrideWith((ref) async => const []),
+          pendingDateConfirmationDocumentsProvider.overrideWith(
+            (ref) async => const [],
+          ),
           archiveSummaryProvider(
             const ArchiveScope.adult(),
           ).overrideWith((ref) async => summary),
@@ -55,7 +57,9 @@ void main() {
         const HomeScreen(),
         overrides: [
           patientProfileProvider.overrideWith((ref) async => sampleProfile()),
-          pendingDateConfirmationDocumentsProvider.overrideWith((ref) async => const []),
+          pendingDateConfirmationDocumentsProvider.overrideWith(
+            (ref) async => const [],
+          ),
           archiveSummaryProvider(
             const ArchiveScope.adult(),
           ).overrideWith((ref) async => const ArchiveSummary()),

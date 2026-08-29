@@ -29,7 +29,11 @@ PendingDateConfirmation _pending({
   );
 }
 
-PendingDateCandidate _candidate(String uuid, DateTime date, {bool suggested = true}) {
+PendingDateCandidate _candidate(
+  String uuid,
+  DateTime date, {
+  bool suggested = true,
+}) {
   return PendingDateCandidate(
     uuid: uuid,
     date: date,
@@ -163,10 +167,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('No documents need date confirmation.'),
-        findsOneWidget,
-      );
+      expect(find.text('No documents need date confirmation.'), findsOneWidget);
     });
   });
 
@@ -184,7 +185,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Manual date button (label also used by the section title).
-      final manualButton = find.widgetWithText(OutlinedButton, 'Enter date manually');
+      final manualButton = find.widgetWithText(
+        OutlinedButton,
+        'Enter date manually',
+      );
       expect(manualButton, findsOneWidget);
 
       // Pick today via the date-picker dialog.

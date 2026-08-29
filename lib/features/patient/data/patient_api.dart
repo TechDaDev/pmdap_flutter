@@ -34,10 +34,10 @@ class PatientApi {
   }) async {
     try {
       final body = <String, dynamic>{
-        if (fullName != null) 'full_name': fullName,
+        'full_name': ?fullName,
         if (dateOfBirth != null) 'date_of_birth': formatApiDate(dateOfBirth),
         if (sex != null) 'sex': sex.api,
-        if (nationality != null) 'nationality': nationality,
+        'nationality': ?nationality,
         if (bloodGroup != null) 'blood_group': bloodGroup.api,
       };
       final resp = await _dio.patch<dynamic>(ApiPaths.patientsMe, data: body);

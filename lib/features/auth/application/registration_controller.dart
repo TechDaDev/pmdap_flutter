@@ -349,7 +349,10 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       );
       _startCountdown();
     } on ApiException catch (e) {
-      state = state.copyWith(verifyBusy: false, verifyError: _mapVerifyError(e));
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: _mapVerifyError(e),
+      );
     } on Exception {
       state = state.copyWith(
         verifyBusy: false,
@@ -388,7 +391,10 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
           return;
         }
       }
-      state = state.copyWith(verifyBusy: false, verifyError: _mapVerifyError(e));
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: _mapVerifyError(e),
+      );
     } on Exception {
       state = state.copyWith(
         verifyBusy: false,
@@ -647,8 +653,9 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     } catch (e) {
       // Catch ANY error (Exception or Error) so a POST failure can never
       // leave the UI stuck on "Reading document...".
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('registration_extract FAILED ${e.runtimeType}');
+      }
       state = state.copyWith(
         reading: false,
         errorMessage: state.errorMessage ?? 'extraction_failed',
@@ -870,7 +877,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     }
   }
 
-  /// Backend password detail (List<String> or String) without the field name.
+  /// Backend password detail (list of strings or string) without the field name.
   String? _passwordFieldMessage(ApiException e) {
     final value = e.details['password'];
     if (value is List && value.isNotEmpty) return value.first.toString();

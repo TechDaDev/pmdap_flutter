@@ -106,7 +106,10 @@ void main() {
     expect(find.text('PDF'), findsNothing);
     expect(find.text('Image'), findsNothing);
 
-    await _pumpCard(tester, _cardDoc(file: StoredFilePublic(mimeType: 'text/plain')));
+    await _pumpCard(
+      tester,
+      _cardDoc(file: StoredFilePublic(mimeType: 'text/plain')),
+    );
     expect(find.text('PDF'), findsNothing);
     expect(find.text('Image'), findsNothing);
 

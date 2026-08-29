@@ -478,8 +478,7 @@ class _ChildContextNotice extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final childName =
-        ref.watch(patientContextProvider).safeDisplayName ?? '';
+    final childName = ref.watch(patientContextProvider).safeDisplayName ?? '';
     final scheme = Theme.of(context).colorScheme;
     return Card(
       color: scheme.secondaryContainer,

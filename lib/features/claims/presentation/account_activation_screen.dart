@@ -26,7 +26,7 @@ class _AccountActivationScreenState
   final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  bool _obscure = true;
+  final bool _obscure = true;
   bool _submitting = false;
   String? _errorMessage;
   String? _successMessage;

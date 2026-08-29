@@ -27,7 +27,7 @@ class FacilitiesApi {
         // omits `page`; sending page=1 triggers 400. Omit it on the first page
         // (workaround) — pagination stays blocked until the backend accepts `page`.
         if (page > 1) 'page': page,
-        if (active != null) 'active': active,
+        'active': ?active,
         if (country != null && country.isNotEmpty) 'country': country,
         if (region != null && region.isNotEmpty) 'region': region,
         if (city != null && city.isNotEmpty) 'city': city,

@@ -145,9 +145,7 @@ class _MinorDetailScreenState extends ConsumerState<MinorDetailScreen> {
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: _dismissing
-                  ? null
-                  : () => _confirmDismiss(value.uuid),
+              onPressed: _dismissing ? null : () => _confirmDismiss(value.uuid),
               icon: const Icon(Icons.delete_outline),
               label: Text(l10n.removeRequest),
             ),

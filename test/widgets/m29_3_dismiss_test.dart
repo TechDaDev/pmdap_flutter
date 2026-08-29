@@ -13,10 +13,7 @@ import 'package:pmdap_mobile/features/minors/data/minors_api.dart';
 import 'package:pmdap_mobile/features/minors/presentation/minor_detail_screen.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
-Widget _detailApp({
-  required List<Override> overrides,
-  required String uuid,
-}) {
+Widget _detailApp({required List<Override> overrides, required String uuid}) {
   final router = GoRouter(
     initialLocation: '/guardian-relationships/$uuid',
     routes: [
@@ -42,7 +39,9 @@ Widget _detailApp({
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
     ),
   );
 }
@@ -118,7 +117,9 @@ void main() {
 
     expect(find.text('Remove request'), findsOneWidget);
     expect(
-      find.text('This only removes it from your list. The review history is retained.'),
+      find.text(
+        'This only removes it from your list. The review history is retained.',
+      ),
       findsOneWidget,
     );
     expect(find.text('Revoke access'), findsNothing);

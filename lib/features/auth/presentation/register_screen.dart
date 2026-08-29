@@ -610,19 +610,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           textInputAction: TextInputAction.done,
           maxLength: 6,
           textAlign: TextAlign.center,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            letterSpacing: 12,
-          ),
+          style: theme.textTheme.headlineMedium?.copyWith(letterSpacing: 12),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           autofillHints: const [AutofillHints.oneTimeCode],
           onChanged: (_) {
             if (errorKey != null) _controller.clearVerifyError();
             setState(() {});
           },
-          decoration: InputDecoration(
-            labelText: l10n.otpCode,
-            counterText: '',
-          ),
+          decoration: InputDecoration(labelText: l10n.otpCode, counterText: ''),
           onFieldSubmitted: (_) {
             if (verifyEnabled) {
               _controller.verifyEmailCode(_otpController.text.trim());
@@ -648,10 +643,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         const SizedBox(height: 12),
         Center(
           child: countdown > 0
-              ? Text(
-                  l10n.resendIn(countdown),
-                  style: theme.textTheme.bodySmall,
-                )
+              ? Text(l10n.resendIn(countdown), style: theme.textTheme.bodySmall)
               : TextButton(
                   onPressed: state.verifyBusy
                       ? null

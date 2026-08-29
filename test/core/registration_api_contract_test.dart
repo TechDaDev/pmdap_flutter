@@ -163,80 +163,80 @@ void main() {
     },
   );
 
-  test('startEmailVerification sends account details to /email/start/',
-      () async {
-        adapter.body =
-            '{"data": {"session_id": "s1", "session_token": "tok1", '
-            '"masked_email": "s***y@example.com", "status": '
-            '"PENDING_EMAIL_VERIFICATION", "email_verified": false, '
-            '"expires_at": "2026-09-01T00:00:00Z"}}';
-        final session = await api.startEmailVerification(
-          email: 'synth.verify@example.com',
-          phone: '07700000000',
-          governorate: 'BAGHDAD',
-        );
-        expect(session.sessionToken, 'tok1');
-        expect(session.maskedEmail, 's***y@example.com');
-        expect(session.status, 'PENDING_EMAIL_VERIFICATION');
-        final path = adapter.captured!.path;
-        expect(path, '/auth/register/email/start/');
-        expect(adapter.captured!.method, 'POST');
-        final data = adapter.captured!.data as Map<String, dynamic>;
-        expect(data['email'], 'synth.verify@example.com');
-        expect(data['phone'], '07700000000');
-        expect(data['governorate'], 'BAGHDAD');
-        // No password on the account-details step.
-        expect(data.containsKey('password'), isFalse);
-      });
+  test(
+    'startEmailVerification sends account details to /email/start/',
+    () async {
+      adapter.body =
+          '{"data": {"session_id": "s1", "session_token": "tok1", '
+          '"masked_email": "s***y@example.com", "status": '
+          '"PENDING_EMAIL_VERIFICATION", "email_verified": false, '
+          '"expires_at": "2026-09-01T00:00:00Z"}}';
+      final session = await api.startEmailVerification(
+        email: 'synth.verify@example.com',
+        phone: '07700000000',
+        governorate: 'BAGHDAD',
+      );
+      expect(session.sessionToken, 'tok1');
+      expect(session.maskedEmail, 's***y@example.com');
+      expect(session.status, 'PENDING_EMAIL_VERIFICATION');
+      final path = adapter.captured!.path;
+      expect(path, '/auth/register/email/start/');
+      expect(adapter.captured!.method, 'POST');
+      final data = adapter.captured!.data as Map<String, dynamic>;
+      expect(data['email'], 'synth.verify@example.com');
+      expect(data['phone'], '07700000000');
+      expect(data['governorate'], 'BAGHDAD');
+      // No password on the account-details step.
+      expect(data.containsKey('password'), isFalse);
+    },
+  );
 
-  test('verifyEmail sends session token + code only (no target choice)',
-      () async {
-        adapter.body =
-            '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
-            '"status": "EMAIL_VERIFIED", "email_verified": true}}';
-        final status = await api.verifyEmail(
-          sessionToken: 'tok1',
-          code: '123456',
-        );
-        expect(status.verified, isTrue);
-        expect(adapter.captured!.path, '/auth/register/email/verify/');
-        final data = adapter.captured!.data as Map<String, dynamic>;
-        expect(data['session_token'], 'tok1');
-        expect(data['code'], '123456');
-        // The client can never supply a target or a verified flag.
-        expect(data.containsKey('target'), isFalse);
-        expect(data.containsKey('email'), isFalse);
-        expect(data.containsKey('email_verified'), isFalse);
-      });
+  test(
+    'verifyEmail sends session token + code only (no target choice)',
+    () async {
+      adapter.body =
+          '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
+          '"status": "EMAIL_VERIFIED", "email_verified": true}}';
+      final status = await api.verifyEmail(
+        sessionToken: 'tok1',
+        code: '123456',
+      );
+      expect(status.verified, isTrue);
+      expect(adapter.captured!.path, '/auth/register/email/verify/');
+      final data = adapter.captured!.data as Map<String, dynamic>;
+      expect(data['session_token'], 'tok1');
+      expect(data['code'], '123456');
+      // The client can never supply a target or a verified flag.
+      expect(data.containsKey('target'), isFalse);
+      expect(data.containsKey('email'), isFalse);
+      expect(data.containsKey('email_verified'), isFalse);
+    },
+  );
 
-  test('resendEmailVerification posts session token to /email/resend/',
-      () async {
-        adapter.body =
-            '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
-            '"status": "PENDING_EMAIL_VERIFICATION", "email_verified": false, '
-            '"resend_at": "2026-09-01T00:00:00Z"}}';
-        final status = await api.resendEmailVerification(sessionToken: 'tok1');
-        expect(status.resendAt, isNotNull);
-        expect(adapter.captured!.path, '/auth/register/email/resend/');
-        final data = adapter.captured!.data as Map<String, dynamic>;
-        expect(data['session_token'], 'tok1');
-      });
+  test(
+    'resendEmailVerification posts session token to /email/resend/',
+    () async {
+      adapter.body =
+          '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
+          '"status": "PENDING_EMAIL_VERIFICATION", "email_verified": false, '
+          '"resend_at": "2026-09-01T00:00:00Z"}}';
+      final status = await api.resendEmailVerification(sessionToken: 'tok1');
+      expect(status.resendAt, isNotNull);
+      expect(adapter.captured!.path, '/auth/register/email/resend/');
+      final data = adapter.captured!.data as Map<String, dynamic>;
+      expect(data['session_token'], 'tok1');
+    },
+  );
 
-  test('getEmailVerificationStatus sends token in header, never URL',
-      () async {
-        adapter.body =
-            '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
-            '"status": "PENDING_EMAIL_VERIFICATION", "email_verified": false}}';
-        final status = await api.getEmailVerificationStatus(
-          sessionToken: 'tok1',
-        );
-        expect(status.pendingVerification, isTrue);
-        expect(adapter.captured!.path, '/auth/register/email/status/');
-        expect(
-          adapter.captured!.headers['X-Registration-Session-Token'],
-          'tok1',
-        );
-      });
+  test('getEmailVerificationStatus sends token in header, never URL', () async {
+    adapter.body =
+        '{"data": {"session_id": "s1", "masked_email": "s***y@example.com", '
+        '"status": "PENDING_EMAIL_VERIFICATION", "email_verified": false}}';
+    final status = await api.getEmailVerificationStatus(sessionToken: 'tok1');
+    expect(status.pendingVerification, isTrue);
+    expect(adapter.captured!.path, '/auth/register/email/status/');
+    expect(adapter.captured!.headers['X-Registration-Session-Token'], 'tok1');
+  });
 
   test('maps backend error envelope to typed ApiException', () async {
     adapter.status = 400;
@@ -280,24 +280,23 @@ void main() {
     }
   });
 
-  test('maps unverified-OCR 403 to registration_email_not_verified',
-      () async {
-        adapter.status = 403;
-        adapter.body =
-            '{"error":{"code":"registration_email_not_verified",'
-            '"message":"Email verification is required."}}';
-        final dir = await Directory.systemTemp.createTemp('reg_api_test');
-        final file = File('${dir.path}/front.png');
-        await file.writeAsBytes(Uint8List.fromList(_pngBytes));
-        try {
-          await api.startExtraction(
-            sessionToken: 'unverified',
-            frontPath: file.path,
-          );
-          fail('expected ApiException');
-        } on ApiException catch (e) {
-          expect(e.code, 'registration_email_not_verified');
-          expect(e.isForbidden, isTrue);
-        }
-      });
+  test('maps unverified-OCR 403 to registration_email_not_verified', () async {
+    adapter.status = 403;
+    adapter.body =
+        '{"error":{"code":"registration_email_not_verified",'
+        '"message":"Email verification is required."}}';
+    final dir = await Directory.systemTemp.createTemp('reg_api_test');
+    final file = File('${dir.path}/front.png');
+    await file.writeAsBytes(Uint8List.fromList(_pngBytes));
+    try {
+      await api.startExtraction(
+        sessionToken: 'unverified',
+        frontPath: file.path,
+      );
+      fail('expected ApiException');
+    } on ApiException catch (e) {
+      expect(e.code, 'registration_email_not_verified');
+      expect(e.isForbidden, isTrue);
+    }
+  });
 }

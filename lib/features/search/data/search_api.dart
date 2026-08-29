@@ -68,8 +68,8 @@ class SearchQuery {
       if (q != null && q!.isNotEmpty) 'q': q,
       if (sendDateFrom != null) 'date_from': fmt(sendDateFrom),
       if (sendDateTo != null) 'date_to': fmt(sendDateTo),
-      if (effectiveYear != null) 'year': effectiveYear,
-      if (effectiveMonth != null) 'month': effectiveMonth,
+      'year': ?effectiveYear,
+      'month': ?effectiveMonth,
       if (documentType != null && documentType != MedicalDocumentType.unknown)
         'document_type': documentType!.api,
       if (healthcareFacilityId != null)

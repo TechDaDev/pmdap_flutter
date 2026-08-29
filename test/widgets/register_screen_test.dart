@@ -56,13 +56,12 @@ class _FakeRegistrationApi extends RegistrationApi {
   ApiException? verifyError;
 
   /// Status returned by `getEmailVerificationStatus` (resume).
-  RegistrationEmailStatus resumeStatus =
-      const RegistrationEmailStatus(
-        sessionId: 's1',
-        maskedEmail: 't***m@example.com',
-        status: 'PENDING_EMAIL_VERIFICATION',
-        emailVerified: false,
-      );
+  RegistrationEmailStatus resumeStatus = const RegistrationEmailStatus(
+    sessionId: 's1',
+    maskedEmail: 't***m@example.com',
+    status: 'PENDING_EMAIL_VERIFICATION',
+    emailVerified: false,
+  );
 
   /// When set, start/resend return this cooldown window (countdown test).
   DateTime? resendAt;
@@ -287,7 +286,9 @@ Future<void> _pump(
       overrides: [
         // Always use the fake API (no real network in widget tests); callers
         // can still override the same provider (later entries win).
-        registrationApiProvider.overrideWithValue(api ?? _FakeRegistrationApi()),
+        registrationApiProvider.overrideWithValue(
+          api ?? _FakeRegistrationApi(),
+        ),
         registrationSessionStorageProvider.overrideWithValue(
           storage ?? _FakeRegistrationSessionStorage(),
         ),
@@ -1166,7 +1167,9 @@ void main() {
         statusCode: 400,
         code: 'validation_error',
         message: 'Validation failed.',
-        details: {'code': ['The verification code is invalid or has expired.']},
+        details: {
+          'code': ['The verification code is invalid or has expired.'],
+        },
       );
     await _pump(tester, api: api);
     await _fillAccount(tester, completeVerification: false);

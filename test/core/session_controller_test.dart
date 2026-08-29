@@ -55,8 +55,9 @@ class _FakeAuthApi extends AuthApi {
 
   @override
   Future<PublicUser> me() async {
-    if (failMe)
+    if (failMe) {
       throw const ApiException(code: 'not_authenticated', message: 'Nope.');
+    }
     return const PublicUser(
       uuid: 'u1',
       email: 'p@example.com',

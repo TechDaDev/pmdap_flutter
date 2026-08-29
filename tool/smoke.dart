@@ -89,8 +89,9 @@ void main(List<String> args) async {
           },
         },
       );
-      if (r.statusCode != 201)
+      if (r.statusCode != 201) {
         throw StateError('register status ${r.statusCode}');
+      }
     }
   });
 
@@ -124,8 +125,9 @@ void main(List<String> args) async {
   await step('facilities', () async {
     final r = await dio.get<dynamic>('/facilities/');
     final data = (r.data as Map)['data'] as Map;
-    if (data['count'] is! num)
+    if (data['count'] is! num) {
       throw StateError('facilities pagination missing');
+    }
   });
 
   // 7. documents list (new account → empty is fine)

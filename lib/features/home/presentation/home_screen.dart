@@ -161,10 +161,7 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _ChildRecordsHeader extends StatelessWidget {
-  const _ChildRecordsHeader({
-    required this.patientContext,
-    required this.l10n,
-  });
+  const _ChildRecordsHeader({required this.patientContext, required this.l10n});
 
   final PatientContext patientContext;
   final AppLocalizations l10n;
@@ -198,18 +195,12 @@ class _ChildRecordsHeader extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text(
           '${l10n.viewingRecordsFor} $childName',
-          style: TextStyle(
-            color: scheme.onSurfaceVariant,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 14),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           l10n.childRecordsSubtitle,
-          style: TextStyle(
-            color: scheme.onSurfaceVariant,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
         ),
       ],
     );

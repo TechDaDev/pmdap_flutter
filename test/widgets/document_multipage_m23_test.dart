@@ -306,29 +306,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('page results long list keeps PDF CTA reachable without overflow', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      pumpApp(
-        const DocumentPageResultsScreen(uuid: 'd1', pageNumber: 1),
-        overrides: [
-          documentsApiProvider.overrideWithValue(_LongPageApi()),
-        ],
-      ),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'page results long list keeps PDF CTA reachable without overflow',
+    (tester) async {
+      await tester.pumpWidget(
+        pumpApp(
+          const DocumentPageResultsScreen(uuid: 'd1', pageNumber: 1),
+          overrides: [documentsApiProvider.overrideWithValue(_LongPageApi())],
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('Extracted results · 21'), findsOneWidget);
-    await tester.dragUntilVisible(
-      find.text('View original PDF'),
-      find.byType(ListView),
-      const Offset(0, -400),
-    );
-    expect(find.text('Source document'), findsOneWidget);
-    expect(find.text('View original PDF'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.text('Extracted results · 21'), findsOneWidget);
+      await tester.dragUntilVisible(
+        find.text('View original PDF'),
+        find.byType(ListView),
+        const Offset(0, -400),
+      );
+      expect(find.text('Source document'), findsOneWidget);
+      expect(find.text('View original PDF'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 class _LongPageApi extends _FakeApi {

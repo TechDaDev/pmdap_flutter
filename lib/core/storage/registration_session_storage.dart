@@ -22,11 +22,11 @@ class RegistrationSessionRecord {
   final String governorate;
 
   Map<String, dynamic> toJson() => {
-        'session_token': sessionToken,
-        'email': email,
-        'phone': phone,
-        'governorate': governorate,
-      };
+    'session_token': sessionToken,
+    'email': email,
+    'phone': phone,
+    'governorate': governorate,
+  };
 
   factory RegistrationSessionRecord.fromJson(Map<String, dynamic> json) {
     return RegistrationSessionRecord(

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -229,14 +228,13 @@ class DocumentsApi {
     try {
       final body = <String, dynamic>{
         if (documentType != null) 'document_type': documentType.api,
-        if (title != null) 'title': title,
-        if (description != null) 'description': description,
-        if (healthcareFacilityId != null)
-          'healthcare_facility_id': healthcareFacilityId,
-        if (facilityName != null) 'facility_name': facilityName,
-        if (locationText != null) 'location_text': locationText,
-        if (department != null) 'department': department,
-        if (physicianName != null) 'physician_name': physicianName,
+        'title': ?title,
+        'description': ?description,
+        'healthcare_facility_id': ?healthcareFacilityId,
+        'facility_name': ?facilityName,
+        'location_text': ?locationText,
+        'department': ?department,
+        'physician_name': ?physicianName,
       };
       final resp = await _dio.patch<dynamic>(
         ApiPaths.documentDetail(uuid),
@@ -363,7 +361,7 @@ class DocumentsApi {
   }) async {
     try {
       final body = <String, dynamic>{
-        if (candidateId != null) 'candidate_id': candidateId,
+        'candidate_id': ?candidateId,
         if (date != null) 'date': formatApiDate(date),
       };
       final resp = await _dio.post<dynamic>(
@@ -388,7 +386,7 @@ class DocumentsApi {
   }) async {
     try {
       final body = <String, dynamic>{
-        if (candidateId != null) 'candidate_id': candidateId,
+        'candidate_id': ?candidateId,
         if (date != null) 'date': formatApiDate(date),
       };
       final resp = await _dio.post<dynamic>(

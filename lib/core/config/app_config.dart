@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 ///
 /// Base URL injected at build/run time via:
 ///   --dart-define=PMDAP_API_BASE_URL=https://pmdapbackend.up.railway.app/api/v1
-///   --dart-define=PMDAP_API_BASE_URL=http://<LAN-IP>:8000/api/v1
+///   `--dart-define=PMDAP_API_BASE_URL=http://LAN-IP:8000/api/v1`
 ///
 /// Default (no override) is the deployed Railway backend. Never scatter IPs
 /// through source code — always read from this object.

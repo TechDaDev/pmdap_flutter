@@ -16,7 +16,6 @@ import 'package:pmdap_mobile/features/documents/data/documents_api.dart';
 import 'package:pmdap_mobile/features/documents/presentation/document_detail_screen.dart';
 import 'package:pmdap_mobile/features/documents/presentation/document_viewer_screen.dart';
 
-import '../helpers/fixtures.dart';
 import '../helpers/pump.dart';
 
 // 1x1 transparent PNG.
@@ -90,27 +89,14 @@ final Uint8List _pngBytes = Uint8List.fromList(const [
   0x82,
 ]);
 
-Uint8List _fakePdf() {
-  final b = Uint8List.fromList(List<int>.generate(64, (i) => i));
-  b[0] = 0x25;
-  b[1] = 0x50;
-  b[2] = 0x44;
-  b[3] = 0x46;
-  return b;
-}
-
 class _FakeApi extends DocumentsApi {
-  _FakeApi({
-    required this.detailDoc,
-    this.bytes,
-    this.fetchError,
-    this.detailCalls = 0,
-  }) : super(Dio());
+  _FakeApi({required this.detailDoc, this.bytes, this.fetchError})
+    : super(Dio());
 
   MedicalDocumentDetail detailDoc;
   Uint8List? bytes;
   ApiException? fetchError;
-  int detailCalls;
+  int detailCalls = 0;
 
   @override
   Future<MedicalDocumentDetail> detail(String uuid) async {

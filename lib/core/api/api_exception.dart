@@ -11,10 +11,9 @@ class ApiException implements Exception {
   });
 
   const ApiException.network({
-    String message = 'Network error. Check connection.',
+    this.message = 'Network error. Check connection.',
   }) : statusCode = null,
        code = 'network_error',
-       message = message,
        details = const {},
        isNetwork = true;
 

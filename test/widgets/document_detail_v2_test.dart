@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -172,7 +170,7 @@ void main() {
         _item(
           rowIndex: i,
           name: i.isEven ? 'WBC-$i' : 'RBC-$i',
-          result: '${i + 1}.${i}',
+          result: '${i + 1}.$i',
           unit: 'x10^3/µL',
           ref: '3.60 - 10.20',
         ),
