@@ -66,6 +66,7 @@
   "codeExpired": "That code has expired. Request a new one.",
   "emailLocked": "Too many failed attempts. Please request a new code.",
   "verificationFailed": "We could not verify your email. Please try again.",
+  "verificationCodeNotSent": "We couldn't send the verification code. Please try resending in a moment.",
   "startOver": "Start over",
   "yourEmail": "your email",
   "scanFirstExplanation": "PMDAP reads your Iraqi National Card to fill your profile. The values are suggestions — review and correct them before creating your account.",

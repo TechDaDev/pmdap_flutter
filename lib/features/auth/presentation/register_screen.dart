@@ -688,7 +688,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       case 'server_error':
         return l10n.serverError;
       case 'delivery_failed':
-        return l10n.verificationFailed;
+        return l10n.verificationCodeNotSent;
       default:
         return l10n.verificationFailed;
     }

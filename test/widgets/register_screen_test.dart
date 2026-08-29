@@ -55,6 +55,9 @@ class _FakeRegistrationApi extends RegistrationApi {
   /// When set, `verifyEmail` throws this error (invalid/expired/…).
   ApiException? verifyError;
 
+  /// When set, `startEmailVerification` throws this error (e.g. delivery).
+  ApiException? startVerifyError;
+
   /// Status returned by `getEmailVerificationStatus` (resume).
   RegistrationEmailStatus resumeStatus = const RegistrationEmailStatus(
     sessionId: 's1',
@@ -77,6 +80,7 @@ class _FakeRegistrationApi extends RegistrationApi {
     String? governorate,
   }) async {
     startVerifyCount++;
+    if (startVerifyError != null) throw startVerifyError!;
     return RegistrationEmailSession(
       sessionId: 's1',
       sessionToken: 'session-token-1',
@@ -266,6 +270,7 @@ Future<void> _pump(
   _FakeRegistrationApi? api,
   List<Override> overrides = const [],
   _FakeRegistrationSessionStorage? storage,
+  Locale? locale,
 }) async {
   final router = GoRouter(
     initialLocation: '/register',
@@ -303,6 +308,7 @@ Future<void> _pump(
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
       ),
     ),
   );
@@ -1201,6 +1207,62 @@ void main() {
     expect(find.text('Verify your identity'), findsOneWidget);
     expect(find.text('Verify your email'), findsNothing);
     expect(api.verifyCount, 1);
+  });
+
+  testWidgets('OTP delivery failure shows distinct resend message, not the '
+      'generic verify error', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..startVerifyError = const ApiException(
+        statusCode: 503,
+        code: 'registration_email_delivery_failed',
+        message: 'OTP email delivery failed.',
+      );
+    await _pump(tester, api: api);
+    await _fillAccount(tester, completeVerification: false);
+
+    // The first OTP could not be sent: the user stays on the verify step but
+    // sees the distinct "couldn't send" message (not the generic verify
+    // error), and cannot advance to the card scan.
+    expect(
+      find.text(
+        "We couldn't send the verification code. "
+        'Please try resending in a moment.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.textContaining('Scan front'), findsNothing);
+    expect(api.startVerifyCount, 1);
+    expect(api.extractCount, 0);
+  });
+
+  testWidgets('OTP delivery failure shown in Arabic (RTL)', (tester) async {
+    final api = _FakeRegistrationApi()
+      ..startVerifyError = const ApiException(
+        statusCode: 503,
+        code: 'registration_email_delivery_failed',
+        message: 'OTP email delivery failed.',
+      );
+    await _pump(tester, api: api, locale: const Locale('ar'));
+    // Drive the controller directly (field labels are localized to Arabic).
+    final ctx = tester.element(find.byType(RegisterScreen));
+    final container = ProviderScope.containerOf(ctx);
+    await container
+        .read(registrationControllerProvider.notifier)
+        .setCredentials(
+          email: 'test@example.com',
+          phone: '07701234567',
+          password: 'secret123',
+          governorate: 'BAGHDAD',
+        );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.text('تعذّر إرسال رمز التحقق. حاول إعادة الإرسال بعد قليل.'),
+      findsOneWidget,
+    );
+    expect(find.text('تحقق من بريدك الإلكتروني'), findsOneWidget);
   });
 
   testWidgets('resend countdown disables resend while cooldown active', (

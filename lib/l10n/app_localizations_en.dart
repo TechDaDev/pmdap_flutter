@@ -187,6 +187,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'We could not verify your email. Please try again.';
 
   @override
+  String get verificationCodeNotSent =>
+      'We couldn\'t send the verification code. Please try resending in a moment.';
+
+  @override
   String get startOver => 'Start over';
 
   @override

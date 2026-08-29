@@ -422,6 +422,12 @@ abstract class AppLocalizations {
   /// **'We could not verify your email. Please try again.'**
   String get verificationFailed;
 
+  /// No description provided for @verificationCodeNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t send the verification code. Please try resending in a moment.'**
+  String get verificationCodeNotSent;
+
   /// No description provided for @startOver.
   ///
   /// In en, this message translates to:

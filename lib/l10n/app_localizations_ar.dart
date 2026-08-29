@@ -182,6 +182,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر التحقق من بريدك الإلكتروني. حاول مجددًا.';
 
   @override
+  String get verificationCodeNotSent =>
+      'تعذّر إرسال رمز التحقق. حاول إعادة الإرسال بعد قليل.';
+
+  @override
   String get startOver => 'البدء من جديد';
 
   @override
