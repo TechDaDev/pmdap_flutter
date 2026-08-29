@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/archive/presentation/archive_screen.dart';
 import '../features/auth/application/session_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/presentation/password_change_screen.dart';
 import '../features/auth/presentation/password_reset_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
@@ -40,6 +41,7 @@ class Routes {
   static const login = '/login';
   static const register = '/register';
   static const passwordReset = '/password-reset';
+  static const passwordChange = '/profile/change-password';
 
   static const home = '/home';
   static const archive = '/archive';
@@ -131,6 +133,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: Routes.passwordReset,
         builder: (context, state) => const PasswordResetScreen(),
+      ),
+      GoRoute(
+        path: Routes.passwordChange,
+        builder: (context, state) => const PasswordChangeScreen(),
       ),
       GoRoute(
         path: Routes.settings,

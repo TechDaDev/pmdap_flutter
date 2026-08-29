@@ -1878,4 +1878,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get securityTitle => 'الأمان';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get changePasswordCurrentHelp =>
+      'أدخل كلمة مرورك الحالية. سنرسل رمزاً إلى بريدك الإلكتروني الموثق.';
+
+  @override
+  String get changePasswordCodeHelp =>
+      'أدخل الرمز المكوّن من ستة أرقام. تنتهي صلاحية الرموز ولا تُستخدم إلا مرة واحدة.';
+
+  @override
+  String get changePasswordNewHelp =>
+      'اختر كلمة مرور جديدة. سيتم تسجيل خروج جميع الأجهزة الأخرى.';
+
+  @override
+  String get changePasswordComplete => 'تم تغيير كلمة المرور';
+
+  @override
+  String get changePasswordSuccessHelp =>
+      'تم تسجيل خروج الأجهزة الأخرى. يبقى هذا الجهاز مسجلاً للدخول.';
+
+  @override
+  String get changeCodeInvalid => 'الرمز غير صالح أو منتهي الصلاحية أو مقفل.';
+
+  @override
+  String get changeCapabilityInvalid =>
+      'انتهت جلسة التغيير. اطلب رمزاً جديداً.';
+
+  @override
+  String get wrongCurrentPassword => 'كلمة المرور الحالية غير صحيحة.';
+
+  @override
+  String get emailUnverified =>
+      'تحقق من بريدك الإلكتروني قبل تغيير كلمة المرور.';
+
+  @override
+  String get changePasswordNetworkError =>
+      'تعذّر تغيير كلمة المرور. تحقق من اتصالك وحاول مجدداً.';
 }

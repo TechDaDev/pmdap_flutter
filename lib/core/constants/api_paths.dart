@@ -11,6 +11,9 @@ class ApiPaths {
   static const passwordResetRequest = '/auth/password-reset/request/';
   static const passwordResetVerify = '/auth/password-reset/verify/';
   static const passwordResetConfirm = '/auth/password-reset/confirm/';
+  static const passwordChangeRequest = '/auth/password-change/request/';
+  static const passwordChangeVerify = '/auth/password-change/verify/';
+  static const passwordChangeConfirm = '/auth/password-change/confirm/';
   static const activateClaimedAccount = '/auth/activate-claimed-account/';
 
   static const patientsMe = '/patients/me/';

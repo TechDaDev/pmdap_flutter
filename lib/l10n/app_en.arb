@@ -668,5 +668,19 @@
   "backToSignIn": "Back to sign in",
   "startOver": "Start over",
   "showPassword": "Show password",
-  "hidePassword": "Hide password"
+  "hidePassword": "Hide password",
+  "securityTitle": "Security",
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "changePasswordCurrentHelp": "Enter your current password. We'll send a code to your verified email.",
+  "changePasswordCodeHelp": "Enter the six-digit code. Codes expire and can only be used once.",
+  "changePasswordNewHelp": "Choose a new password. All other devices will be signed out.",
+  "changePasswordComplete": "Password changed",
+  "changePasswordSuccessHelp": "Other devices are now signed out. This device stays signed in.",
+  "changeCodeInvalid": "Code is invalid, expired, or locked.",
+  "changeCapabilityInvalid": "Change session expired. Request a new code.",
+  "wrongCurrentPassword": "Current password is incorrect.",
+  "emailUnverified": "Verify your email before changing your password.",
+  "changePasswordNetworkError": "Could not change your password. Check your connection and try again.",
+  "done": "Done"
 }

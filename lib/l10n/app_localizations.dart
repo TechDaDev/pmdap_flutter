@@ -3661,6 +3661,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide password'**
   String get hidePassword;
+
+  /// No description provided for @securityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get securityTitle;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @changePasswordCurrentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password. We\'ll send a code to your verified email.'**
+  String get changePasswordCurrentHelp;
+
+  /// No description provided for @changePasswordCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code. Codes expire and can only be used once.'**
+  String get changePasswordCodeHelp;
+
+  /// No description provided for @changePasswordNewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password. All other devices will be signed out.'**
+  String get changePasswordNewHelp;
+
+  /// No description provided for @changePasswordComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get changePasswordComplete;
+
+  /// No description provided for @changePasswordSuccessHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Other devices are now signed out. This device stays signed in.'**
+  String get changePasswordSuccessHelp;
+
+  /// No description provided for @changeCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Code is invalid, expired, or locked.'**
+  String get changeCodeInvalid;
+
+  /// No description provided for @changeCapabilityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Change session expired. Request a new code.'**
+  String get changeCapabilityInvalid;
+
+  /// No description provided for @wrongCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is incorrect.'**
+  String get wrongCurrentPassword;
+
+  /// No description provided for @emailUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email before changing your password.'**
+  String get emailUnverified;
+
+  /// No description provided for @changePasswordNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change your password. Check your connection and try again.'**
+  String get changePasswordNetworkError;
 }
 
 class _AppLocalizationsDelegate

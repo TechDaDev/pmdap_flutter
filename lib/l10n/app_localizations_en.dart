@@ -1901,4 +1901,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hidePassword => 'Hide password';
+
+  @override
+  String get securityTitle => 'Security';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get changePasswordCurrentHelp =>
+      'Enter your current password. We\'ll send a code to your verified email.';
+
+  @override
+  String get changePasswordCodeHelp =>
+      'Enter the six-digit code. Codes expire and can only be used once.';
+
+  @override
+  String get changePasswordNewHelp =>
+      'Choose a new password. All other devices will be signed out.';
+
+  @override
+  String get changePasswordComplete => 'Password changed';
+
+  @override
+  String get changePasswordSuccessHelp =>
+      'Other devices are now signed out. This device stays signed in.';
+
+  @override
+  String get changeCodeInvalid => 'Code is invalid, expired, or locked.';
+
+  @override
+  String get changeCapabilityInvalid =>
+      'Change session expired. Request a new code.';
+
+  @override
+  String get wrongCurrentPassword => 'Current password is incorrect.';
+
+  @override
+  String get emailUnverified =>
+      'Verify your email before changing your password.';
+
+  @override
+  String get changePasswordNetworkError =>
+      'Could not change your password. Check your connection and try again.';
 }

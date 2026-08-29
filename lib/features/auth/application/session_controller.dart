@@ -4,6 +4,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/auth/token_refresher.dart';
 import '../../../core/auth/token_store.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/models/token_pair.dart';
 import '../../../core/models/user.dart';
 import '../data/auth_api.dart';
 
@@ -117,6 +118,13 @@ class SessionController extends Notifier<AuthState> {
   Future<void> forceLogout() async {
     await _store.clearAll();
     state = const AuthUnauthenticated();
+  }
+
+  /// Swaps in a fresh token pair issued by the server (e.g. after a password
+  /// change) while keeping the current authenticated user signed in.
+  Future<void> applyFreshSession(TokenPair pair) async {
+    _store.setAccess(pair.access);
+    await _store.writeRefresh(pair.refresh);
   }
 }
 

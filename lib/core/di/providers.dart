@@ -10,6 +10,7 @@ import '../storage/refresh_token_storage.dart';
 import '../../features/archive/data/archive_api.dart';
 import '../../features/archive/data/minor_archive_api.dart';
 import '../../features/auth/data/auth_api.dart';
+import '../../features/auth/data/password_change_api.dart';
 import '../../features/auth/data/password_reset_api.dart';
 import '../../features/auth/data/registration_api.dart';
 import '../../features/claims/data/claims_api.dart';
@@ -100,6 +101,12 @@ final authApiProvider = Provider<AuthApi>(
 
 final passwordResetApiProvider = Provider<PasswordResetApi>(
   (ref) => PasswordResetApi(ref.watch(publicDioProvider)),
+);
+
+/// Authenticated password change (current password + email OTP). Uses the
+/// authenticated Dio client so the flow is bound to the signed-in account.
+final passwordChangeApiProvider = Provider<PasswordChangeApi>(
+  (ref) => PasswordChangeApi(ref.watch(dioProvider)),
 );
 
 /// Plain public Dio for anonymous endpoints (registration extraction) — NO

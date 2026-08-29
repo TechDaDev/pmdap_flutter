@@ -654,5 +654,19 @@
   "backToSignIn": "العودة إلى تسجيل الدخول",
   "startOver": "البدء من جديد",
   "showPassword": "إظهار كلمة المرور",
-  "hidePassword": "إخفاء كلمة المرور"
+  "hidePassword": "إخفاء كلمة المرور",
+  "securityTitle": "الأمان",
+  "changePassword": "تغيير كلمة المرور",
+  "currentPassword": "كلمة المرور الحالية",
+  "changePasswordCurrentHelp": "أدخل كلمة مرورك الحالية. سنرسل رمزاً إلى بريدك الإلكتروني الموثق.",
+  "changePasswordCodeHelp": "أدخل الرمز المكوّن من ستة أرقام. تنتهي صلاحية الرموز ولا تُستخدم إلا مرة واحدة.",
+  "changePasswordNewHelp": "اختر كلمة مرور جديدة. سيتم تسجيل خروج جميع الأجهزة الأخرى.",
+  "changePasswordComplete": "تم تغيير كلمة المرور",
+  "changePasswordSuccessHelp": "تم تسجيل خروج الأجهزة الأخرى. يبقى هذا الجهاز مسجلاً للدخول.",
+  "changeCodeInvalid": "الرمز غير صالح أو منتهي الصلاحية أو مقفل.",
+  "changeCapabilityInvalid": "انتهت جلسة التغيير. اطلب رمزاً جديداً.",
+  "wrongCurrentPassword": "كلمة المرور الحالية غير صحيحة.",
+  "emailUnverified": "تحقق من بريدك الإلكتروني قبل تغيير كلمة المرور.",
+  "changePasswordNetworkError": "تعذّر تغيير كلمة المرور. تحقق من اتصالك وحاول مجدداً.",
+  "done": "تم"
 }

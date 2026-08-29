@@ -189,6 +189,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     const SizedBox(height: 16),
                     Card(
                       child: ListTile(
+                        onTap: () => context.push(Routes.passwordChange),
+                        leading: const Icon(Icons.security_outlined),
+                        title: Text(l10n.securityTitle),
+                        subtitle: Text(l10n.changePassword),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Card(
+                      child: ListTile(
                         onTap: () => context.push(Routes.settings),
                         leading: const Icon(Icons.settings_outlined),
                         title: Text(l10n.appSettings),
