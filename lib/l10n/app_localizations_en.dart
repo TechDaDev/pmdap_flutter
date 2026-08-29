@@ -147,6 +147,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueAction => 'Continue';
 
   @override
+  String get verifyEmailTitle => 'Verify your email';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'We sent a 6-digit verification code to $email. Enter it below to continue.';
+  }
+
+  @override
+  String get otpCode => 'Verification code';
+
+  @override
+  String get verifyEmailAction => 'Verify email';
+
+  @override
+  String get verifying => 'Verifying…';
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String resendIn(int seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get codeInvalid =>
+      'That code is incorrect. Please check and try again.';
+
+  @override
+  String get codeExpired => 'That code has expired. Request a new one.';
+
+  @override
+  String get emailLocked =>
+      'Too many failed attempts. Please request a new code.';
+
+  @override
+  String get verificationFailed =>
+      'We could not verify your email. Please try again.';
+
+  @override
+  String get startOver => 'Start over';
+
+  @override
+  String get yourEmail => 'your email';
+
+  @override
   String get scanFirstExplanation =>
       'PMDAP reads your Iraqi National Card to fill your profile. The values are suggestions — review and correct them before creating your account.';
 

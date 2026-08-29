@@ -10,6 +10,78 @@ import '../../../core/models/enums.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../identity/data/extraction_models.dart';
 
+/// 201 response from the M31B email-verification start.
+///
+/// [sessionToken] is the capability returned exactly once (only its digest is
+/// stored server-side); it is persisted to secure storage for resume.
+class RegistrationEmailSession {
+  const RegistrationEmailSession({
+    required this.sessionId,
+    required this.sessionToken,
+    required this.maskedEmail,
+    required this.status,
+    required this.emailVerified,
+    this.resendAt,
+    this.expiresAt,
+  });
+
+  final String sessionId;
+  final String sessionToken;
+  final String maskedEmail;
+  final String status;
+  final bool emailVerified;
+  final DateTime? resendAt;
+  final DateTime? expiresAt;
+
+  factory RegistrationEmailSession.fromJson(Map<String, dynamic> json) {
+    return RegistrationEmailSession(
+      sessionId: (json['session_id'] as String?) ?? '',
+      sessionToken: (json['session_token'] as String?) ?? '',
+      maskedEmail: (json['masked_email'] as String?) ?? '',
+      status: (json['status'] as String?) ?? '',
+      emailVerified: (json['email_verified'] as bool?) ?? false,
+      resendAt: parseApiDateTime(json['resend_at']),
+      expiresAt: parseApiDateTime(json['expires_at']),
+    );
+  }
+}
+
+/// Email-verification status / resend / verify response.
+class RegistrationEmailStatus {
+  const RegistrationEmailStatus({
+    required this.sessionId,
+    required this.maskedEmail,
+    required this.status,
+    required this.emailVerified,
+    this.resendAt,
+    this.expiresAt,
+    this.emailVerifiedAt,
+  });
+
+  final String sessionId;
+  final String maskedEmail;
+  final String status;
+  final bool emailVerified;
+  final DateTime? resendAt;
+  final DateTime? expiresAt;
+  final DateTime? emailVerifiedAt;
+
+  bool get pendingVerification => status == 'PENDING_EMAIL_VERIFICATION';
+  bool get verified => status == 'EMAIL_VERIFIED';
+
+  factory RegistrationEmailStatus.fromJson(Map<String, dynamic> json) {
+    return RegistrationEmailStatus(
+      sessionId: (json['session_id'] as String?) ?? '',
+      maskedEmail: (json['masked_email'] as String?) ?? '',
+      status: (json['status'] as String?) ?? '',
+      emailVerified: (json['email_verified'] as bool?) ?? false,
+      resendAt: parseApiDateTime(json['resend_at']),
+      expiresAt: parseApiDateTime(json['expires_at']),
+      emailVerifiedAt: parseApiDateTime(json['email_verified_at']),
+    );
+  }
+}
+
 /// 202 response from the public scan-first extraction.
 class RegistrationExtractionJob {
   const RegistrationExtractionJob({

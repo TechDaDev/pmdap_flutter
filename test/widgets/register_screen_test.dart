@@ -8,6 +8,7 @@ import 'package:pmdap_mobile/core/api/api_exception.dart';
 import 'package:pmdap_mobile/core/di/providers.dart';
 import 'package:pmdap_mobile/core/models/enums.dart';
 import 'package:pmdap_mobile/core/models/user.dart';
+import 'package:pmdap_mobile/core/storage/registration_session_storage.dart';
 import 'package:pmdap_mobile/core/widgets/app_text_field.dart';
 import 'package:pmdap_mobile/features/auth/application/registration_controller.dart';
 import 'package:pmdap_mobile/features/auth/data/registration_api.dart';
@@ -16,6 +17,20 @@ import 'package:pmdap_mobile/features/auth/presentation/register_screen.dart';
 import 'package:pmdap_mobile/features/identity/data/extraction_models.dart';
 import 'package:pmdap_mobile/l10n/app_localizations.dart';
 
+/// In-memory fake of the registration-session secure storage.
+class _FakeRegistrationSessionStorage implements RegistrationSessionStorage {
+  RegistrationSessionRecord? record;
+
+  @override
+  Future<RegistrationSessionRecord?> read() async => record;
+
+  @override
+  Future<void> write(RegistrationSessionRecord value) async => record = value;
+
+  @override
+  Future<void> clear() async => record = null;
+}
+
 /// Fake public scan-first Registration API (SYNTHETIC values only).
 class _FakeRegistrationApi extends RegistrationApi {
   _FakeRegistrationApi() : super(Dio());
@@ -23,28 +38,102 @@ class _FakeRegistrationApi extends RegistrationApi {
   int extractCount = 0;
   int pollCount = 0;
   int registerCount = 0;
+  int startVerifyCount = 0;
+  int verifyCount = 0;
+  int resendCount = 0;
   ExtractionJobStatus jobStatus = ExtractionJobStatus.success;
   IdentityExtractionResult? extractionResult;
   RegistrationIdentityInput? lastIdentity;
   String? lastEmail;
   String? lastPassword;
   String? lastGovernorate;
+  String? lastSessionToken;
   bool failRegister = false;
   ApiException? submitError;
   ApiException? pollError;
+
+  /// When set, `verifyEmail` throws this error (invalid/expired/…).
+  ApiException? verifyError;
+
+  /// Status returned by `getEmailVerificationStatus` (resume).
+  RegistrationEmailStatus resumeStatus =
+      const RegistrationEmailStatus(
+        sessionId: 's1',
+        maskedEmail: 't***m@example.com',
+        status: 'PENDING_EMAIL_VERIFICATION',
+        emailVerified: false,
+      );
+
+  /// When set, start/resend return this cooldown window (countdown test).
+  DateTime? resendAt;
 
   /// Optional per-poll status sequence. When set, poll N returns
   /// [pollSequence][N-1] (clamped to the last entry).
   List<ExtractionJobStatus>? pollSequence;
 
   @override
+  Future<RegistrationEmailSession> startEmailVerification({
+    required String email,
+    String? phone,
+    String? governorate,
+  }) async {
+    startVerifyCount++;
+    return RegistrationEmailSession(
+      sessionId: 's1',
+      sessionToken: 'session-token-1',
+      maskedEmail: 't***m@example.com',
+      status: 'PENDING_EMAIL_VERIFICATION',
+      emailVerified: false,
+      resendAt: resendAt,
+    );
+  }
+
+  @override
+  Future<RegistrationEmailStatus> resendEmailVerification({
+    required String sessionToken,
+  }) async {
+    resendCount++;
+    return RegistrationEmailStatus(
+      sessionId: 's1',
+      maskedEmail: 't***m@example.com',
+      status: 'PENDING_EMAIL_VERIFICATION',
+      emailVerified: false,
+      resendAt: resendAt,
+    );
+  }
+
+  @override
+  Future<RegistrationEmailStatus> verifyEmail({
+    required String sessionToken,
+    required String code,
+  }) async {
+    if (verifyError != null) throw verifyError!;
+    verifyCount++;
+    return const RegistrationEmailStatus(
+      sessionId: 's1',
+      maskedEmail: 't***m@example.com',
+      status: 'EMAIL_VERIFIED',
+      emailVerified: true,
+    );
+  }
+
+  @override
+  Future<RegistrationEmailStatus> getEmailVerificationStatus({
+    required String sessionToken,
+  }) async {
+    return resumeStatus;
+  }
+
+  @override
   Future<RegistrationExtractionJob> startExtraction({
+    required String sessionToken,
     required String frontPath,
     String? backPath,
     void Function(int, int)? onSendProgress,
   }) async {
     // NOTE: the API signature has NO password/account fields — credentials
     // are never sent to the extraction endpoint by design.
+    lastSessionToken = sessionToken;
     extractCount++;
     onSendProgress?.call(10, 100);
     return const RegistrationExtractionJob(jobId: 'job-1', jobToken: 'token-1');
@@ -76,6 +165,7 @@ class _FakeRegistrationApi extends RegistrationApi {
     String? phone,
     required String password,
     required String governorate,
+    required String sessionToken,
     required RegistrationIdentityInput identity,
   }) async {
     if (submitError != null) throw submitError!;
@@ -84,6 +174,7 @@ class _FakeRegistrationApi extends RegistrationApi {
     lastEmail = email;
     lastPassword = password;
     lastGovernorate = governorate;
+    lastSessionToken = sessionToken;
     lastIdentity = identity;
     return const PublicUser(
       uuid: 'u1',
@@ -173,7 +264,9 @@ IdentityExtractionResult _resultWith({
 
 Future<void> _pump(
   WidgetTester tester, {
+  _FakeRegistrationApi? api,
   List<Override> overrides = const [],
+  _FakeRegistrationSessionStorage? storage,
 }) async {
   final router = GoRouter(
     initialLocation: '/register',
@@ -191,7 +284,15 @@ Future<void> _pump(
   );
   await tester.pumpWidget(
     ProviderScope(
-      overrides: overrides,
+      overrides: [
+        // Always use the fake API (no real network in widget tests); callers
+        // can still override the same provider (later entries win).
+        registrationApiProvider.overrideWithValue(api ?? _FakeRegistrationApi()),
+        registrationSessionStorageProvider.overrideWithValue(
+          storage ?? _FakeRegistrationSessionStorage(),
+        ),
+        ...overrides,
+      ],
       child: MaterialApp.router(
         routerConfig: router,
         localizationsDelegates: const [
@@ -211,6 +312,8 @@ Future<void> _fillAccount(
   String email = 'test@example.com',
   String password = 'secret123',
   String confirm = 'secret123',
+  String otp = '123456',
+  bool completeVerification = true,
 }) async {
   await tester.enterText(find.widgetWithText(TextFormField, 'Email'), email);
   await tester.enterText(
@@ -234,6 +337,17 @@ Future<void> _fillAccount(
   await tester.pumpAndSettle();
   await tester.ensureVisible(find.widgetWithText(FilledButton, 'Continue'));
   await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+
+  if (!completeVerification) return;
+  // M31B email-verification step: enter the code and verify.
+  await tester.enterText(
+    find.widgetWithText(TextFormField, 'Verification code'),
+    otp,
+  );
+  await tester.pump();
+  await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -323,7 +437,12 @@ void main() {
 
   testWidgets('mismatched passwords stay on the account step', (tester) async {
     await _pump(tester);
-    await _fillAccount(tester, password: 'secret123', confirm: 'different1');
+    await _fillAccount(
+      tester,
+      password: 'secret123',
+      confirm: 'different1',
+      completeVerification: false,
+    );
     expect(find.text('Passwords do not match.'), findsOneWidget);
     expect(find.text('Create account'), findsWidgets);
   });
@@ -1014,5 +1133,163 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Server error. Please try again later.'), findsOneWidget);
+  });
+
+  // ---------------------------------------------------------------------
+  // M31B — email verification
+  // ---------------------------------------------------------------------
+
+  testWidgets('account submit goes to email verification, NOT identity scan', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi();
+    await _pump(tester, api: api);
+    await _fillAccount(tester, completeVerification: false);
+
+    // Verify step: masked email + OTP input, no card controls yet.
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.textContaining('t***m@example.com'), findsOneWidget);
+    expect(
+      find.widgetWithText(TextFormField, 'Verification code'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Scan front'), findsNothing);
+    expect(api.extractCount, 0);
+    expect(api.startVerifyCount, 1);
+  });
+
+  testWidgets('invalid OTP shows error and stays on verify step', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..verifyError = const ApiException(
+        statusCode: 400,
+        code: 'validation_error',
+        message: 'Validation failed.',
+        details: {'code': ['The verification code is invalid or has expired.']},
+      );
+    await _pump(tester, api: api);
+    await _fillAccount(tester, completeVerification: false);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Verification code'),
+      '000000',
+    );
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(
+      find.text('That code is incorrect. Please check and try again.'),
+      findsOneWidget,
+    );
+    // Cannot reach identity scan.
+    expect(find.textContaining('Scan front'), findsNothing);
+    expect(api.extractCount, 0);
+  });
+
+  testWidgets('valid OTP advances to identity scan', (tester) async {
+    final api = _FakeRegistrationApi();
+    await _pump(tester, api: api);
+    await _fillAccount(tester);
+
+    expect(find.text('Verify your identity'), findsOneWidget);
+    expect(find.text('Verify your email'), findsNothing);
+    expect(api.verifyCount, 1);
+  });
+
+  testWidgets('resend countdown disables resend while cooldown active', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..resendAt = DateTime.now().add(const Duration(seconds: 45));
+    await _pump(tester, api: api);
+    await _fillAccount(tester, completeVerification: false);
+
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.textContaining('Resend in'), findsOneWidget);
+    expect(find.text('Resend code'), findsNothing);
+
+    // Leave the verify step so the countdown timer is cancelled (no pending
+    // timers at test teardown).
+    await tester.ensureVisible(find.widgetWithText(TextButton, 'Start over'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Start over'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+  });
+
+  testWidgets('resend enabled when no cooldown window', (tester) async {
+    await _pump(tester);
+    await _fillAccount(tester, completeVerification: false);
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.text('Resend code'), findsOneWidget);
+    expect(find.textContaining('Resend in'), findsNothing);
+  });
+
+  testWidgets('resume: verified persisted session jumps straight to scan', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi()
+      ..resumeStatus = const RegistrationEmailStatus(
+        sessionId: 's1',
+        maskedEmail: 't***m@example.com',
+        status: 'EMAIL_VERIFIED',
+        emailVerified: true,
+      );
+    final storage = _FakeRegistrationSessionStorage()
+      ..record = const RegistrationSessionRecord(
+        sessionToken: 'tok-1',
+        email: 'test@example.com',
+        phone: '07701234567',
+        governorate: 'BAGHDAD',
+      );
+    await _pump(tester, api: api, storage: storage);
+    await tester.pumpAndSettle();
+
+    // Verification survived restart → straight to scan, no re-verify.
+    expect(find.text('Verify your identity'), findsOneWidget);
+    expect(find.text('Verify your email'), findsNothing);
+  });
+
+  testWidgets('resume: pending persisted session returns to verify step', (
+    tester,
+  ) async {
+    final api = _FakeRegistrationApi();
+    final storage = _FakeRegistrationSessionStorage()
+      ..record = const RegistrationSessionRecord(
+        sessionToken: 'tok-1',
+        email: 'test@example.com',
+        governorate: 'BAGHDAD',
+      );
+    await _pump(tester, api: api, storage: storage);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Verify your email'), findsOneWidget);
+    expect(find.textContaining('t***m@example.com'), findsOneWidget);
+  });
+
+  testWidgets('start over clears the persisted session and shows account', (
+    tester,
+  ) async {
+    final storage = _FakeRegistrationSessionStorage()
+      ..record = const RegistrationSessionRecord(
+        sessionToken: 'tok-1',
+        email: 'test@example.com',
+        governorate: 'BAGHDAD',
+      );
+    await _pump(tester, storage: storage);
+    await tester.pumpAndSettle();
+    expect(find.text('Verify your email'), findsOneWidget);
+
+    await tester.ensureVisible(find.widgetWithText(TextButton, 'Start over'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Start over'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+    expect(storage.record, isNull);
   });
 }

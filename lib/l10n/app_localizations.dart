@@ -356,6 +356,84 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continueAction;
 
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get verifyEmailTitle;
+
+  /// Email verification step subtitle with the masked email.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit verification code to {email}. Enter it below to continue.'**
+  String verifyEmailSubtitle(String email);
+
+  /// No description provided for @otpCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get otpCode;
+
+  /// No description provided for @verifyEmailAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify email'**
+  String get verifyEmailAction;
+
+  /// No description provided for @verifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying…'**
+  String get verifying;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendCode;
+
+  /// Resend countdown in seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds}s'**
+  String resendIn(int seconds);
+
+  /// No description provided for @codeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is incorrect. Please check and try again.'**
+  String get codeInvalid;
+
+  /// No description provided for @codeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'That code has expired. Request a new one.'**
+  String get codeExpired;
+
+  /// No description provided for @emailLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many failed attempts. Please request a new code.'**
+  String get emailLocked;
+
+  /// No description provided for @verificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not verify your email. Please try again.'**
+  String get verificationFailed;
+
+  /// No description provided for @startOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over'**
+  String get startOver;
+
+  /// No description provided for @yourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'your email'**
+  String get yourEmail;
+
   /// No description provided for @scanFirstExplanation.
   ///
   /// In en, this message translates to:

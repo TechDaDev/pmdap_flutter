@@ -43,6 +43,31 @@
   "scanStepTitle": "تحقق من معلوماتك",
   "reviewStepTitle": "راجع معلوماتك",
   "continueAction": "متابعة",
+  "verifyEmailTitle": "تحقق من بريدك الإلكتروني",
+  "verifyEmailSubtitle": "أرسلنا رمز تحقق من 6 أرقام إلى {email}. أدخله أدناه للمتابعة.",
+  "@verifyEmailSubtitle": {
+    "description": "نص خطوة التحقق من البريد الإلكتروني مع البريد المُخفى.",
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "otpCode": "رمز التحقق",
+  "verifyEmailAction": "تحقق من البريد",
+  "verifying": "جارٍ التحقق…",
+  "resendCode": "إعادة إرسال الرمز",
+  "resendIn": "إعادة الإرسال بعد {seconds}ث",
+  "@resendIn": {
+    "description": "عدّاد إعادة الإرسال بالثواني.",
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "codeInvalid": "الرمز غير صحيح. تحقق منه وحاول مجددًا.",
+  "codeExpired": "انتهت صلاحية الرمز. اطلب رمزًا جديدًا.",
+  "emailLocked": "محاولات فاشلة كثيرة. يرجى طلب رمز جديد.",
+  "verificationFailed": "تعذّر التحقق من بريدك الإلكتروني. حاول مجددًا.",
+  "startOver": "البدء من جديد",
+  "yourEmail": "بريدك الإلكتروني",
   "scanFirstExplanation": "يقرأ PMDAP بطاقة الهوية العراقية لملء ملفك. القيم مجرد اقتراحات — راجعها وصحّحها قبل إنشاء حسابك.",
   "nationalCard": "بطاقة الهوية العراقية",
   "governorate": "المحافظة",

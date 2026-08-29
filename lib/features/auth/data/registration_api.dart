@@ -22,8 +22,96 @@ class RegistrationApi {
   final Dio _dio;
   final ApiErrorMapper _mapper = const ApiErrorMapper();
 
+  /// Start M31B email verification: create the registration session and send
+  /// the 6-digit OTP. Returns the session capability exactly once.
+  Future<RegistrationEmailSession> startEmailVerification({
+    required String email,
+    String? phone,
+    String? governorate,
+  }) async {
+    try {
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.registrationEmailStart,
+        data: {
+          'email': email,
+          if (phone != null && phone.isNotEmpty) 'phone': phone,
+          if (governorate != null && governorate.isNotEmpty)
+            'governorate': governorate,
+        },
+      );
+      return decodeData<RegistrationEmailSession>(
+        resp.data,
+        RegistrationEmailSession.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Resend the email-verification OTP for an existing session.
+  Future<RegistrationEmailStatus> resendEmailVerification({
+    required String sessionToken,
+  }) async {
+    try {
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.registrationEmailResend,
+        data: {'session_token': sessionToken},
+      );
+      return decodeData<RegistrationEmailStatus>(
+        resp.data,
+        RegistrationEmailStatus.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Verify the email-verification OTP. The target is always the session's
+  /// own email server-side; the client can never pick a different target.
+  Future<RegistrationEmailStatus> verifyEmail({
+    required String sessionToken,
+    required String code,
+  }) async {
+    try {
+      final resp = await _dio.post<dynamic>(
+        ApiPaths.registrationEmailVerify,
+        data: {'session_token': sessionToken, 'code': code},
+      );
+      return decodeData<RegistrationEmailStatus>(
+        resp.data,
+        RegistrationEmailStatus.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
+  /// Resume endpoint: current verification state for a session capability.
+  Future<RegistrationEmailStatus> getEmailVerificationStatus({
+    required String sessionToken,
+  }) async {
+    try {
+      final resp = await _dio.get<dynamic>(
+        ApiPaths.registrationEmailStatus,
+        options: Options(
+          headers: {'X-Registration-Session-Token': sessionToken},
+        ),
+      );
+      return decodeData<RegistrationEmailStatus>(
+        resp.data,
+        RegistrationEmailStatus.fromJson,
+      );
+    } on DioException catch (e) {
+      throw _mapper.map(e);
+    }
+  }
+
   /// Upload National Card front/back exactly once; returns the capability.
+  ///
+  /// Requires a verified M31B registration session capability in the header;
+  /// an unverified session is refused server-side (403).
   Future<RegistrationExtractionJob> startExtraction({
+    required String sessionToken,
     required String frontPath,
     String? backPath,
     void Function(int, int)? onSendProgress,
@@ -41,6 +129,7 @@ class RegistrationApi {
         options: Options(
           sendTimeout: AppConfig.uploadSendTimeout,
           receiveTimeout: AppConfig.uploadReceiveTimeout,
+          headers: {'X-Registration-Session-Token': sessionToken},
         ),
         onSendProgress: onSendProgress,
       );
@@ -73,13 +162,16 @@ class RegistrationApi {
   }
 
   /// Final scan-first registration. Sends credentials + the confirmed
-  /// reviewed values + the job capability. NO image multipart — the staged
-  /// images are promoted server-side from the session (single upload).
+  /// reviewed values + the M31B session capability + the job capability.
+  /// NO image multipart — the staged images are promoted server-side from the
+  /// session (single upload). The client can never assert verification: the
+  /// server derives it from the session row.
   Future<PublicUser> registerScanFirst({
     required String email,
     String? phone,
     required String password,
     required String governorate,
+    required String sessionToken,
     required RegistrationIdentityInput identity,
   }) async {
     try {
@@ -90,6 +182,7 @@ class RegistrationApi {
           if (phone != null && phone.isNotEmpty) 'phone': phone,
           'password': password,
           'governorate': governorate,
+          'registration_session': sessionToken,
           'registration_identity': identity.toJson(),
         },
       );

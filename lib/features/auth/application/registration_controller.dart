@@ -6,12 +6,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/models/enums.dart';
+import '../../../core/storage/registration_session_storage.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../identity/data/extraction_models.dart';
 import '../data/registration_api.dart';
 import '../data/registration_models.dart';
 
-enum RegistrationStep { account, scan, review }
+enum RegistrationStep { account, verifyEmail, scan, review }
+
+/// Client-side view of the email-verification attempt budget. The backend
+/// returns a generic error for invalid/expired/locked codes (no OTP oracle);
+/// the UI tracks its own attempt count to show a locked state.
+const int _maxVerifyAttempts = 5;
+const Duration _otpTtl = Duration(minutes: 10);
 
 /// In-memory account credentials. Password is kept ONLY here until the final
 /// register request — never persisted to disk, never sent to the extraction
@@ -95,6 +102,16 @@ class RegistrationFlowState {
   const RegistrationFlowState({
     this.step = RegistrationStep.account,
     this.draft,
+    this.emailSession,
+    this.emailVerified = false,
+    this.maskedEmail = '',
+    this.verifyBusy = false,
+    this.verifyError,
+    this.verifyAttempts = 0,
+    this.otpExpiresAt,
+    this.resendAt,
+    this.resendCountdown = 0,
+    this.resuming = false,
     this.frontPath,
     this.backPath,
     this.jobId,
@@ -112,6 +129,31 @@ class RegistrationFlowState {
 
   final RegistrationStep step;
   final RegistrationDraft? draft;
+
+  /// M31B email-verification session (holds the capability token in memory).
+  final RegistrationEmailSession? emailSession;
+  final bool emailVerified;
+  final String maskedEmail;
+
+  /// True while a verify/start/resend request is in flight.
+  final bool verifyBusy;
+
+  /// Localized error key for the verify step (null = no error).
+  final String? verifyError;
+
+  /// Client-side OTP attempt budget (backend stays generic to avoid an oracle).
+  final int verifyAttempts;
+
+  /// Client-side hint for when the current code expires (resend resets it).
+  final DateTime? otpExpiresAt;
+
+  /// Server cooldown window after which resend is allowed.
+  final DateTime? resendAt;
+  final int resendCountdown;
+
+  /// True while restoring a persisted registration session on app start.
+  final bool resuming;
+
   final String? frontPath;
   final String? backPath;
   final String? jobId;
@@ -134,6 +176,17 @@ class RegistrationFlowState {
   RegistrationFlowState copyWith({
     RegistrationStep? step,
     RegistrationDraft? draft,
+    RegistrationEmailSession? emailSession,
+    bool? emailVerified,
+    String? maskedEmail,
+    bool? verifyBusy,
+    String? verifyError,
+    bool clearVerifyError = false,
+    int? verifyAttempts,
+    DateTime? otpExpiresAt,
+    DateTime? resendAt,
+    int? resendCountdown,
+    bool? resuming,
     String? frontPath,
     String? backPath,
     String? jobId,
@@ -152,6 +205,16 @@ class RegistrationFlowState {
     return RegistrationFlowState(
       step: step ?? this.step,
       draft: draft ?? this.draft,
+      emailSession: emailSession ?? this.emailSession,
+      emailVerified: emailVerified ?? this.emailVerified,
+      maskedEmail: maskedEmail ?? this.maskedEmail,
+      verifyBusy: verifyBusy ?? this.verifyBusy,
+      verifyError: clearVerifyError ? null : (verifyError ?? this.verifyError),
+      verifyAttempts: verifyAttempts ?? this.verifyAttempts,
+      otpExpiresAt: otpExpiresAt ?? this.otpExpiresAt,
+      resendAt: resendAt ?? this.resendAt,
+      resendCountdown: resendCountdown ?? this.resendCountdown,
+      resuming: resuming ?? this.resuming,
       frontPath: frontPath ?? this.frontPath,
       backPath: backPath ?? this.backPath,
       jobId: jobId ?? this.jobId,
@@ -174,9 +237,12 @@ class RegistrationFlowState {
 /// Orchestrates the scan-first registration flow.
 ///
 /// State is in-memory only: images, job capability, credentials and password
-/// are never persisted. A killed process restarts registration.
+/// are never persisted. Email verification survives refresh/restart via a
+/// persisted session capability (see [tryResumeRegistration]); the password is
+/// never persisted and is re-entered after a restart.
 class RegistrationController extends Notifier<RegistrationFlowState> {
   Timer? _pollTimer;
+  Timer? _countdownTimer;
   int _pollCount = 0;
   DateTime? _pollStartedAt;
 
@@ -189,21 +255,26 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
 
   RegistrationApi get _api => ref.read(registrationApiProvider);
 
-  void setCredentials({
+  RegistrationSessionStorage get _storage =>
+      ref.read(registrationSessionStorageProvider);
+
+  Future<void> setCredentials({
     required String email,
     String phone = '',
     required String password,
     required String governorate,
-  }) {
+  }) async {
     // If a successful extraction job already exists (e.g. returning from a
-    // rejected final registration), Continue jumps straight to Step 3. No new
-    // extraction job, no re-upload.
+    // rejected final registration), Continue jumps straight to review. No new
+    // extraction job, no re-upload, and the email was already verified.
     final identityReady =
         state.jobId != null &&
         state.extractionResult != null &&
         state.extractionStatus == ExtractionJobStatus.success;
     state = state.copyWith(
-      step: identityReady ? RegistrationStep.review : RegistrationStep.scan,
+      step: identityReady
+          ? RegistrationStep.review
+          : RegistrationStep.verifyEmail,
       draft: RegistrationDraft(
         email: email,
         phone: phone,
@@ -212,6 +283,21 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       ),
       errorMessage: null,
       clearPasswordError: true,
+      clearVerifyError: true,
+    );
+    if (!identityReady) {
+      await startEmailVerification();
+    }
+  }
+
+  /// Step: back from email verification -> account details.
+  void backToAccount() {
+    _stopCountdown();
+    state = state.copyWith(
+      step: RegistrationStep.account,
+      errorMessage: null,
+      verifyError: null,
+      verifyBusy: false,
     );
   }
 
@@ -224,6 +310,271 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
       errorMessage: null,
       reading: false,
     );
+  }
+
+  // ---------------------------------------------------------------------
+  // M31B email verification
+  // ---------------------------------------------------------------------
+
+  /// Create the registration session server-side and send the first OTP.
+  Future<void> startEmailVerification() async {
+    final draft = state.draft;
+    if (draft == null) return;
+    state = state.copyWith(verifyBusy: true, clearVerifyError: true);
+    try {
+      final session = await _api.startEmailVerification(
+        email: draft.email,
+        phone: draft.phone.isEmpty ? null : draft.phone,
+        governorate: draft.governorate.isEmpty ? null : draft.governorate,
+      );
+      await _storage.write(
+        RegistrationSessionRecord(
+          sessionToken: session.sessionToken,
+          email: draft.email,
+          phone: draft.phone,
+          governorate: draft.governorate,
+        ),
+      );
+      _stopCountdown();
+      state = state.copyWith(
+        step: RegistrationStep.verifyEmail,
+        emailSession: session,
+        emailVerified: false,
+        maskedEmail: session.maskedEmail,
+        verifyBusy: false,
+        verifyError: null,
+        verifyAttempts: 0,
+        otpExpiresAt: DateTime.now().add(_otpTtl),
+        resendAt: session.resendAt,
+      );
+      _startCountdown();
+    } on ApiException catch (e) {
+      state = state.copyWith(verifyBusy: false, verifyError: _mapVerifyError(e));
+    } on Exception {
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: 'verification_failed',
+      );
+    }
+  }
+
+  /// Resend the OTP. Server cooldown/limits gate it; a 429 with a retry window
+  /// restarts the countdown instead of erroring.
+  Future<void> resendEmailVerification() async {
+    final token = state.emailSession?.sessionToken;
+    if (token == null || token.isEmpty || state.resendCountdown > 0) return;
+    state = state.copyWith(verifyBusy: true, clearVerifyError: true);
+    try {
+      final status = await _api.resendEmailVerification(sessionToken: token);
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: null,
+        verifyAttempts: 0,
+        otpExpiresAt: DateTime.now().add(_otpTtl),
+        resendAt: status.resendAt,
+        maskedEmail: status.maskedEmail,
+      );
+      _startCountdown();
+    } on ApiException catch (e) {
+      if (e.isThrottled) {
+        final retry = e.details['retry_after'];
+        if (retry is num && retry > 0) {
+          state = state.copyWith(
+            verifyBusy: false,
+            verifyError: null,
+            resendAt: DateTime.now().add(Duration(seconds: retry.toInt())),
+          );
+          _startCountdown();
+          return;
+        }
+      }
+      state = state.copyWith(verifyBusy: false, verifyError: _mapVerifyError(e));
+    } on Exception {
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: 'verification_failed',
+      );
+    }
+  }
+
+  /// Verify the 6-digit code. On success the server marks the session email
+  /// verified and the flow proceeds to the identity scan step.
+  Future<void> verifyEmailCode(String code) async {
+    final token = state.emailSession?.sessionToken;
+    if (token == null || token.isEmpty) return;
+    // Client-side expired hint (backend also denies expired codes).
+    final expiresAt = state.otpExpiresAt;
+    if (expiresAt != null && DateTime.now().isAfter(expiresAt)) {
+      state = state.copyWith(verifyError: 'code_expired');
+      return;
+    }
+    state = state.copyWith(verifyBusy: true, clearVerifyError: true);
+    try {
+      final status = await _api.verifyEmail(sessionToken: token, code: code);
+      _stopCountdown();
+      state = state.copyWith(
+        verifyBusy: false,
+        step: RegistrationStep.scan,
+        emailVerified: true,
+        maskedEmail: status.maskedEmail,
+        verifyError: null,
+        verifyAttempts: 0,
+        otpExpiresAt: null,
+      );
+    } on ApiException catch (e) {
+      final attempts = state.verifyAttempts + 1;
+      if (attempts >= _maxVerifyAttempts) {
+        state = state.copyWith(
+          verifyBusy: false,
+          verifyAttempts: attempts,
+          verifyError: 'code_locked',
+        );
+      } else {
+        state = state.copyWith(
+          verifyBusy: false,
+          verifyAttempts: attempts,
+          verifyError: _mapVerifyError(e),
+        );
+      }
+    } on Exception {
+      state = state.copyWith(
+        verifyBusy: false,
+        verifyError: 'verification_failed',
+      );
+    }
+  }
+
+  /// Resume-safe: restore a persisted registration session after a restart.
+  ///
+  /// The server session is authoritative. A verified session resumes straight
+  /// to the identity scan; an unverified one resumes the verify step. The
+  /// password is never persisted, so after a restart it must be re-entered
+  /// (empty draft password → the final submit bounces back to Step 1).
+  Future<void> tryResumeRegistration() async {
+    if (state.draft != null) return; // active in-memory flow wins.
+    final record = await _storage.read();
+    if (record == null) return;
+    state = state.copyWith(resuming: true);
+    try {
+      final status = await _api.getEmailVerificationStatus(
+        sessionToken: record.sessionToken,
+      );
+      if (status.verified) {
+        state = state.copyWith(
+          resuming: false,
+          step: RegistrationStep.scan,
+          draft: RegistrationDraft(
+            email: record.email,
+            phone: record.phone,
+            password: '',
+            governorate: record.governorate,
+          ),
+          emailSession: _sessionFromStatus(status, record.sessionToken),
+          emailVerified: true,
+          maskedEmail: status.maskedEmail,
+          clearVerifyError: true,
+        );
+      } else {
+        _stopCountdown();
+        state = state.copyWith(
+          resuming: false,
+          step: RegistrationStep.verifyEmail,
+          draft: RegistrationDraft(
+            email: record.email,
+            phone: record.phone,
+            password: '',
+            governorate: record.governorate,
+          ),
+          emailSession: _sessionFromStatus(status, record.sessionToken),
+          emailVerified: false,
+          maskedEmail: status.maskedEmail,
+          verifyAttempts: 0,
+          resendAt: status.resendAt,
+          clearVerifyError: true,
+        );
+        _startCountdown();
+      }
+    } on ApiException {
+      // Expired / not found / already used session → start fresh.
+      await _storage.clear();
+      state = state.copyWith(resuming: false);
+    } on Exception {
+      // Transient failure: keep the account step; user can retry.
+      state = state.copyWith(resuming: false);
+    }
+  }
+
+  /// Abandon the current session (used from the verify step "start over").
+  Future<void> startOver() async {
+    _stopCountdown();
+    _pollTimer?.cancel();
+    await _storage.clear();
+    state = const RegistrationFlowState(step: RegistrationStep.account);
+  }
+
+  RegistrationEmailSession _sessionFromStatus(
+    RegistrationEmailStatus status,
+    String token,
+  ) {
+    return RegistrationEmailSession(
+      sessionId: status.sessionId,
+      sessionToken: token,
+      maskedEmail: status.maskedEmail,
+      status: status.status,
+      emailVerified: status.emailVerified,
+      resendAt: status.resendAt,
+      expiresAt: status.expiresAt,
+    );
+  }
+
+  String _mapVerifyError(ApiException e) {
+    if (e.isThrottled) return 'throttled';
+    if (e.code == 'registration_session_expired' ||
+        e.code == 'registration_session_not_found') {
+      return 'session_expired';
+    }
+    if (e.code == 'registration_email_delivery_failed') {
+      return 'delivery_failed';
+    }
+    if (e.code == 'validation_error' ||
+        e.code == 'registration_email_already_verified') {
+      return 'invalid_code';
+    }
+    if (e.isNetwork) return 'network';
+    if (e.statusCode != null && e.statusCode! >= 500) return 'server_error';
+    return 'verification_failed';
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    final target = state.resendAt;
+    if (target == null) {
+      state = state.copyWith(resendCountdown: 0);
+      return;
+    }
+    void tick() {
+      final remaining = target.difference(DateTime.now()).inSeconds;
+      if (remaining <= 0) {
+        _countdownTimer?.cancel();
+        state = state.copyWith(resendCountdown: 0);
+      } else {
+        state = state.copyWith(resendCountdown: remaining);
+      }
+    }
+
+    tick();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+  }
+
+  void _stopCountdown() {
+    _countdownTimer?.cancel();
+    state = state.copyWith(resendCountdown: 0);
+  }
+
+  void clearVerifyError() {
+    if (state.verifyError != null) {
+      state = state.copyWith(clearVerifyError: true);
+    }
   }
 
   /// Step 2 (already-read) -> Step 3.
@@ -245,20 +596,21 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     );
   }
 
-  void backToAccount() {
-    _pollTimer?.cancel();
-    state = state.copyWith(
-      step: RegistrationStep.account,
-      errorMessage: null,
-      reading: false,
-    );
-  }
-
-  /// Start the scan-first extraction. Uploads images exactly once.
+  /// Start the scan-first extraction. Uploads images exactly once. Refuses to
+  /// proceed without a server-verified email session (the backend enforces the
+  /// same gate).
   Future<void> startExtraction() async {
     final front = state.frontPath;
     final back = state.backPath;
+    final sessionToken = state.emailSession?.sessionToken ?? '';
     if (front == null || back == null) return;
+    if (sessionToken.isEmpty) {
+      state = state.copyWith(
+        reading: false,
+        errorMessage: 'email_verification_required',
+      );
+      return;
+    }
     _pollTimer?.cancel();
     _pollCount = 0;
     _pollStartedAt = DateTime.now();
@@ -270,6 +622,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     );
     try {
       final job = await _api.startExtraction(
+        sessionToken: sessionToken,
         frontPath: front,
         backPath: back,
         onSendProgress: (sent, total) {
@@ -449,8 +802,10 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     final draft = state.draft;
     final jobId = state.jobId;
     final jobToken = state.jobToken;
+    final sessionToken = state.emailSession?.sessionToken ?? '';
     final review = state.review;
     if (draft == null || jobId == null || jobToken == null) return false;
+    if (sessionToken.isEmpty) return false;
     state = state.copyWith(
       submitting: true,
       errorMessage: null,
@@ -462,6 +817,7 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
         phone: draft.phone,
         password: draft.password,
         governorate: draft.governorate,
+        sessionToken: sessionToken,
         identity: RegistrationIdentityInput(
           jobId: jobId,
           jobToken: jobToken,
@@ -481,7 +837,10 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
           bloodGroup: review.bloodGroup,
         ),
       );
-      // Clear in-memory sensitive state (incl. password) after success.
+      // Clear in-memory sensitive state (incl. password) + the persisted
+      // session capability after success.
+      _stopCountdown();
+      await _storage.clear();
       state = const RegistrationFlowState(step: RegistrationStep.account);
       return true;
     } on ApiException catch (e) {
@@ -534,8 +893,10 @@ class RegistrationController extends Notifier<RegistrationFlowState> {
     );
   }
 
-  void reset() {
+  Future<void> reset() async {
     _pollTimer?.cancel();
+    _stopCountdown();
+    await _storage.clear();
     state = const RegistrationFlowState();
   }
 }

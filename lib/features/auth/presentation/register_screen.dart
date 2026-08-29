@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Page;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -93,6 +94,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _reviewInitialized = false;
   final _passwordFocus = FocusNode();
 
+  // Email-verification step (M31B).
+  final _otpController = TextEditingController();
+  final _otpFocus = FocusNode();
+
   /// Stable per-field targets for scroll-to-first-error + inline messages.
   final Map<_ReviewFieldKey, GlobalKey> _reviewFieldKeys = {
     for (final k in _ReviewFieldKey.values) k: GlobalKey(),
@@ -100,11 +105,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Map<_ReviewFieldKey, String> _reviewErrors = const {};
 
   @override
+  void initState() {
+    super.initState();
+    // Resume-safe: restore a persisted registration session (verification
+    // survives app restart). Runs after the first frame so the splash/UI is
+    // not blocked.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _controller.tryResumeRegistration();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
+    _otpController.dispose();
+    _otpFocus.dispose();
     _nameController.dispose();
     _fatherNameController.dispose();
     _grandfatherNameController.dispose();
@@ -409,15 +429,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
-  /// Wizard back navigation: Step 1 exits to Login, Step 2 returns to Step 1,
-  /// Step 3 returns to Step 2. Never traps the registration route in the
-  /// navigation stack.
+  /// Wizard back navigation: Step 1 exits to Login, Step 2 (verify) returns to
+  /// Step 1, Step 3 returns to Step 1, Step 4 returns to Step 3. Never traps
+  /// the registration route in the navigation stack.
   void _handleBack() {
     final step = ref.read(registrationControllerProvider).step;
     switch (step) {
       case RegistrationStep.account:
         _controller.reset();
         context.go(Routes.login);
+      case RegistrationStep.verifyEmail:
+        _controller.backToAccount();
       case RegistrationStep.scan:
         _controller.backToAccount();
       case RegistrationStep.review:
@@ -455,6 +477,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               constraints: const BoxConstraints(maxWidth: 520),
               child: switch (state.step) {
                 RegistrationStep.account => _accountStep(state),
+                RegistrationStep.verifyEmail => _verifyEmailStep(state),
                 RegistrationStep.scan => _scanStep(state),
                 RegistrationStep.review => _reviewStep(state),
               },
@@ -556,7 +579,131 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // STEP 2 — Verify identity (National Card image controls live here ONLY)
+  // STEP 2 — Email verification (M31B). Required before identity OCR.
+  // ---------------------------------------------------------------------
+  Widget _verifyEmailStep(RegistrationFlowState state) {
+    final theme = Theme.of(context);
+    final masked = state.maskedEmail.isNotEmpty
+        ? state.maskedEmail
+        : l10n.yourEmail;
+    final countdown = state.resendCountdown;
+    final errorKey = state.verifyError;
+    final otpDigits = _otpController.text.trim();
+    final verifyEnabled = otpDigits.length == 6 && !state.verifyBusy;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.verifyEmailTitle, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          l10n.verifyEmailSubtitle(masked),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 24),
+        TextFormField(
+          controller: _otpController,
+          focusNode: _otpFocus,
+          keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.done,
+          maxLength: 6,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            letterSpacing: 12,
+          ),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          autofillHints: const [AutofillHints.oneTimeCode],
+          onChanged: (_) {
+            if (errorKey != null) _controller.clearVerifyError();
+            setState(() {});
+          },
+          decoration: InputDecoration(
+            labelText: l10n.otpCode,
+            counterText: '',
+          ),
+          onFieldSubmitted: (_) {
+            if (verifyEnabled) {
+              _controller.verifyEmailCode(_otpController.text.trim());
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+        if (errorKey != null) ...[
+          Text(
+            _verifyErrorMessage(errorKey),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: theme.colorScheme.error),
+          ),
+          const SizedBox(height: 12),
+        ],
+        PrimaryButton(
+          label: state.verifyBusy ? l10n.verifying : l10n.verifyEmailAction,
+          onPressed: verifyEnabled
+              ? () => _controller.verifyEmailCode(otpDigits)
+              : null,
+          icon: Icons.verified_outlined,
+        ),
+        const SizedBox(height: 12),
+        Center(
+          child: countdown > 0
+              ? Text(
+                  l10n.resendIn(countdown),
+                  style: theme.textTheme.bodySmall,
+                )
+              : TextButton(
+                  onPressed: state.verifyBusy
+                      ? null
+                      : _controller.resendEmailVerification,
+                  child: Text(l10n.resendCode),
+                ),
+        ),
+        // Abandon this session and restart (e.g. to use a different email).
+        const SizedBox(height: 4),
+        Center(
+          child: TextButton(
+            onPressed: state.verifyBusy ? null : _controller.startOver,
+            child: Text(l10n.startOver),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: TextButton(
+            onPressed: _controller.backToAccount,
+            child: Text(l10n.back),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Maps the controller's verification error key to a localized message.
+  String _verifyErrorMessage(String key) {
+    switch (key) {
+      case 'invalid_code':
+        return l10n.codeInvalid;
+      case 'code_expired':
+        return l10n.codeExpired;
+      case 'code_locked':
+        return l10n.emailLocked;
+      case 'throttled':
+        return l10n.throttled;
+      case 'session_expired':
+        return l10n.errorRegistrationExpired;
+      case 'network':
+        return l10n.networkError;
+      case 'server_error':
+        return l10n.serverError;
+      case 'delivery_failed':
+        return l10n.verificationFailed;
+      default:
+        return l10n.verificationFailed;
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // STEP 3 — Verify identity (National Card image controls live here ONLY)
   // ---------------------------------------------------------------------
   Widget _scanStep(RegistrationFlowState state) {
     final theme = Theme.of(context);

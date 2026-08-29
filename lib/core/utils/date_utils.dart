@@ -9,6 +9,14 @@ DateTime? parseApiDate(String? value) {
   return DateTime.tryParse(value)?.toLocal();
 }
 
+/// Parse a backend ISO-8601 datetime string into a [DateTime] (local).
+///
+/// Returns null for null/empty/invalid input rather than throwing.
+DateTime? parseApiDateTime(String? value) {
+  if (value == null || value.isEmpty) return null;
+  return DateTime.tryParse(value)?.toLocal();
+}
+
 /// Format a [DateTime] as backend `YYYY-MM-DD`.
 String formatApiDate(DateTime? date) {
   if (date == null) return '';

@@ -144,6 +144,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continueAction => 'متابعة';
 
   @override
+  String get verifyEmailTitle => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'أرسلنا رمز تحقق من 6 أرقام إلى $email. أدخله أدناه للمتابعة.';
+  }
+
+  @override
+  String get otpCode => 'رمز التحقق';
+
+  @override
+  String get verifyEmailAction => 'تحقق من البريد';
+
+  @override
+  String get verifying => 'جارٍ التحقق…';
+
+  @override
+  String get resendCode => 'إعادة إرسال الرمز';
+
+  @override
+  String resendIn(int seconds) {
+    return 'إعادة الإرسال بعد $secondsث';
+  }
+
+  @override
+  String get codeInvalid => 'الرمز غير صحيح. تحقق منه وحاول مجددًا.';
+
+  @override
+  String get codeExpired => 'انتهت صلاحية الرمز. اطلب رمزًا جديدًا.';
+
+  @override
+  String get emailLocked => 'محاولات فاشلة كثيرة. يرجى طلب رمز جديد.';
+
+  @override
+  String get verificationFailed =>
+      'تعذّر التحقق من بريدك الإلكتروني. حاول مجددًا.';
+
+  @override
+  String get startOver => 'البدء من جديد';
+
+  @override
+  String get yourEmail => 'بريدك الإلكتروني';
+
+  @override
   String get scanFirstExplanation =>
       'يقرأ PMDAP بطاقة الهوية العراقية لملء ملفك. القيم مجرد اقتراحات — راجعها وصحّحها قبل إنشاء حسابك.';
 

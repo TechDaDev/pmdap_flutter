@@ -29,6 +29,12 @@ class ApiPaths {
   static String registrationIdentityExtractStatus(String jobId) =>
       '/auth/register/identity/extract/$jobId/';
 
+  // M31B pre-registration email verification (public, capability-bound).
+  static const registrationEmailStart = '/auth/register/email/start/';
+  static const registrationEmailResend = '/auth/register/email/resend/';
+  static const registrationEmailVerify = '/auth/register/email/verify/';
+  static const registrationEmailStatus = '/auth/register/email/status/';
+
   static const minors = '/minors/';
   static const guardianRelationships = '/guardian-relationships/';
   static String guardianRelationshipDetail(String uuid) =>

@@ -22,6 +22,7 @@ import '../../features/medical_context/data/medical_records_repository.dart';
 import '../../features/patient/data/patient_api.dart';
 import '../../features/search/data/minor_search_api.dart';
 import '../../features/search/data/search_api.dart';
+import '../storage/registration_session_storage.dart';
 
 /// Holds the current session-expiry callback. The session controller registers
 /// itself here so the refresh interceptor can force-logout without a circular
@@ -33,6 +34,11 @@ final sessionExpiryHandlerProvider = StateProvider<void Function()?>(
 final refreshTokenStorageProvider = Provider<RefreshTokenStorage>(
   (ref) => SecureRefreshTokenStorage(),
 );
+
+final registrationSessionStorageProvider =
+    Provider<RegistrationSessionStorage>(
+      (ref) => SecureRegistrationSessionStorage(),
+    );
 
 final tokenStoreProvider = Provider<TokenStore>(
   (ref) => TokenStore(ref.watch(refreshTokenStorageProvider)),
