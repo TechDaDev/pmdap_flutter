@@ -10,6 +10,7 @@ import '../storage/refresh_token_storage.dart';
 import '../../features/archive/data/archive_api.dart';
 import '../../features/archive/data/minor_archive_api.dart';
 import '../../features/auth/data/auth_api.dart';
+import '../../features/auth/data/password_reset_api.dart';
 import '../../features/auth/data/registration_api.dart';
 import '../../features/claims/data/claims_api.dart';
 import '../../features/documents/data/documents_api.dart';
@@ -35,10 +36,9 @@ final refreshTokenStorageProvider = Provider<RefreshTokenStorage>(
   (ref) => SecureRefreshTokenStorage(),
 );
 
-final registrationSessionStorageProvider =
-    Provider<RegistrationSessionStorage>(
-      (ref) => SecureRegistrationSessionStorage(),
-    );
+final registrationSessionStorageProvider = Provider<RegistrationSessionStorage>(
+  (ref) => SecureRegistrationSessionStorage(),
+);
 
 final tokenStoreProvider = Provider<TokenStore>(
   (ref) => TokenStore(ref.watch(refreshTokenStorageProvider)),
@@ -69,9 +69,10 @@ final tokenRefresherProvider = Provider<TokenRefresher>((ref) {
 final dioProvider = Provider<Dio>((ref) {
   final store = ref.watch(tokenStoreProvider);
   final refresher = ref.watch(tokenRefresherProvider);
-  final onExpired = () {
+  void onExpired() {
     ref.read(sessionExpiryHandlerProvider.notifier).state?.call();
-  };
+  }
+
   return buildApiClient(
     authInterceptor: AuthInterceptor(store),
     refreshInterceptor: RefreshInterceptor(
@@ -95,6 +96,10 @@ final dioProvider = Provider<Dio>((ref) {
 
 final authApiProvider = Provider<AuthApi>(
   (ref) => AuthApi(ref.watch(dioProvider)),
+);
+
+final passwordResetApiProvider = Provider<PasswordResetApi>(
+  (ref) => PasswordResetApi(ref.watch(publicDioProvider)),
 );
 
 /// Plain public Dio for anonymous endpoints (registration extraction) — NO

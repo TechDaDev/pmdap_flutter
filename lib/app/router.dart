@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/archive/presentation/archive_screen.dart';
 import '../features/auth/application/session_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/presentation/password_reset_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/claims/presentation/claims_screen.dart';
@@ -38,6 +39,7 @@ class Routes {
   static const splash = '/splash';
   static const login = '/login';
   static const register = '/register';
+  static const passwordReset = '/password-reset';
 
   static const home = '/home';
   static const archive = '/archive';
@@ -59,8 +61,7 @@ class Routes {
   static String minorArchive(String uuid) => '/minors/$uuid/archive';
   static String minorSearch(String uuid) => '/minors/$uuid/search';
   static String minorUpload(String uuid) => '/minors/$uuid/upload';
-  static String minorConfirmDates(String uuid) =>
-      '/minors/$uuid/confirm-dates';
+  static String minorConfirmDates(String uuid) => '/minors/$uuid/confirm-dates';
 
   static const documents = '/documents';
   static const documentsNew = '/documents/new';
@@ -85,6 +86,7 @@ String? authRedirect(AuthState auth, String location) {
   final publicRoute =
       location == Routes.login ||
       location == Routes.register ||
+      location == Routes.passwordReset ||
       location == Routes.claims ||
       location == Routes.accountActivation;
   return switch (auth) {
@@ -96,7 +98,8 @@ String? authRedirect(AuthState auth, String location) {
     AuthAuthenticated() =>
       (location == Routes.splash ||
               location == Routes.login ||
-              location == Routes.register)
+              location == Routes.register ||
+              location == Routes.passwordReset)
           ? Routes.home
           : null,
   };
@@ -124,6 +127,10 @@ GoRouter createAppRouter(Ref ref, Listenable refreshListenable) {
       GoRoute(
         path: Routes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.passwordReset,
+        builder: (context, state) => const PasswordResetScreen(),
       ),
       GoRoute(
         path: Routes.settings,

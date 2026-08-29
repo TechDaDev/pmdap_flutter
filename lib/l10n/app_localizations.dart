@@ -3523,6 +3523,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Medical context'**
   String get medicalContextLabel;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPassword;
+
+  /// No description provided for @resetPasswordEmailHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your verified account email. The response stays private whether or not an account exists.'**
+  String get resetPasswordEmailHelp;
+
+  /// No description provided for @checkYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkYourEmail;
+
+  /// No description provided for @resetPasswordCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code. Codes expire and can only be used once.'**
+  String get resetPasswordCodeHelp;
+
+  /// No description provided for @verificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get verificationCode;
+
+  /// No description provided for @enterSixDigitCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code.'**
+  String get enterSixDigitCode;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @verifyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify code'**
+  String get verifyCode;
+
+  /// No description provided for @resendCodeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds}s'**
+  String resendCodeIn(int seconds);
+
+  /// No description provided for @chooseNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get chooseNewPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @passwordPolicyServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Password requirements are checked securely by the server.'**
+  String get passwordPolicyServer;
+
+  /// No description provided for @passwordRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Password does not meet account security requirements.'**
+  String get passwordRejected;
+
+  /// No description provided for @resetCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Code is invalid, expired, or locked.'**
+  String get resetCodeInvalid;
+
+  /// No description provided for @resetSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset session expired. Request a new code.'**
+  String get resetSessionExpired;
+
+  /// No description provided for @passwordResetNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Check connection and retry.'**
+  String get passwordResetNetworkError;
+
+  /// No description provided for @passwordResetComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset complete'**
+  String get passwordResetComplete;
+
+  /// No description provided for @passwordResetSuccessHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'All previous sessions were signed out. Sign in with your new password.'**
+  String get passwordResetSuccessHelp;
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToSignIn;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
 }
 
 class _AppLocalizationsDelegate

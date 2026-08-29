@@ -1801,4 +1801,81 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get medicalContextLabel => 'السياق الطبي';
+
+  @override
+  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get resetPassword => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get resetPasswordEmailHelp =>
+      'أدخل بريد حسابك الإلكتروني الموثق. تبقى الاستجابة خاصة سواء وُجد الحساب أم لا.';
+
+  @override
+  String get checkYourEmail => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String get resetPasswordCodeHelp =>
+      'أدخل الرمز المكوّن من ستة أرقام. تنتهي صلاحية الرموز ولا تُستخدم إلا مرة واحدة.';
+
+  @override
+  String get verificationCode => 'رمز التحقق';
+
+  @override
+  String get enterSixDigitCode => 'أدخل الرمز المكوّن من ستة أرقام.';
+
+  @override
+  String get sendCode => 'إرسال الرمز';
+
+  @override
+  String get verifyCode => 'تحقق من الرمز';
+
+  @override
+  String resendCodeIn(int seconds) {
+    return 'إعادة الإرسال خلال $seconds ث';
+  }
+
+  @override
+  String get chooseNewPassword => 'اختر كلمة مرور جديدة';
+
+  @override
+  String get confirmNewPassword => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get passwordPolicyServer =>
+      'يتحقق الخادم بأمان من متطلبات كلمة المرور.';
+
+  @override
+  String get passwordRejected => 'كلمة المرور لا تستوفي متطلبات أمان الحساب.';
+
+  @override
+  String get resetCodeInvalid => 'الرمز غير صالح أو منتهي الصلاحية أو مقفل.';
+
+  @override
+  String get resetSessionExpired =>
+      'انتهت جلسة إعادة التعيين. اطلب رمزاً جديداً.';
+
+  @override
+  String get passwordResetNetworkError =>
+      'خطأ في الشبكة. تحقق من الاتصال وأعد المحاولة.';
+
+  @override
+  String get passwordResetComplete => 'اكتملت إعادة تعيين كلمة المرور';
+
+  @override
+  String get passwordResetSuccessHelp =>
+      'تم تسجيل خروج جميع الجلسات السابقة. سجّل الدخول بكلمة المرور الجديدة.';
+
+  @override
+  String get backToSignIn => 'العودة إلى تسجيل الدخول';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
 }

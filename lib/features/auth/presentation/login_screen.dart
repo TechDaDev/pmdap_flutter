@@ -148,6 +148,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ? l10n.validationFailed
                                   : null,
                             ),
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: TextButton(
+                                onPressed: () =>
+                                    context.push(Routes.passwordReset),
+                                child: Text(l10n.forgotPassword),
+                              ),
+                            ),
                             if (_errorMessage != null) ...[
                               const SizedBox(height: AppSpacing.md),
                               Text(

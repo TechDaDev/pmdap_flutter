@@ -18,10 +18,14 @@ void main() {
       expect(authRedirect(const AuthUnknown(), Routes.login), Routes.splash);
     });
 
-    test('unauthenticated allows login/register only', () {
+    test('unauthenticated allows login/register/password reset', () {
       expect(authRedirect(const AuthUnauthenticated(), Routes.login), isNull);
       expect(
         authRedirect(const AuthUnauthenticated(), Routes.register),
+        isNull,
+      );
+      expect(
+        authRedirect(const AuthUnauthenticated(), Routes.passwordReset),
         isNull,
       );
       expect(
@@ -53,7 +57,7 @@ void main() {
       );
     });
 
-    test('authenticated blocks splash/login/register', () {
+    test('authenticated blocks splash/login/register/password reset', () {
       expect(authRedirect(const AuthAuthenticated(user), Routes.home), isNull);
       expect(
         authRedirect(const AuthAuthenticated(user), Routes.splash),
@@ -65,6 +69,10 @@ void main() {
       );
       expect(
         authRedirect(const AuthAuthenticated(user), Routes.register),
+        Routes.home,
+      );
+      expect(
+        authRedirect(const AuthAuthenticated(user), Routes.passwordReset),
         Routes.home,
       );
     });

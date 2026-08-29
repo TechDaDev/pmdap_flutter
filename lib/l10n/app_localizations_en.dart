@@ -1823,4 +1823,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get medicalContextLabel => 'Medical context';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get resetPassword => 'Reset password';
+
+  @override
+  String get resetPasswordEmailHelp =>
+      'Enter your verified account email. The response stays private whether or not an account exists.';
+
+  @override
+  String get checkYourEmail => 'Check your email';
+
+  @override
+  String get resetPasswordCodeHelp =>
+      'Enter the six-digit code. Codes expire and can only be used once.';
+
+  @override
+  String get verificationCode => 'Verification code';
+
+  @override
+  String get enterSixDigitCode => 'Enter the six-digit code.';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get verifyCode => 'Verify code';
+
+  @override
+  String resendCodeIn(int seconds) {
+    return 'Resend code in ${seconds}s';
+  }
+
+  @override
+  String get chooseNewPassword => 'Choose a new password';
+
+  @override
+  String get confirmNewPassword => 'Confirm new password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get passwordPolicyServer =>
+      'Password requirements are checked securely by the server.';
+
+  @override
+  String get passwordRejected =>
+      'Password does not meet account security requirements.';
+
+  @override
+  String get resetCodeInvalid => 'Code is invalid, expired, or locked.';
+
+  @override
+  String get resetSessionExpired =>
+      'Reset session expired. Request a new code.';
+
+  @override
+  String get passwordResetNetworkError =>
+      'Network error. Check connection and retry.';
+
+  @override
+  String get passwordResetComplete => 'Password reset complete';
+
+  @override
+  String get passwordResetSuccessHelp =>
+      'All previous sessions were signed out. Sign in with your new password.';
+
+  @override
+  String get backToSignIn => 'Back to sign in';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
 }

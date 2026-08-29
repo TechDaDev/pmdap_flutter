@@ -8,6 +8,9 @@ class ApiPaths {
   static const refresh = '/auth/refresh/';
   static const logout = '/auth/logout/';
   static const me = '/auth/me/';
+  static const passwordResetRequest = '/auth/password-reset/request/';
+  static const passwordResetVerify = '/auth/password-reset/verify/';
+  static const passwordResetConfirm = '/auth/password-reset/confirm/';
   static const activateClaimedAccount = '/auth/activate-claimed-account/';
 
   static const patientsMe = '/patients/me/';

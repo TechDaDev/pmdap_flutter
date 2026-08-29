@@ -88,6 +88,7 @@ void main() {
     expect(find.text('Email'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('Forgot password?'), findsOneWidget);
   });
 
   testWidgets('valid credentials call login without error', (tester) async {
